@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { MemoryImageCard } from "@/components/MemoryImageCard";
 import { ProfileSection } from "@/components/ProfileSection";
 import { SectionTitle } from "@/components/SectionTitle";
+import { ButterflyTrail, RibbonLabel, Sticker } from "@/components/ScrapbookDecor";
 import {
   profileHer,
   profileHerImages,
@@ -10,8 +11,8 @@ import {
 } from "@/data/love";
 
 export const metadata: Metadata = {
-  title: "他眼里的她 | 我俩",
-  description: "那些让我一次次心动的地方。",
+  title: "Ting，被我认真喜欢的样子 | 我俩",
+  description: "我想把她的可爱、脾气、温柔、小表情，和每一次让我心软的瞬间，都好好收起来。",
 };
 
 export default function HerPage() {
@@ -28,7 +29,8 @@ export default function HerPage() {
           <SectionTitle kicker="她可爱的证据" title="她被认真喜欢的每一个瞬间" align="center">
             她不是只被一句“好看”概括的人。她的心软、撒娇、认真和小脾气，都值得被一张张收藏。
           </SectionTitle>
-          <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+          <div className="sticker-album relative mt-10 grid gap-4 p-4 md:grid-cols-2 lg:grid-cols-5">
+            <ButterflyTrail className="right-10 top-7" />
             {profileHerSweetProofs.map((item) => (
               <article key={item.title} className="relative">
                 <MemoryImageCard image={item.image} />
@@ -49,10 +51,16 @@ export default function HerPage() {
           </SectionTitle>
           <div className="mt-8 grid gap-3 md:grid-cols-5">
             {profileHerSecretCollection.map((item) => (
-              <div key={item} className="paper-note p-5 text-sm leading-7 text-[var(--color-muted)]">
-                {item}
+              <div key={item} className="paper-note hover-lift p-5 text-sm leading-7 text-[var(--color-muted)]">
+                <RibbonLabel>{item.includes("Ting") ? "专属" : "收藏"}</RibbonLabel>
+                <p className="mt-4">{item}</p>
               </div>
             ))}
+          </div>
+          <div className="mt-8 flex flex-wrap gap-2">
+            <Sticker tone="rose">她的小脾气也可爱</Sticker>
+            <Sticker tone="lavender">她一笑我就心软</Sticker>
+            <Sticker tone="gold">她值得被坚定选择</Sticker>
           </div>
         </div>
       </section>

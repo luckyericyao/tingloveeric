@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { AchievementCard } from "@/components/AchievementCard";
 import { ButterflyDecor } from "@/components/ButterflyDecor";
 import { SectionTitle } from "@/components/SectionTitle";
+import { RibbonLabel, Sticker } from "@/components/ScrapbookDecor";
 import { achievements } from "@/data/love";
 
 export const metadata: Metadata = {
@@ -21,9 +22,21 @@ export default function AchievementsPage() {
           </SectionTitle>
         </div>
 
-        <div className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="mx-auto mt-8 flex max-w-3xl flex-wrap justify-center gap-2">
+          <Sticker tone="rose">稀有心动</Sticker>
+          <Sticker tone="lavender">蝴蝶心事</Sticker>
+          <Sticker tone="gold">小猫陪伴</Sticker>
+          <Sticker tone="sage">下一站一起去</Sticker>
+        </div>
+
+        <div className="sticker-album mt-12 grid gap-4 p-4 md:grid-cols-2 lg:grid-cols-4">
           {achievements.map((achievement) => (
-            <AchievementCard key={achievement.id} achievement={achievement} />
+            <div key={achievement.id} className="relative">
+              <div className="absolute left-5 top-2 z-20">
+                <RibbonLabel>{achievement.rarity === "0.1%" ? "稀有闪光" : "已贴好"}</RibbonLabel>
+              </div>
+              <AchievementCard achievement={achievement} />
+            </div>
           ))}
         </div>
       </div>

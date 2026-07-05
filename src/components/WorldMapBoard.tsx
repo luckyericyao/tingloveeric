@@ -63,7 +63,7 @@ function placePosition(place: WorldMapPlace) {
 }
 
 function formatStatus(status: WorldPlaceStatus) {
-  return status === "visited" ? "已一起去过" : "想一起去";
+  return status === "visited" ? "我们去过这里" : "这里以后一起去";
 }
 
 function statusClasses(status: WorldPlaceStatus) {
@@ -156,22 +156,22 @@ export function WorldMapBoard({ seedPlaces }: WorldMapBoardProps) {
     setSelectedId(newPlace.id);
     setFilter("all");
     setForm(emptyForm);
-    setMessage("已经把新的坐标点亮啦。");
+    setMessage("这个地方已经被我们点亮了。");
   }
 
   return (
     <div className="grid gap-8">
       <section className="grid gap-4 md:grid-cols-3">
-        <div className="glass-panel p-5">
-          <p className="text-sm text-[var(--color-muted)]">已一起去过</p>
+        <div className="glass-panel hover-lift p-5">
+          <p className="text-sm text-[var(--color-muted)]">我们去过这里</p>
           <p className="mt-2 text-3xl font-semibold text-[var(--color-ink)]">{visitedCount}</p>
         </div>
-        <div className="glass-panel p-5">
-          <p className="text-sm text-[var(--color-muted)]">想一起去</p>
+        <div className="glass-panel hover-lift p-5">
+          <p className="text-sm text-[var(--color-muted)]">这里以后一起去</p>
           <p className="mt-2 text-3xl font-semibold text-[var(--color-ink)]">{wishlistCount}</p>
         </div>
-        <div className="glass-panel p-5">
-          <p className="text-sm text-[var(--color-muted)]">下一站</p>
+        <div className="glass-panel hover-lift p-5">
+          <p className="text-sm text-[var(--color-muted)]">下一站的心愿</p>
           <p className="mt-2 text-2xl font-semibold text-[var(--color-ink)]">
             {nextStop ? nextStop.name : "等她来定"}
           </p>
@@ -179,21 +179,21 @@ export function WorldMapBoard({ seedPlaces }: WorldMapBoardProps) {
       </section>
 
       <section className="grid gap-6 lg:grid-cols-[1.22fr_0.78fr]">
-        <div className="glass-panel-strong relative overflow-hidden p-4 md:p-6">
+        <div className="world-shell relative overflow-hidden p-4 md:p-6">
           <HeartSparkles className="left-8 top-8" />
           <ButterflyTrail className="right-10 top-8" />
 
           <div className="relative mb-5 flex flex-wrap gap-2">
             {[
               { value: "all", label: "全部" },
-              { value: "visited", label: "已一起去过" },
-              { value: "wishlist", label: "想一起去" },
+              { value: "visited", label: "我们去过这里" },
+              { value: "wishlist", label: "这里以后一起去" },
             ].map((item) => (
               <button
                 key={item.value}
                 type="button"
                 onClick={() => setFilter(item.value as FilterValue)}
-                className={`rounded-full border px-4 py-2 text-sm transition ${
+                className={`tap-bounce rounded-full border px-4 py-2 text-sm transition ${
                   filter === item.value
                     ? "border-[rgba(214,154,176,0.38)] bg-[var(--color-ink)] text-[var(--color-ivory)]"
                     : "border-[color:var(--color-line)] bg-white/62 text-[var(--color-muted)] hover:bg-white"
@@ -252,11 +252,11 @@ export function WorldMapBoard({ seedPlaces }: WorldMapBoardProps) {
                   onClick={() => setSelectedId(place.id)}
                   title={`${place.name} · ${formatStatus(place.status)}`}
                   style={{ left: `${position.x}%`, top: `${position.y}%` }}
-                  className={`absolute z-10 grid size-7 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border-2 shadow-[0_12px_24px_rgba(67,59,67,0.18)] transition hover:scale-110 ${statusClasses(place.status)} ${
+                  className={`map-pin-pulse absolute z-10 grid size-8 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border-2 shadow-[0_12px_24px_rgba(67,59,67,0.18)] transition hover:scale-110 ${statusClasses(place.status)} ${
                     isSelected ? "ring-4 ring-white/84" : ""
                   }`}
                 >
-                  <span className="size-2 rounded-full bg-white" />
+                  <span>{place.status === "visited" ? "♡" : "✦"}</span>
                 </button>
               );
             })}
@@ -265,11 +265,11 @@ export function WorldMapBoard({ seedPlaces }: WorldMapBoardProps) {
           <div className="mt-4 flex flex-wrap gap-3 text-sm text-[var(--color-muted)]">
             <span className="inline-flex items-center gap-2">
               <span className="size-3 rounded-full bg-[var(--color-rose)]" />
-              已一起去过
+              我们去过这里
             </span>
             <span className="inline-flex items-center gap-2">
               <span className="size-3 rounded-full bg-[var(--color-gold)]" />
-              想一起去
+              这里以后一起去
             </span>
           </div>
         </div>
@@ -293,7 +293,7 @@ export function WorldMapBoard({ seedPlaces }: WorldMapBoardProps) {
                 {selectedPlace.note}
               </p>
               <div className="mt-4 rounded-2xl border border-[rgba(201,169,104,0.22)] bg-white/54 p-4">
-                <p className="text-xs text-[var(--color-blue-gray)]">小愿望</p>
+                <p className="text-xs text-[var(--color-blue-gray)]">下一站的心愿</p>
                 <p className="mt-2 text-sm leading-7 text-[var(--color-ink)]">{selectedPlace.wish}</p>
               </div>
               <p className="mt-4 inline-flex items-center gap-2 text-xs text-[var(--color-muted)]">
@@ -304,8 +304,10 @@ export function WorldMapBoard({ seedPlaces }: WorldMapBoardProps) {
 
           <form onSubmit={handleAddPlace} className="paper-note grid gap-4 p-5">
             <div>
-              <RibbonLabel>点亮新坐标</RibbonLabel>
-              <h2 className="mt-4 text-xl font-semibold text-[var(--color-ink)]">添加地点</h2>
+              <RibbonLabel>把这个地方先偷偷点亮</RibbonLabel>
+              <h2 className="mt-4 text-xl font-semibold text-[var(--color-ink)]">
+                添加一个旅行小心愿
+              </h2>
             </div>
             <label className="grid gap-2 text-sm text-[var(--color-ink)]">
               地点名称
@@ -359,7 +361,7 @@ export function WorldMapBoard({ seedPlaces }: WorldMapBoardProps) {
                 onChange={(event) => updateForm("message", event.target.value)}
                 rows={4}
                 className="resize-none rounded-2xl border border-[color:var(--color-line)] bg-white/70 px-4 py-3 outline-none focus:border-[rgba(214,154,176,0.48)]"
-                placeholder="写一点记忆，或者写给未来的旅行愿望"
+                placeholder="写一点记忆，或者写一句：等以后一起去"
               />
             </label>
             <div className="grid gap-4 sm:grid-cols-2">
@@ -391,7 +393,7 @@ export function WorldMapBoard({ seedPlaces }: WorldMapBoardProps) {
               data-testid="world-submit"
               className="rounded-full bg-[var(--color-ink)] px-5 py-3 text-sm font-medium text-[var(--color-ivory)] transition hover:bg-[var(--color-blue-gray)]"
             >
-              点亮这个地方
+              把这个地方先偷偷点亮
             </button>
             {message ? <p className="text-sm text-[var(--color-rose)]">{message}</p> : null}
           </form>

@@ -184,6 +184,65 @@ textarea {
   border-color: rgba(201, 169, 104, 0.34);
 }
 
+.tap-bounce {
+  transition:
+    transform 160ms ease,
+    box-shadow 180ms ease,
+    background-color 180ms ease,
+    border-color 180ms ease;
+}
+
+.tap-bounce:active {
+  transform: scale(0.97);
+}
+
+.world-shell {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(201, 169, 104, 0.22);
+  border-radius: 2.2rem;
+  background:
+    radial-gradient(circle at 18% 18%, rgba(255, 255, 255, 0.84), transparent 12rem),
+    radial-gradient(circle at 88% 12%, rgba(200, 191, 228, 0.34), transparent 18rem),
+    linear-gradient(135deg, rgba(255, 252, 247, 0.94), rgba(255, 239, 246, 0.72));
+  box-shadow: var(--shadow-soft);
+}
+
+.sticker-album {
+  border: 1px solid rgba(201, 169, 104, 0.22);
+  border-radius: 2.2rem;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.35) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.32) 1px, transparent 1px),
+    linear-gradient(135deg, rgba(255, 252, 247, 0.92), rgba(247, 239, 248, 0.82));
+  background-size:
+    34px 34px,
+    34px 34px,
+    auto;
+  box-shadow: var(--shadow-soft);
+}
+
+.pinned-note {
+  position: relative;
+}
+
+.pinned-note::before {
+  position: absolute;
+  top: -0.45rem;
+  left: 1.5rem;
+  width: 4.8rem;
+  height: 1.15rem;
+  content: "";
+  border-radius: 0.35rem;
+  background: rgba(255, 244, 210, 0.62);
+  box-shadow: 0 8px 18px rgba(126, 99, 115, 0.1);
+  transform: rotate(-4deg);
+}
+
+.map-pin-pulse {
+  animation: map-pin-pulse 2.8s ease-in-out infinite;
+}
+
 .love-wall {
   background-image:
     radial-gradient(rgba(214, 154, 176, 0.18) 1px, transparent 1px),
@@ -342,6 +401,21 @@ textarea {
 
   50% {
     transform: translateY(-0.25rem);
+  }
+}
+
+@keyframes map-pin-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 12px 24px rgba(67, 59, 67, 0.18),
+      0 0 0 0 rgba(214, 154, 176, 0.28);
+  }
+
+  50% {
+    box-shadow:
+      0 16px 30px rgba(67, 59, 67, 0.2),
+      0 0 0 0.75rem rgba(214, 154, 176, 0);
   }
 }
 

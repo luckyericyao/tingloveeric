@@ -94,6 +94,21 @@ export type SweetWorldCard = {
   accent: "butterfly" | "cat" | "heart";
 };
 
+export type EmotionalZone = {
+  id: string;
+  title: string;
+  description: string;
+  href: string;
+  accent: "butterfly" | "cat" | "note" | "map";
+};
+
+export type HomepageHighlight = {
+  id: string;
+  title: string;
+  body: string;
+  label: string;
+};
+
 export type WorldPlaceStatus = "visited" | "wishlist";
 
 export type WorldMapPlace = {
@@ -131,12 +146,12 @@ export type BoardMessage = {
 };
 
 export const coupleInfo = {
-  siteName: "我俩",
+  siteName: "Ting 专属恋爱小世界",
   names: {
     her: "Ting",
     him: "Eric",
   },
-  shortLine: "今天也喜欢你，把心动、贴贴和小纸条都偷偷收藏好。",
+  shortLine: "她被认真看见。我俩被认真记录。这段关系被甜甜保存。",
   heroImage: "/images/romantic-scrapbook-hero.png",
 };
 
@@ -296,9 +311,61 @@ export const sweetWorldCards: SweetWorldCard[] = [
   {
     id: "chosen-for-her",
     title: "她值得被偏爱",
-    description: "所以这里每一页都不是模板，而是专门写给她。",
+    description: "所以每一页都不是模板，而是专门写给她。",
     image: coupleMemory,
     accent: "heart",
+  },
+];
+
+export const emotionalZones: EmotionalZone[] = [
+  {
+    id: "enter-world",
+    title: "进入小世界",
+    description: "第一眼就知道，这里不是模板，是专门给 Ting 的小入口。",
+    href: "/",
+    accent: "butterfly",
+  },
+  {
+    id: "chosen-her",
+    title: "她被偏爱",
+    description: "她的可爱、小脾气、心软和小表情，都被认真收好。",
+    href: "/her",
+    accent: "butterfly",
+  },
+  {
+    id: "happening-us",
+    title: "我俩在发生",
+    description: "故事、小纸条、留言和和好以后更靠近的地方。",
+    href: "/board",
+    accent: "note",
+  },
+  {
+    id: "future-places",
+    title: "未来一起去",
+    description: "把下一站的心愿先点亮，等以后牵着手去实现。",
+    href: "/world",
+    accent: "map",
+  },
+];
+
+export const homepageHighlights: HomepageHighlight[] = [
+  {
+    id: "seen",
+    title: "她被认真看见",
+    body: "不是只记住大事，也记住她的小语气、小表情、小脾气和每一次心软。",
+    label: "被偏爱",
+  },
+  {
+    id: "recorded",
+    title: "我俩被认真记录",
+    body: "时间线、纸条、留言板、和好记录，都像一本慢慢变厚的恋爱小册子。",
+    label: "偷偷收藏",
+  },
+  {
+    id: "saved",
+    title: "这段关系被甜甜保存",
+    body: "蝴蝶、猫咪、地图、藏品和未来信，都在同一个小世界里等她慢慢翻。",
+    label: "今天也喜欢你",
   },
 ];
 
@@ -420,6 +487,30 @@ export const achievements: Achievement[] = [
     description: "喜欢不是某一天的事，是每天都重新选择你。",
     unlocked: true,
     icon: "❀",
+  },
+  {
+    id: "chosen-proof",
+    name: "被偏爱证明",
+    rarity: "0.1%",
+    description: "她不是被顺手记录，她是被很认真、很偏心地放在首页。",
+    unlocked: true,
+    icon: "✦",
+  },
+  {
+    id: "more-after-makeup",
+    name: "和好以后更喜欢你",
+    rarity: "0.5%",
+    description: "每一次愿意说清楚、抱回来，都让爱变得更会照顾彼此。",
+    unlocked: true,
+    icon: "♡",
+  },
+  {
+    id: "next-stop-together",
+    name: "下一站一起去",
+    rarity: "1%",
+    description: "世界很大，但想一起点亮地图的人，只有她。",
+    unlocked: true,
+    icon: "✧",
   },
 ];
 
@@ -757,38 +848,45 @@ export const stats: StatItem[] = [
 ];
 
 export const profileHer: Profile = {
-  name: "他眼里的她",
-  subtitle: "那些让我一次次心动的地方。",
+  name: "Ting，被我认真喜欢的样子",
+  subtitle: "我想把她的可爱、脾气、温柔、小表情，和每一次让我心软的瞬间，都好好收起来。",
   intro:
-    "她有时候很温柔，有时候也会倔强。但越了解她，越会发现，她只是很认真地在爱与被爱。",
-  traits: ["很会心软", "认真在乎", "偶尔倔强", "笑起来很亮", "需要被坚定选择", "有自己的小世界"],
+    "她有时候很温柔，有时候也会倔强。可越了解她，越会发现，她只是很认真地爱，也很值得被坚定地偏爱。",
+  traits: ["Ting 专属", "被偏爱", "偷偷收藏", "一笑我就心软", "小脾气也可爱", "值得被坚定选择"],
   sections: [
     {
-      title: "她的样子",
+      title: "她可爱的证据",
       eyebrow: "她被偏爱的样子",
       body:
         "她不是单一的甜。她有柔软，也有边界；有撒娇，也有不愿将就。正因为这些都是真的，她才更值得被认真看见、认真喜欢、认真珍惜。",
       details: ["喜欢被细节回应", "会把在意藏进小语气", "看似独立，其实很珍惜稳定的偏爱"],
     },
     {
-      title: "让我心动的瞬间",
-      eyebrow: "心动会偷偷发光",
+      title: "她笑起来的时候",
+      eyebrow: "她一笑我就心软",
       body:
-        "她不经意回头的时候，认真讲一件小事的时候，明明在乎却还假装没关系的时候，都会让我想把时间放慢一点，悄悄贴一张蝴蝶贴纸。",
-      details: ["认真听我说话", "分享今天发生的小事", "嘴硬之后又悄悄靠近"],
+        "她笑起来的时候，像粉色小灯亮了一下。不是夸张，是我真的会在那一秒想把世界放软一点给她。",
+      details: ["笑起来很亮", "被夸会假装镇定", "空气都会变甜一点"],
     },
     {
-      title: "她的小习惯",
-      eyebrow: "小习惯也想收藏",
+      title: "她嘴硬但心软的时候",
+      eyebrow: "小脾气也可爱",
       body:
-        "她的小习惯像书页里的香气，轻轻一翻就会出现。那些别人可能忽略的地方，对我来说都是她很可爱的证据。",
-      details: ["会反复确认我有没有懂", "喜欢把重要的东西收得很仔细", "生气也会留一点余地给和好"],
+        "她有时候嘴硬，其实是在等一个更认真、更确定的回应。她的小脾气不是麻烦，是她在确认自己有没有被放在心上。",
+      details: ["会反复确认我有没有懂", "生气也会留一点余地给和好", "需要被清楚选择"],
     },
     {
-      title: "我想认真记住她",
-      eyebrow: "想把她放进小纸条里",
+      title: "她撒娇的时候",
+      eyebrow: "软软的她要被抱抱",
       body:
-        "我想记住她被照顾时松下来的神情，也记住她不开心时真正需要的不是大道理，而是一句清楚的我在、一个坚定的抱抱。",
+        "她撒娇的时候不一定很大声，可能只是一点点小语气、一个停顿、一次靠近。可这些都会让我想立刻把她抱进怀里。",
+      details: ["小语气很可爱", "想被哄也想被懂", "抱抱比大道理更重要"],
+    },
+    {
+      title: "她认真在乎的时候",
+      eyebrow: "她值得被坚定选择",
+      body:
+        "她认真在乎的时候，会把不安讲出来，也会把期待藏进细节里。我想学会更早看见她，而不是等她难过了才补救。",
       details: ["记住她喜欢的颜色和味道", "记住她不想被敷衍", "记住她值得被很确定地爱"],
     },
   ],
@@ -823,6 +921,11 @@ export const profileHerSweetProofs = [
 ];
 
 export const profileHerSecretCollection = [
+  "她的小脾气也可爱",
+  "她一笑我就心软",
+  "Ting 专属",
+  "被偏爱",
+  "偷偷收藏",
   "她认真看消息时的停顿",
   "她说想你时藏不住的小软",
   "她生气后还愿意听解释的心软",
@@ -831,28 +934,28 @@ export const profileHerSecretCollection = [
 ];
 
 export const profileHim: Profile = {
-  name: "她眼里的他",
-  subtitle: "那些她慢慢看见、也慢慢喜欢的部分。",
+  name: "Eric，在她眼里慢慢变好的样子",
+  subtitle: "他也许不总是会说漂亮话，但他在认真学习怎么更好地爱她。",
   intro:
-    "他不一定总是会说最漂亮的话，但他会用自己的方式认真靠近。",
-  traits: ["慢慢学会表达", "有点黏人", "嘴笨但真诚", "会反省", "想把她照顾好", "像一只陪在旁边的猫"],
+    "他不一定总是会说最漂亮的话，但他会用自己的方式认真靠近。像一只慢慢学会陪伴的小猫，把喜欢落在行动里。",
+  traits: ["笨拙但真诚", "想被她夸一下", "认真靠近", "会反省", "慢慢变好", "小猫陪着他"],
   sections: [
     {
-      title: "他的样子",
-      eyebrow: "像小猫一样靠近",
+      title: "他的笨拙可爱瞬间",
+      eyebrow: "有点慢，但很认真",
       body:
         "他有时候反应慢，有时候不知道怎么把心里的话说漂亮。可他愿意留下来，愿意改，愿意像小猫一样慢慢靠近，把喜欢落在行动里。",
       details: ["认真听完再回应", "会记得她随口说过的话", "想把很多事情做得更可靠"],
     },
     {
-      title: "他的可爱瞬间",
-      eyebrow: "笨拙但很软",
+      title: "他想被她夸一下的时候",
+      eyebrow: "像小猫伸出爪爪",
       body:
         "他靠近的时候有一点笨拙，却又很诚实。那些想分享、想确认、想被她夸一下的瞬间，让人很难不心软。",
       details: ["开心时会忍不住多说几句", "想念会藏不太住", "被安慰后会变得很乖"],
     },
     {
-      title: "她心软的瞬间",
+      title: "他认真靠近的时候",
       eyebrow: "她会想摸摸他的头",
       body:
         "当她看见他不是在逃避，而是在努力学习怎么爱她，她就会愿意再给一点耐心，也给这段关系多一点温柔。",
@@ -864,6 +967,13 @@ export const profileHim: Profile = {
       body:
         "他正在学会：爱不只是证明自己没错，也是看见她为什么难过；不是等她开口才补救，而是提前把她放在心上。",
       details: ["学会更早回应", "学会把在意说清楚", "学会在关系里更温柔也更坚定"],
+    },
+    {
+      title: "小猫陪着他慢慢变好",
+      eyebrow: "温柔一点，再温柔一点",
+      body:
+        "他希望自己以后可以更稳定、更会表达，也更懂她。不是突然变完美，而是每天都往她需要的方向近一点。",
+      details: ["不把沉默当答案", "把喜欢说得更清楚", "把她的小情绪先接住"],
     },
   ],
 };
@@ -883,6 +993,16 @@ export const profileHimCuteMoments = [
     title: "他在学习怎么更好地爱她",
     body: "他会复盘、会靠近、会把下一次做得更温柔一点。",
     image: noteMemory,
+  },
+  {
+    title: "他认真靠近的时候",
+    body: "不是说一套做一套，而是把“我在乎”慢慢落在更具体的行动里。",
+    image: giftMemory,
+  },
+  {
+    title: "小猫陪着他慢慢变好",
+    body: "软软地提醒他：爱她的时候，要更早回应，也要更会抱抱。",
+    image: stickerMemory,
   },
 ];
 
@@ -931,17 +1051,17 @@ export const frictionRecords: FrictionRecord[] = [
 export const navigationCards = [
   {
     href: "/her",
-    title: "他眼里的她",
+    title: "Ting",
     description: "把她可爱、心软、发光的地方，一页一页偷偷收藏。",
   },
   {
     href: "/him",
-    title: "她眼里的他",
+    title: "Eric",
     description: "记录他笨拙但认真靠近，也想被她夸一下的样子。",
   },
   {
     href: "/story",
-    title: "相遇以来",
+    title: "故事",
     description: "从第一次靠近，到每一次心动、和好、抱抱。",
   },
   {
@@ -951,17 +1071,17 @@ export const navigationCards = [
   },
   {
     href: "/world",
-    title: "甜蜜世界地图",
+    title: "世界地图",
     description: "把一起去过和以后想一起去的地方，都先点亮。",
   },
   {
     href: "/board",
-    title: "我们的留言板",
+    title: "留言板",
     description: "你给我，我给你。晚安、撒娇、抱抱都留在这里。",
   },
   {
     href: "/achievements",
-    title: "心动藏品",
+    title: "藏品",
     description: "把爱收藏成一枚枚甜甜的蝴蝶勋章。",
   },
 ];

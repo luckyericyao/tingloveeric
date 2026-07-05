@@ -45,10 +45,10 @@ export function NoteComposer({ onAdd, moodOptions }: NoteComposerProps) {
   return (
     <form onSubmit={handleSubmit} className="glass-panel-strong relative overflow-hidden p-6">
       <HeartSparkles className="right-8 top-8" />
-      <RibbonLabel>写一张真的小纸条</RibbonLabel>
+      <RibbonLabel>今日份想你</RibbonLabel>
       <p className="mt-5 text-2xl font-semibold text-[var(--color-ink)]">今天想把哪一句喜欢收好？</p>
       <p className="mt-3 text-sm leading-7 text-[var(--color-muted)]">
-        可以写想你、撒娇、晚安，也可以写一次和好后的心软。这里会像纸条墙一样替我们保存。
+        可以写想你、撒娇、晚安，也可以写一次和好后的心软。这里是个人小纸条，不是留言板，会像纸条盒一样替我们保存。
       </p>
 
       <div className="grid gap-4 md:grid-cols-3">
@@ -107,11 +107,11 @@ export function NoteComposer({ onAdd, moodOptions }: NoteComposerProps) {
           style={{ color: "var(--color-ivory)" }}
           className="rounded-full bg-[var(--color-ink)] px-5 py-3 text-sm font-medium shadow-[0_14px_34px_rgba(67,59,67,0.16)] transition hover:bg-[var(--color-blue-gray)]"
         >
-          收进纸条盒
-        </button>
+            收进小世界
+          </button>
         {saved ? (
           <span className="rounded-full bg-[rgba(214,154,176,0.18)] px-4 py-2 text-sm text-[var(--color-rose)]">
-            已经替我们收好啦
+            已经悄悄放进小世界了
           </span>
         ) : null}
       </div>

@@ -5,14 +5,14 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 const navItems = [
-  { href: "/", label: "我俩" },
-  { href: "/her", label: "他眼里的她" },
-  { href: "/him", label: "她眼里的他" },
-  { href: "/story", label: "相遇以来" },
-  { href: "/notes", label: "小纸条" },
-  { href: "/world", label: "甜蜜世界地图" },
-  { href: "/board", label: "我们的留言板" },
-  { href: "/achievements", label: "心动藏品" },
+  { href: "/", label: "我俩", mark: "♡" },
+  { href: "/her", label: "Ting", mark: "✦" },
+  { href: "/him", label: "Eric", mark: "⌒" },
+  { href: "/story", label: "故事", mark: "✧" },
+  { href: "/notes", label: "小纸条", mark: "✉" },
+  { href: "/world", label: "世界地图", mark: "⋆" },
+  { href: "/board", label: "留言板", mark: "♡" },
+  { href: "/achievements", label: "藏品", mark: "✦" },
 ];
 
 export function SiteHeader() {
@@ -20,7 +20,7 @@ export function SiteHeader() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-[color:var(--color-line)] bg-[rgba(251,247,240,0.78)] backdrop-blur-2xl">
+    <header className="sticky top-0 z-50 border-b border-[color:var(--color-line)] bg-[rgba(251,247,240,0.82)] backdrop-blur-2xl">
       <div className="content-wrap flex min-h-16 items-center justify-between gap-4 py-3">
         <Link
           href="/"
@@ -32,7 +32,9 @@ export function SiteHeader() {
             <span className="h-3 w-3 rounded-full bg-[var(--color-rose)] shadow-[10px_0_0_var(--color-lavender),5px_7px_0_var(--color-gold)]" />
           </span>
           <span>
-            <span className="block text-sm font-semibold text-[var(--color-ink)]">我俩</span>
+            <span className="block text-sm font-semibold text-[var(--color-ink)]">
+              Ting 专属恋爱小世界
+            </span>
             <span className="font-serif-elegant block text-[0.68rem] uppercase text-[var(--color-muted)]">
               Ting & Eric
             </span>
@@ -44,12 +46,15 @@ export function SiteHeader() {
             <Link
               key={item.href}
               href={item.href}
-              className={`whitespace-nowrap rounded-full px-3 py-2 transition hover:bg-white/70 hover:text-[var(--color-ink)] ${
+              className={`tap-bounce group inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-2 transition hover:bg-white/70 hover:text-[var(--color-ink)] ${
                 pathname === item.href
                   ? "bg-white/80 text-[var(--color-ink)] shadow-[0_10px_24px_rgba(126,99,115,0.1)]"
                   : "text-[var(--color-muted)]"
               }`}
             >
+              <span className="text-[0.72rem] text-[var(--color-rose)] opacity-80 group-hover:opacity-100">
+                {item.mark}
+              </span>
               {item.label}
             </Link>
           ))}
@@ -72,21 +77,27 @@ export function SiteHeader() {
 
       {isOpen ? (
         <nav className="content-wrap pb-4 md:hidden">
-          <div className="grid gap-2 rounded-[1.6rem] border border-[color:var(--color-line)] bg-[rgba(255,252,247,0.92)] p-3 shadow-[0_24px_70px_rgba(126,99,115,0.14)]">
+          <div className="rounded-[1.8rem] border border-[color:var(--color-line)] bg-[rgba(255,252,247,0.94)] p-4 shadow-[0_24px_70px_rgba(126,99,115,0.14)]">
+            <p className="px-2 pb-3 text-xs leading-6 text-[var(--color-muted)]">
+              这里是 Ting 和 Eric 的小秘密、小纸条、小地图和好多好多喜欢。
+            </p>
+            <div className="grid gap-2">
             {navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
                 onClick={() => setIsOpen(false)}
-                className={`rounded-2xl px-4 py-3 text-sm transition ${
+                className={`tap-bounce flex items-center justify-between rounded-2xl px-4 py-3 text-sm transition ${
                   pathname === item.href
                     ? "bg-[rgba(214,154,176,0.16)] text-[var(--color-ink)]"
                     : "text-[var(--color-muted)] hover:bg-white/74 hover:text-[var(--color-ink)]"
                 }`}
               >
-                {item.label}
+                <span>{item.label}</span>
+                <span className="text-[var(--color-rose)]">{item.mark}</span>
               </Link>
             ))}
+            </div>
           </div>
         </nav>
       ) : null}

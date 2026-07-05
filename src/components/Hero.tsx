@@ -42,28 +42,34 @@ export function Hero({ eyebrow, title, subtitle, secondaryLine, images = [], chi
           </p>
           <div className="mt-9 flex flex-wrap gap-3">
             <Link
-              href="/story"
+              href="/her"
               style={{ color: "var(--color-ivory)" }}
-              className="rounded-full bg-[var(--color-ink)] px-5 py-3 text-sm font-medium shadow-[0_14px_34px_rgba(67,59,67,0.18)] transition hover:bg-[var(--color-blue-gray)]"
+              className="tap-bounce rounded-full bg-[var(--color-ink)] px-5 py-3 text-sm font-medium shadow-[0_14px_34px_rgba(67,59,67,0.18)] transition hover:bg-[var(--color-blue-gray)]"
             >
-              看我们的故事
+              看 Ting 被偏爱的样子
             </Link>
             <Link
-              href="/notes"
-              className="rounded-full border border-[color:var(--color-line)] bg-white/66 px-5 py-3 text-sm font-medium text-[var(--color-ink)] transition hover:bg-white"
+              href="/board"
+              className="tap-bounce rounded-full border border-[color:var(--color-line)] bg-white/66 px-5 py-3 text-sm font-medium text-[var(--color-ink)] transition hover:bg-white"
             >
-              写一张小纸条
+              留一句今天的喜欢
             </Link>
           </div>
           <div className="mt-7 flex flex-wrap gap-2">
             <Sticker tone="rose">今日份喜欢</Sticker>
-            <Sticker tone="lavender">butterfly kiss</Sticker>
+            <Sticker tone="lavender">Ting 专属</Sticker>
             <Sticker tone="gold">小猫陪着我们</Sticker>
           </div>
           {children ? <div className="mt-8">{children}</div> : null}
         </div>
 
         <div className="relative min-h-[620px] lg:min-h-[700px]">
+          <div className="absolute left-[10%] top-0 z-50 rounded-full border border-[rgba(214,154,176,0.22)] bg-white/76 px-4 py-2 text-sm font-semibold text-[var(--color-rose)] shadow-[0_16px_34px_rgba(126,99,115,0.12)]">
+            Ting 专属
+          </div>
+          <div className="absolute right-[9%] top-[18%] z-50 rounded-full border border-[rgba(201,169,104,0.22)] bg-white/76 px-4 py-2 text-sm font-semibold text-[var(--color-gold)] shadow-[0_16px_34px_rgba(126,99,115,0.12)]">
+            今天也喜欢你
+          </div>
           {collageImages[0] ? (
             <div className="absolute left-4 top-8 z-20 w-[58%] max-w-sm md:left-10">
               <LovePolaroid image={collageImages[0]} rotate="-5deg" priority />
@@ -89,6 +95,17 @@ export function Hero({ eyebrow, title, subtitle, secondaryLine, images = [], chi
               <LovePolaroid image={collageImages[4]} rotate="2deg" />
             </div>
           ) : null}
+          <div className="paper-note absolute left-[2%] top-[47%] z-50 hidden max-w-[12rem] rotate-[-7deg] p-4 md:block">
+            <p className="text-xs text-[var(--color-gold)]">偷偷收藏</p>
+            <p className="mt-2 text-sm leading-6 text-[var(--color-ink)]">
+              她的可爱、小脾气、撒娇和心软，都要被好好记住。
+            </p>
+          </div>
+          <div className="absolute right-[2%] top-[39%] z-50 grid gap-1 text-[var(--color-blue-gray)]">
+            <PawPrint className="opacity-80" />
+            <PawPrint className="translate-x-5 scale-75 opacity-60" />
+            <PawPrint className="-translate-x-2 scale-90 opacity-50" />
+          </div>
 
           <div className="glass-panel-strong absolute bottom-0 left-1/2 z-50 w-[min(22rem,88vw)] -translate-x-1/2 p-5">
             <RibbonLabel>今日份喜欢</RibbonLabel>

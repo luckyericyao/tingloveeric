@@ -52,6 +52,7 @@ function cardTone(message: BoardMessage) {
 
 export function CoupleBoard() {
   const [messages, setMessages] = useState<BoardMessage[]>([]);
+  const [showOwnerStorageNote, setShowOwnerStorageNote] = useState(false);
   const [filter, setFilter] = useState<BoardFilter>("all");
   const [form, setForm] = useState<BoardForm>({
     sender: "Eric",
@@ -97,6 +98,12 @@ export function CoupleBoard() {
       }
 
       setMessages(payload.messages);
+      setShowOwnerStorageNote(
+        payload.persistence === "memory" &&
+          (window.location.hostname === "localhost" ||
+            window.location.hostname === "127.0.0.1" ||
+            window.location.search.includes("owner=1")),
+      );
       setIsLoading(false);
     }
 
@@ -170,12 +177,12 @@ export function CoupleBoard() {
       datetime: localDateTimeValue(),
       content: "",
     }));
-    setStatus("已经把这句话放进留言板了。");
+    setStatus(`这句话已经留给${receiver === "Ting" ? "她" : "他"}了。`);
   }
 
   return (
     <div className="grid gap-8">
-      <section className="glass-panel-strong relative overflow-hidden p-5 md:p-7">
+      <section className="world-shell relative overflow-hidden p-5 md:p-7">
         <HeartSparkles className="left-8 top-7" />
         <ButterflyTrail className="right-10 top-8" />
         <div className="relative grid gap-6 lg:grid-cols-[0.82fr_1.18fr]">
@@ -185,7 +192,7 @@ export function CoupleBoard() {
               今天最想说的话
             </h2>
             {highlighted ? (
-              <div className="mt-5 rounded-[1.6rem] border border-[rgba(214,154,176,0.24)] bg-white/64 p-5">
+              <div className="pinned-note mt-5 rounded-[1.6rem] border border-[rgba(214,154,176,0.24)] bg-white/64 p-5">
                 <div className="flex flex-wrap items-center gap-2">
                   <Sticker tone={highlighted.sender === "Eric" ? "rose" : "lavender"}>
                     {directionLabel(highlighted)}
@@ -218,7 +225,7 @@ export function CoupleBoard() {
                   type="button"
                   data-testid={`sender-${option.sender}`}
                   onClick={() => updateForm("sender", option.sender)}
-                  className={`rounded-2xl border px-4 py-3 text-left text-sm transition ${
+                  className={`tap-bounce rounded-2xl border px-4 py-3 text-left text-sm transition ${
                     form.sender === option.sender
                       ? "border-[rgba(214,154,176,0.42)] bg-white text-[var(--color-ink)] shadow-[0_12px_28px_rgba(126,99,115,0.1)]"
                       : "border-[color:var(--color-line)] bg-white/54 text-[var(--color-muted)] hover:bg-white/80"
@@ -257,7 +264,7 @@ export function CoupleBoard() {
                     type="button"
                     data-testid={`mood-${mood}`}
                     onClick={() => updateForm("mood", mood)}
-                    className={`rounded-full border px-3 py-2 text-sm transition ${
+                    className={`tap-bounce rounded-full border px-3 py-2 text-sm transition ${
                       form.mood === mood
                         ? "border-[rgba(214,154,176,0.42)] bg-[var(--color-ink)] text-[var(--color-ivory)]"
                         : "border-[color:var(--color-line)] bg-white/60 text-[var(--color-muted)] hover:bg-white"
@@ -286,7 +293,7 @@ export function CoupleBoard() {
               type="submit"
               data-testid="board-submit"
               disabled={isSubmitting}
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-[var(--color-ink)] px-5 py-3 text-sm font-medium text-[var(--color-ivory)] transition hover:bg-[var(--color-blue-gray)] disabled:cursor-not-allowed disabled:opacity-60"
+              className="tap-bounce inline-flex items-center justify-center gap-2 rounded-full bg-[var(--color-ink)] px-5 py-3 text-sm font-medium text-[var(--color-ivory)] transition hover:bg-[var(--color-blue-gray)] disabled:cursor-not-allowed disabled:opacity-60"
             >
               <PawPrint />
               {isSubmitting ? "正在保存..." : "留下这句话"}
@@ -297,18 +304,28 @@ export function CoupleBoard() {
               </p>
             ) : null}
             {error ? <p className="text-sm text-[var(--color-rose)]">{error}</p> : null}
+            {showOwnerStorageNote ? (
+              <p className="rounded-2xl border border-[rgba(201,169,104,0.2)] bg-white/50 px-4 py-3 text-xs leading-6 text-[var(--color-muted)]">
+                当前留言板使用临时存储，建议配置 KV 后再长期使用。
+              </p>
+            ) : null}
           </form>
         </div>
       </section>
 
-      <section className="grid gap-5">
+      <section className="love-wall rounded-[2rem] border border-[rgba(201,169,104,0.18)] bg-[rgba(255,250,244,0.38)] p-4 md:p-6">
+        <div className="mb-5 flex flex-wrap gap-2">
+          <Sticker tone="rose">私密留言墙</Sticker>
+          <Sticker tone="lavender">不是公开评论</Sticker>
+          <Sticker tone="gold">贴贴保存</Sticker>
+        </div>
         <div className="flex flex-wrap gap-2">
           {filterOptions.map((option) => (
             <button
               key={option.value}
               type="button"
               onClick={() => setFilter(option.value)}
-              className={`rounded-full border px-4 py-2 text-sm transition ${
+              className={`tap-bounce rounded-full border px-4 py-2 text-sm transition ${
                 filter === option.value
                   ? "border-[rgba(214,154,176,0.38)] bg-[var(--color-ink)] text-[var(--color-ivory)]"
                   : "border-[color:var(--color-line)] bg-white/62 text-[var(--color-muted)] hover:bg-white"
@@ -326,7 +343,7 @@ export function CoupleBoard() {
             {visibleMessages.map((message) => (
               <article
                 key={message.id}
-                className={`relative overflow-hidden rounded-[1.8rem] border p-5 shadow-[0_18px_50px_rgba(126,99,115,0.12)] ${cardTone(message)}`}
+                className={`pinned-note relative overflow-hidden rounded-[1.8rem] border p-5 shadow-[0_18px_50px_rgba(126,99,115,0.12)] ${cardTone(message)}`}
               >
                 <div className="flex flex-wrap items-center gap-2">
                   <Sticker tone={message.sender === "Eric" ? "rose" : "lavender"}>
