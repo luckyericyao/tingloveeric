@@ -7,6 +7,7 @@ import { PhotoBento } from "@/components/PhotoBento";
 import { SectionTitle } from "@/components/SectionTitle";
 import { StatCard } from "@/components/StatCard";
 import { TimelineCard } from "@/components/TimelineCard";
+import { ButterflyTrail, HeartSparkles, PawPrint, RibbonLabel } from "@/components/ScrapbookDecor";
 import {
   achievements,
   heroImages,
@@ -14,6 +15,7 @@ import {
   navigationCards,
   seedNotes,
   stats,
+  sweetWorldCards,
   timelineEvents,
 } from "@/data/love";
 
@@ -45,6 +47,45 @@ export default function Home() {
           </SectionTitle>
           <div className="mt-10">
             <PhotoBento images={memoryImages.slice(0, 9)} />
+          </div>
+        </div>
+      </section>
+
+      <section className="page-band pt-0">
+        <div className="content-wrap">
+          <div className="relative overflow-hidden rounded-[2rem] border border-[rgba(201,169,104,0.24)] bg-[linear-gradient(135deg,rgba(255,252,247,0.92),rgba(250,239,247,0.72))] p-6 shadow-[0_28px_80px_rgba(126,99,115,0.12)] md:p-8">
+            <HeartSparkles className="left-[6%] top-[10%]" />
+            <ButterflyTrail className="right-[9%] top-[12%]" />
+            <div className="relative">
+              <SectionTitle kicker="只给 Ting" title="给她的小世界" align="center">
+                因为她喜欢蝴蝶，喜欢猫咪，也值得被很认真、很甜地记录下来。
+              </SectionTitle>
+              <div className="mt-10 grid gap-4 md:grid-cols-3">
+                {sweetWorldCards.map((card) => (
+                  <article key={card.id} className="memory-card hover-lift relative overflow-hidden p-5">
+                    <RibbonLabel>
+                      {card.accent === "butterfly" ? "蝴蝶心事" : card.accent === "cat" ? "小猫陪伴" : "认真偏爱"}
+                    </RibbonLabel>
+                    <div className="mt-5 flex items-start justify-between gap-4">
+                      <div>
+                        <h3 className="text-xl font-semibold text-[var(--color-ink)]">
+                          {card.title}
+                        </h3>
+                        <p className="mt-3 text-sm leading-7 text-[var(--color-muted)]">
+                          {card.description}
+                        </p>
+                      </div>
+                      <span className="grid size-12 shrink-0 place-items-center rounded-full border border-[rgba(214,154,176,0.24)] bg-white/70 text-[var(--color-rose)]">
+                        {card.accent === "cat" ? <PawPrint /> : "♡"}
+                      </span>
+                    </div>
+                    <p className="mt-5 text-xs text-[var(--color-blue-gray)]">
+                      {card.image.caption}
+                    </p>
+                  </article>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -110,7 +151,7 @@ export default function Home() {
           <SectionTitle kicker="慢慢翻我们的世界" title="每一页都是我俩" align="center">
             这些入口不是功能清单，而是给这段关系留出的不同抽屉。
           </SectionTitle>
-          <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+          <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             {navigationCards.map((card) => (
               <Link key={card.href} href={card.href} className="glass-panel hover-lift p-5">
                 <p className="text-lg font-semibold text-[var(--color-ink)]">{card.title}</p>

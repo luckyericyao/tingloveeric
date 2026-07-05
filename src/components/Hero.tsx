@@ -37,6 +37,9 @@ export function Hero({ eyebrow, title, subtitle, secondaryLine, images = [], chi
           <p className="mt-4 max-w-2xl text-base leading-8 text-[var(--color-rose)] md:text-lg">
             {secondaryLine}
           </p>
+          <p className="mt-5 w-fit rounded-full border border-[rgba(214,154,176,0.28)] bg-white/62 px-4 py-2 text-sm font-semibold text-[var(--color-ink)] shadow-[0_14px_34px_rgba(126,99,115,0.08)] md:text-base">
+            Ting，这里每一页都是给你的。
+          </p>
           <div className="mt-9 flex flex-wrap gap-3">
             <Link
               href="/story"
@@ -89,9 +92,9 @@ export function Hero({ eyebrow, title, subtitle, secondaryLine, images = [], chi
 
           <div className="glass-panel-strong absolute bottom-0 left-1/2 z-50 w-[min(22rem,88vw)] -translate-x-1/2 p-5">
             <RibbonLabel>今日份喜欢</RibbonLabel>
-            <p className="mt-4 text-xl font-semibold text-[var(--color-ink)]">今天也想偷偷收藏你</p>
+            <p className="mt-4 text-xl font-semibold text-[var(--color-ink)]">今天也很喜欢你</p>
             <p className="mt-2 text-sm leading-7 text-[var(--color-muted)]">
-              想把心动、想你、和好、撒娇，都变成小贴纸贴进我俩的本子里。
+              不是随口说说，是认真收藏。
             </p>
             <div className="mt-3 flex items-center gap-2 text-sm text-[var(--color-blue-gray)]">
               <PawPrint /> 小猫陪着我们慢慢贴贴

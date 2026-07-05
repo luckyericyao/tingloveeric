@@ -86,6 +86,50 @@ export type FutureLetter = {
   content: string;
 };
 
+export type SweetWorldCard = {
+  id: string;
+  title: string;
+  description: string;
+  image: ImageAsset;
+  accent: "butterfly" | "cat" | "heart";
+};
+
+export type WorldPlaceStatus = "visited" | "wishlist";
+
+export type WorldMapPlace = {
+  id: string;
+  name: string;
+  country: string;
+  status: WorldPlaceStatus;
+  date?: string;
+  note: string;
+  wish: string;
+  lat: number;
+  lng: number;
+  image: ImageAsset;
+};
+
+export type BoardMood =
+  | "想你"
+  | "晚安"
+  | "撒娇"
+  | "贴贴"
+  | "和好"
+  | "心软"
+  | "开心"
+  | "纪念"
+  | "抱抱";
+
+export type BoardMessage = {
+  id: string;
+  sender: "Eric" | "Ting";
+  receiver: "Eric" | "Ting";
+  datetime: string;
+  content: string;
+  mood: BoardMood;
+  featured?: boolean;
+};
+
 export const coupleInfo = {
   siteName: "我俩",
   names: {
@@ -232,6 +276,30 @@ export const noteDecorImages: ImageAsset[] = [
   stickerMemory,
   butterflyMemory,
   catMemory,
+];
+
+export const sweetWorldCards: SweetWorldCard[] = [
+  {
+    id: "butterflies-for-her",
+    title: "她喜欢蝴蝶",
+    description: "所以这里的心动，会轻轻飞到她身边。",
+    image: butterflyMemory,
+    accent: "butterfly",
+  },
+  {
+    id: "cats-for-her",
+    title: "她喜欢猫咪",
+    description: "所以这里的陪伴，是软软的、黏黏的、一直在的。",
+    image: catMemory,
+    accent: "cat",
+  },
+  {
+    id: "chosen-for-her",
+    title: "她值得被偏爱",
+    description: "所以这里每一页都不是模板，而是专门写给她。",
+    image: coupleMemory,
+    accent: "heart",
+  },
 ];
 
 const dayMs = 24 * 60 * 60 * 1000;
@@ -512,7 +580,131 @@ export const seedNotes: LoveNote[] = [
   },
 ];
 
-export const moodOptions = ["想你", "撒娇", "心软", "贴贴", "纪念", "和好", "开心", "晚安"];
+export const moodOptions = ["想你", "撒娇", "心软", "贴贴", "纪念", "和好", "开心", "晚安", "抱抱"];
+
+export const boardMoodOptions: BoardMood[] = [
+  "想你",
+  "晚安",
+  "撒娇",
+  "贴贴",
+  "和好",
+  "心软",
+  "开心",
+  "纪念",
+  "抱抱",
+];
+
+export const boardSeedMessages: BoardMessage[] = [
+  {
+    id: "board-seed-1",
+    sender: "Eric",
+    receiver: "Ting",
+    datetime: "2026-07-05T09:20:00.000Z",
+    mood: "想你",
+    featured: true,
+    content:
+      "Ting，今天最想说的话是：你不是偶然被放在这里，你是我很认真、很偏心、很想一直珍惜的人。",
+  },
+  {
+    id: "board-seed-2",
+    sender: "Ting",
+    receiver: "Eric",
+    datetime: "2026-07-04T14:08:00.000Z",
+    mood: "心软",
+    content:
+      "有时候我嘴硬，但你靠近一点、认真一点，我还是会很心软。要记得多抱抱我。",
+  },
+  {
+    id: "board-seed-3",
+    sender: "Eric",
+    receiver: "Ting",
+    datetime: "2026-07-03T16:40:00.000Z",
+    mood: "晚安",
+    content:
+      "晚安。希望你睡前知道，今天也有人把你放在心里很重要的位置。",
+  },
+];
+
+export const worldMapPlaces: WorldMapPlace[] = [
+  {
+    id: "shanghai",
+    name: "Shanghai",
+    country: "中国",
+    status: "visited",
+    date: "2025-01-18",
+    note: "一起走过人很多的街，也一起把普通夜晚过成会发光的记忆。",
+    wish: "以后再去一次，把小吃、江边的风和贴贴都补得更满。",
+    lat: 31.2304,
+    lng: 121.4737,
+    image: travelMemory,
+  },
+  {
+    id: "tokyo",
+    name: "Tokyo",
+    country: "日本",
+    status: "wishlist",
+    note: "想把东京先点亮，等以后一起慢慢走进那些温柔的街角。",
+    wish: "去看夜景，买可爱小物，再拍一张她喜欢的猫咪照片。",
+    lat: 35.6762,
+    lng: 139.6503,
+    image: catMemory,
+  },
+  {
+    id: "paris",
+    name: "Paris",
+    country: "法国",
+    status: "wishlist",
+    note: "这座城市适合把喜欢说得慢一点，也适合给她一场很郑重的偏爱。",
+    wish: "牵手散步，给她买花，在夜色里说一次很认真的喜欢。",
+    lat: 48.8566,
+    lng: 2.3522,
+    image: flowerMemory,
+  },
+  {
+    id: "london",
+    name: "London",
+    country: "英国",
+    status: "wishlist",
+    note: "想在阴天和灯光里一起走很久，把伞下的位置留给她。",
+    wish: "去看桥、看展、喝热饮，然后把今天也写进小纸条。",
+    lat: 51.5072,
+    lng: -0.1276,
+    image: cozyMemory,
+  },
+  {
+    id: "kyoto",
+    name: "Kyoto",
+    country: "日本",
+    status: "wishlist",
+    note: "京都应该很适合她，安静、柔软、像一只蝴蝶停在书页边。",
+    wish: "一起看庭院、吃甜点，把慢下来的时间都留给彼此。",
+    lat: 35.0116,
+    lng: 135.7681,
+    image: butterflyMemory,
+  },
+  {
+    id: "santorini",
+    name: "Santorini",
+    country: "希腊",
+    status: "wishlist",
+    note: "先把海风和白色小房子收藏起来，等有一天带她去看。",
+    wish: "看一场很漂亮的日落，拍很多张她被光照到的样子。",
+    lat: 36.3932,
+    lng: 25.4615,
+    image: skyMemory,
+  },
+  {
+    id: "new-york",
+    name: "New York",
+    country: "美国",
+    status: "wishlist",
+    note: "很大的城市，也可以只留下我们两个人的小小路线。",
+    wish: "一起走过公园和街口，在人群里确认她一直被我牵着。",
+    lat: 40.7128,
+    lng: -74.006,
+    image: coupleMemory,
+  },
+];
 
 export const futureLetters: FutureLetter[] = [
   {
@@ -756,6 +948,16 @@ export const navigationCards = [
     href: "/notes",
     title: "写给你的小纸条",
     description: "想你、撒娇、贴贴、晚安，都可以写在这里。",
+  },
+  {
+    href: "/world",
+    title: "甜蜜世界地图",
+    description: "把一起去过和以后想一起去的地方，都先点亮。",
+  },
+  {
+    href: "/board",
+    title: "我们的留言板",
+    description: "你给我，我给你。晚安、撒娇、抱抱都留在这里。",
   },
   {
     href: "/achievements",

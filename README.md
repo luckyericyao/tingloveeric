@@ -41,6 +41,9 @@ Edit these exports to update the site:
 - `profileHim`: `/him`, how she sees him
 - `timelineEvents`: `/story`, relationship timeline entries
 - `moodOptions`: note composer mood tags
+- `sweetWorldCards`: homepage "给她的小世界" cards
+- `worldMapPlaces`: seeded places for `/world`
+- `boardMoodOptions` / `boardSeedMessages`: mood tags and starter messages for `/board`
 - `noteDecorImages`: visual cards for the notes page
 - `frictionRecords`: `/story`, growth and understanding records
 - `achievements`: `/achievements`, romantic badge collection
@@ -56,6 +59,28 @@ public/images/romantic-scrapbook-hero.png
 ## Notes behavior
 
 The `/notes` page lets visitors add new notes in the browser. New notes are saved only in `localStorage`; no database or backend is used.
+
+## Private features
+
+The `/world` page saves newly added map pins in the browser with `localStorage`, while the seeded map pins stay in `src/data/love.ts`.
+
+The `/board` page uses `/api/board/messages` instead of browser-only storage. For persistent production storage, set Vercel KV or Upstash Redis REST variables:
+
+```bash
+KV_REST_API_URL=
+KV_REST_API_TOKEN=
+```
+
+or:
+
+```bash
+UPSTASH_REDIS_REST_URL=
+UPSTASH_REDIS_REST_TOKEN=
+```
+
+Without those variables, the board falls back to server memory for local development.
+
+Set `LOVE_SITE_PASSCODE` to require a simple passcode gate before entering the site. If it is not set, the site stays open.
 
 ## Project structure
 

@@ -6,6 +6,14 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "我俩 | Ting & Eric",
   description: "一个温柔保存关系细节的私人浪漫记录网站。",
+  robots: {
+    index: false,
+    follow: false,
+    googleBot: {
+      index: false,
+      follow: false,
+    },
+  },
 };
 
 export default function RootLayout({
