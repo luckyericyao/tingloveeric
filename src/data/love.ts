@@ -109,6 +109,41 @@ export type HomepageHighlight = {
   label: string;
 };
 
+export type LoveWorldFeature = {
+  id: string;
+  title: string;
+  body: string;
+  label: string;
+  accent: "butterfly" | "cat" | "heart" | "world";
+};
+
+export type LoveSignalCard = {
+  id: string;
+  title: string;
+  body: string;
+  detail: string;
+  href: string;
+  accent: "rose" | "lavender" | "gold" | "sage";
+};
+
+export type QuickActionCard = {
+  id: string;
+  title: string;
+  body: string;
+  cta: string;
+  href: string;
+  accent: "message" | "note" | "map" | "story";
+};
+
+export type RoomCard = {
+  id: string;
+  title: string;
+  body: string;
+  href: string;
+  sticker: string;
+  accent: "rose" | "lavender" | "gold" | "sage";
+};
+
 export type WorldPlaceStatus = "visited" | "wishlist";
 
 export type WorldMapPlace = {
@@ -366,6 +401,174 @@ export const homepageHighlights: HomepageHighlight[] = [
     title: "这段关系被甜甜保存",
     body: "蝴蝶、猫咪、地图、藏品和未来信，都在同一个小世界里等她慢慢翻。",
     label: "今天也喜欢你",
+  },
+];
+
+export const loveWorldFeatures: LoveWorldFeature[] = [
+  {
+    id: "butterfly-thoughts",
+    title: "蝴蝶心事",
+    body: "她喜欢蝴蝶，所以这里每一次心动，都会轻轻飞到她身边。",
+    label: "轻轻飞到她身边",
+    accent: "butterfly",
+  },
+  {
+    id: "cat-company",
+    title: "小猫陪伴",
+    body: "她喜欢猫咪，所以这里的陪伴，是软软的、黏黏的、一直在的。",
+    label: "软软黏黏一直在",
+    accent: "cat",
+  },
+  {
+    id: "cherished-proof",
+    title: "被偏爱证明",
+    body: "她值得被坚定选择，所以每一页都不是模板，而是专门写给她。",
+    label: "不是模板",
+    accent: "heart",
+  },
+  {
+    id: "our-little-universe",
+    title: "我俩的小宇宙",
+    body: "这里会记录我们的故事、留言、地图、回忆和以后想一起去的地方。",
+    label: "我俩正在发生",
+    accent: "world",
+  },
+];
+
+export const loveSignalCards: LoveSignalCard[] = [
+  {
+    id: "today-like",
+    title: "今日份喜欢",
+    body: "今天也想偷偷收藏你。",
+    detail: "不是随口说说，是认真收藏。",
+    href: "/her",
+    accent: "rose",
+  },
+  {
+    id: "latest-board",
+    title: "最新留言",
+    body: "想你、晚安、撒娇、和好，都可以留在这里。",
+    detail: "你给我，我给你。",
+    href: "/board",
+    accent: "lavender",
+  },
+  {
+    id: "next-place",
+    title: "下一站心愿",
+    body: "世界很大，但想一起去的人是你。",
+    detail: "把这个地方先偷偷点亮。",
+    href: "/world",
+    accent: "gold",
+  },
+  {
+    id: "recent-badge",
+    title: "最近解锁",
+    body: "把我们经历过的爱，收藏成小小勋章。",
+    detail: "贴进小小收藏册。",
+    href: "/achievements",
+    accent: "sage",
+  },
+];
+
+export const quickActionCards: QuickActionCard[] = [
+  {
+    id: "leave-message",
+    title: "给她留一句话",
+    body: "今天想她的时候，不用藏起来，可以轻轻放到留言板。",
+    cta: "去留言板",
+    href: "/board",
+    accent: "message",
+  },
+  {
+    id: "write-note",
+    title: "写一张小纸条",
+    body: "把想你、晚安、撒娇，收进只属于我俩的小纸条盒。",
+    cta: "写给你",
+    href: "/notes",
+    accent: "note",
+  },
+  {
+    id: "light-place",
+    title: "点亮一个想去的地方",
+    body: "把还没出发的地方先放进地图，等以后一起去。",
+    cta: "打开世界地图",
+    href: "/world",
+    accent: "map",
+  },
+  {
+    id: "open-story",
+    title: "翻一页我们的故事",
+    body: "从第一次靠近，到每一次更懂彼此，慢慢翻给她看。",
+    cta: "看相遇以来",
+    href: "/story",
+    accent: "story",
+  },
+];
+
+export const photoSlotLabels = [
+  "换成我们的照片",
+  "放她笑起来的照片",
+  "放一次约会的照片",
+  "放一张聊天截图",
+  "放一张旅行照片",
+];
+
+export const loveWorldRooms: RoomCard[] = [
+  {
+    id: "ting-room",
+    title: "Ting 房间",
+    body: "她的可爱、小脾气、心软和笑起来的样子，都在这里被认真收好。",
+    href: "/her",
+    sticker: "被偏爱",
+    accent: "rose",
+  },
+  {
+    id: "eric-room",
+    title: "Eric 房间",
+    body: "他笨拙但认真靠近，也在学习怎么更好地爱她。",
+    href: "/him",
+    sticker: "小猫陪着",
+    accent: "sage",
+  },
+  {
+    id: "story-room",
+    title: "故事房间",
+    body: "从第一次靠近，到每一次和好以后更喜欢彼此。",
+    href: "/story",
+    sticker: "故事书",
+    accent: "lavender",
+  },
+  {
+    id: "notes-room",
+    title: "小纸条房间",
+    body: "想你、晚安、撒娇，都可以变成一张软软的小纸条。",
+    href: "/notes",
+    sticker: "今日份想你",
+    accent: "gold",
+  },
+  {
+    id: "map-room",
+    title: "世界地图房间",
+    body: "已经去过和以后想一起去的地方，都先被甜甜点亮。",
+    href: "/world",
+    sticker: "下一站",
+    accent: "gold",
+  },
+  {
+    id: "board-room",
+    title: "留言板房间",
+    body: "你给我，我给你。想念、和好、抱抱，都留在这面墙上。",
+    href: "/board",
+    sticker: "私密留言",
+    accent: "rose",
+  },
+  {
+    id: "badge-room",
+    title: "心动藏品房间",
+    body: "把经历过的爱，收藏成一枚枚贴纸一样的小勋章。",
+    href: "/achievements",
+    sticker: "已解锁",
+    accent: "lavender",
   },
 ];
 
