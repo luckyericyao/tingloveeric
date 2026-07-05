@@ -18,7 +18,7 @@ export function SectionTitle({
   return (
     <div className={centered ? "mx-auto max-w-2xl text-center" : "max-w-2xl"}>
       {kicker ? (
-        <p className="font-serif-elegant mb-3 text-xs uppercase text-[var(--color-gold)]">
+        <p className="font-serif-elegant mb-3 text-xs text-[var(--color-gold)]">
           {kicker}
         </p>
       ) : null}

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 680" role="img" aria-labelledby="title desc">
+  <title id="title">Cozy indoor moment placeholder</title>
+  <desc id="desc">A cozy indoor scene with a cup, blanket, and soft cat paw shapes.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop stop-color="#fff8f2"/>
+      <stop offset=".5" stop-color="#f5e2e9"/>
+      <stop offset="1" stop-color="#dee8e7"/>
+    </linearGradient>
+  </defs>
+  <rect width="900" height="680" rx="58" fill="url(#bg)"/>
+  <rect x="128" y="390" width="644" height="118" rx="58" fill="#fffaf4" opacity=".64"/>
+  <rect x="286" y="206" width="210" height="220" rx="54" fill="#c8bfe4" opacity=".7"/>
+  <path d="M494 284h52c42 0 72 30 72 68s-30 68-72 68h-52" fill="none" stroke="#c8bfe4" stroke-width="28" stroke-linecap="round" opacity=".7"/>
+  <path d="M326 286h124M326 340h102" stroke="#fffaf4" stroke-width="14" stroke-linecap="round" opacity=".72"/>
+  <path d="M216 426c36-74 98-74 134 0M568 426c38-78 104-78 142 0" fill="none" stroke="#d69ab0" stroke-width="20" stroke-linecap="round" opacity=".42"/>
+  <g fill="#8c9cab" opacity=".4">
+    <circle cx="192" cy="222" r="20"/><circle cx="230" cy="204" r="13"/><circle cx="252" cy="238" r="13"/><circle cx="214" cy="258" r="13"/>
+    <circle cx="706" cy="172" r="18"/><circle cx="742" cy="156" r="12"/><circle cx="764" cy="188" r="12"/><circle cx="726" cy="206" r="12"/>
+  </g>
+  <circle cx="662" cy="520" r="9" fill="#c9a968" opacity=".62"/>
+</svg>

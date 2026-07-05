@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 680" role="img" aria-labelledby="title desc">
+  <title id="title">Love letter placeholder</title>
+  <desc id="desc">A warm love letter card with ribbon, stamps, and soft hearts.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop stop-color="#fffaf4"/>
+      <stop offset=".58" stop-color="#f8e5ed"/>
+      <stop offset="1" stop-color="#e8e2f5"/>
+    </linearGradient>
+  </defs>
+  <rect width="900" height="680" rx="58" fill="url(#bg)"/>
+  <rect x="176" y="126" width="548" height="418" rx="34" fill="#fffdf8" stroke="#c9a968" stroke-opacity=".32" stroke-width="8"/>
+  <path d="M176 178l274 196 274-196" fill="none" stroke="#ead0d9" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M256 428h236M256 472h322" stroke="#8c9cab" stroke-width="12" stroke-linecap="round" opacity=".35"/>
+  <rect x="332" y="84" width="238" height="58" rx="29" fill="#d69ab0" opacity=".62" transform="rotate(-4 451 113)"/>
+  <path d="M594 318c24-36 66-26 64 14-2 48-64 82-64 82s-62-34-64-82c-2-40 40-50 64-14z" fill="#d69ab0" opacity=".58"/>
+  <circle cx="242" cy="228" r="38" fill="#c8bfe4" opacity=".62"/>
+  <path d="M238 228h8M242 224v8" stroke="#fffaf4" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="690" cy="520" r="10" fill="#c9a968" opacity=".72"/>
+  <circle cx="158" cy="506" r="8" fill="#d69ab0" opacity=".55"/>
+</svg>

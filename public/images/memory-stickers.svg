@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 680" role="img" aria-labelledby="title desc">
+  <title id="title">Scrapbook sticker placeholder</title>
+  <desc id="desc">Pastel scrapbook stickers with hearts, paws, butterflies, and tape.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop stop-color="#fffaf4"/>
+      <stop offset=".56" stop-color="#f9e1ec"/>
+      <stop offset="1" stop-color="#e9e4f7"/>
+    </linearGradient>
+  </defs>
+  <rect width="900" height="680" rx="58" fill="url(#bg)"/>
+  <rect x="144" y="128" width="240" height="170" rx="42" fill="#fffdf8" stroke="#c9a968" stroke-opacity=".26" stroke-width="8" transform="rotate(-8 264 213)"/>
+  <rect x="502" y="104" width="230" height="180" rx="46" fill="#fffdf8" stroke="#d69ab0" stroke-opacity=".28" stroke-width="8" transform="rotate(7 617 194)"/>
+  <rect x="270" y="390" width="360" height="128" rx="64" fill="#fffdf8" stroke="#c8bfe4" stroke-opacity=".38" stroke-width="8"/>
+  <path d="M250 192c18-28 52-22 52 10 0 38-52 66-52 66s-52-28-52-66c0-32 34-38 52-10z" fill="#d69ab0" opacity=".62"/>
+  <g transform="translate(618 190)">
+    <ellipse cx="-34" cy="-8" rx="42" ry="58" fill="#c8bfe4" opacity=".78" transform="rotate(-28)"/>
+    <ellipse cx="34" cy="-8" rx="42" ry="58" fill="#d69ab0" opacity=".68" transform="rotate(28)"/>
+    <rect x="-5" y="-30" width="10" height="80" rx="5" fill="#8c9cab" opacity=".48"/>
+  </g>
+  <g fill="#8c9cab" opacity=".46">
+    <circle cx="426" cy="438" r="18"/><circle cx="464" cy="420" r="12"/><circle cx="486" cy="454" r="12"/><circle cx="448" cy="474" r="12"/>
+  </g>
+  <path d="M144 120h244" stroke="#c9a968" stroke-width="24" stroke-linecap="round" opacity=".2"/>
+  <path d="M510 96h220" stroke="#d69ab0" stroke-width="24" stroke-linecap="round" opacity=".2"/>
+</svg>

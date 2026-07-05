@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 680" role="img" aria-labelledby="title desc">
+  <title id="title">Cute cat companion placeholder</title>
+  <desc id="desc">A soft cream cat curled up in a pastel memory frame.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop stop-color="#fffaf4"/>
+      <stop offset=".5" stop-color="#f8e7ef"/>
+      <stop offset="1" stop-color="#e8edf0"/>
+    </linearGradient>
+  </defs>
+  <rect width="900" height="680" rx="58" fill="url(#bg)"/>
+  <ellipse cx="450" cy="430" rx="260" ry="138" fill="#fff7ef" stroke="#c9a968" stroke-opacity=".26" stroke-width="8"/>
+  <circle cx="542" cy="306" r="118" fill="#fff7ef" stroke="#e0c6d1" stroke-width="6"/>
+  <path d="M476 226l-28-90 84 44M604 226l38-86 46 92" fill="#fff7ef" stroke="#e0c6d1" stroke-width="6" stroke-linejoin="round"/>
+  <circle cx="508" cy="302" r="10" fill="#433b43" opacity=".62"/>
+  <circle cx="578" cy="302" r="10" fill="#433b43" opacity=".62"/>
+  <path d="M542 326v24m0 0c-22 18-42 12-56-4m56 4c22 18 42 12 56-4" fill="none" stroke="#8c9cab" stroke-width="7" stroke-linecap="round"/>
+  <path d="M244 412c-98-24-110-118-20-144 68-18 118 38 74 94-18 24-50 34-84 30" fill="none" stroke="#c8bfe4" stroke-width="26" stroke-linecap="round" opacity=".8"/>
+  <path d="M254 562c98 34 278 42 404-4" stroke="#d69ab0" stroke-width="12" stroke-linecap="round" opacity=".35"/>
+  <circle cx="176" cy="154" r="46" fill="#ead0d9" opacity=".7"/>
+  <circle cx="714" cy="152" r="22" fill="#c8bfe4" opacity=".72"/>
+  <path d="M730 510c26-36 70-24 68 16-2 48-68 84-68 84s-66-36-68-84c-2-40 42-52 68-16z" fill="#d69ab0" opacity=".42"/>
+</svg>

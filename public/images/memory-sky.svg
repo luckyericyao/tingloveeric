@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 680" role="img" aria-labelledby="title desc">
+  <title id="title">Soft sky sunset placeholder</title>
+  <desc id="desc">A dreamy pink and blue-gray sky for a relationship memory.</desc>
+  <defs>
+    <linearGradient id="sky" x1="0" x2="0" y1="0" y2="1">
+      <stop stop-color="#dfe8ef"/>
+      <stop offset=".46" stop-color="#f7dfe9"/>
+      <stop offset="1" stop-color="#fff3e2"/>
+    </linearGradient>
+  </defs>
+  <rect width="900" height="680" rx="58" fill="url(#sky)"/>
+  <circle cx="690" cy="210" r="96" fill="#c9a968" opacity=".28"/>
+  <path d="M0 484c120-74 232-62 336-8 124 64 270 62 564-46v250H0z" fill="#8c9cab" opacity=".32"/>
+  <path d="M0 540c174-84 336-56 512-18 134 30 246 12 388-48v206H0z" fill="#c8bfe4" opacity=".32"/>
+  <path d="M154 168c56-42 118-38 168 6M512 126c44-28 96-24 134 8" stroke="#fffaf4" stroke-width="16" stroke-linecap="round" opacity=".75"/>
+  <g fill="#d69ab0" opacity=".56">
+    <circle cx="174" cy="416" r="7"/><circle cx="220" cy="446" r="5"/><circle cx="744" cy="380" r="6"/>
+  </g>
+  <path d="M426 372c20-30 56-22 54 12-2 40-54 70-54 70s-52-30-54-70c-2-34 34-42 54-12z" fill="#fffaf4" opacity=".46"/>
+</svg>

@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 680" role="img" aria-labelledby="title desc">
+  <title id="title">Romantic couple memory placeholder</title>
+  <desc id="desc">A pastel scrapbook illustration for a couple memory photo slot.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop stop-color="#fff8f3"/>
+      <stop offset=".5" stop-color="#f7dfe9"/>
+      <stop offset="1" stop-color="#ddd5f3"/>
+    </linearGradient>
+    <radialGradient id="glow" cx=".32" cy=".3" r=".62">
+      <stop stop-color="#ffffff" stop-opacity=".9"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="900" height="680" rx="58" fill="url(#bg)"/>
+  <rect x="54" y="54" width="792" height="572" rx="42" fill="#fffaf4" opacity=".48"/>
+  <circle cx="262" cy="254" r="116" fill="#d69ab0" opacity=".58"/>
+  <circle cx="552" cy="242" r="126" fill="#c8bfe4" opacity=".62"/>
+  <path d="M210 416c80-88 164-88 246 0 78-88 166-88 252 0v104H210z" fill="#8c9cab" opacity=".56"/>
+  <path d="M278 302c44 44 92 44 136 0" fill="none" stroke="#fffaf4" stroke-width="14" stroke-linecap="round"/>
+  <path d="M506 296c48 48 102 48 150 0" fill="none" stroke="#fffaf4" stroke-width="14" stroke-linecap="round"/>
+  <path d="M443 357c34-42 82-42 116 0" fill="none" stroke="#c9a968" stroke-width="10" stroke-linecap="round"/>
+  <path d="M690 126c22-34 60-24 58 12-2 44-58 78-58 78s-56-34-58-78c-2-36 36-46 58-12z" fill="#d69ab0" opacity=".58"/>
+  <circle cx="150" cy="132" r="7" fill="#c9a968" opacity=".65"/>
+  <circle cx="188" cy="156" r="5" fill="#c8bfe4" opacity=".85"/>
+  <circle cx="744" cy="500" r="6" fill="#d69ab0" opacity=".72"/>
+  <rect x="120" y="536" width="248" height="44" rx="22" fill="#fffaf4" opacity=".78"/>
+  <path d="M166 560h154" stroke="#c9a968" stroke-width="8" stroke-linecap="round" opacity=".6"/>
+  <rect width="900" height="680" fill="url(#glow)"/>
+</svg>

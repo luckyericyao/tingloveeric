@@ -52,7 +52,13 @@ function subscribeToNotes(callback: () => void) {
   };
 }
 
-export function NotesBoard({ seedNotes }: { seedNotes: LoveNote[] }) {
+export function NotesBoard({
+  seedNotes,
+  moodOptions,
+}: {
+  seedNotes: LoveNote[];
+  moodOptions: string[];
+}) {
   const localNotes = useSyncExternalStore(
     subscribeToNotes,
     readStoredNotes,
@@ -68,11 +74,15 @@ export function NotesBoard({ seedNotes }: { seedNotes: LoveNote[] }) {
 
   return (
     <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
-      <NoteComposer onAdd={handleAdd} />
+      <NoteComposer onAdd={handleAdd} moodOptions={moodOptions} />
       <div className="grid gap-4">
-        {notes.map((note) => (
+        {notes.length ? notes.map((note) => (
           <NoteCard key={note.id} note={note} />
-        ))}
+        )) : (
+          <div className="paper-note p-6 text-sm leading-7 text-[var(--color-muted)]">
+            这里还空着，等第一张想你、贴贴或晚安的小纸条。
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 680" role="img" aria-labelledby="title desc">
+  <title id="title">Butterfly garden placeholder</title>
+  <desc id="desc">Lavender butterflies floating through a soft pastel garden.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop stop-color="#fffaf4"/>
+      <stop offset=".45" stop-color="#eee8fb"/>
+      <stop offset="1" stop-color="#f9dce8"/>
+    </linearGradient>
+    <linearGradient id="wing" x1="0" x2="1">
+      <stop stop-color="#d69ab0"/>
+      <stop offset="1" stop-color="#c8bfe4"/>
+    </linearGradient>
+  </defs>
+  <rect width="900" height="680" rx="58" fill="url(#bg)"/>
+  <path d="M94 522c150-118 312-88 430-166 86-58 154-144 282-116" fill="none" stroke="#b7c5b0" stroke-width="18" stroke-linecap="round" opacity=".45"/>
+  <g transform="translate(402 244)">
+    <ellipse cx="-68" cy="-18" rx="84" ry="112" fill="url(#wing)" opacity=".78" transform="rotate(-28)"/>
+    <ellipse cx="68" cy="-18" rx="84" ry="112" fill="url(#wing)" opacity=".78" transform="rotate(28)"/>
+    <ellipse cx="-44" cy="82" rx="58" ry="78" fill="#ead0d9" opacity=".72" transform="rotate(18)"/>
+    <ellipse cx="44" cy="82" rx="58" ry="78" fill="#ead0d9" opacity=".72" transform="rotate(-18)"/>
+    <rect x="-8" y="-54" width="16" height="178" rx="8" fill="#8c9cab" opacity=".52"/>
+  </g>
+  <g fill="#c9a968" opacity=".58">
+    <circle cx="178" cy="174" r="8"/><circle cx="214" cy="208" r="5"/><circle cx="706" cy="140" r="7"/><circle cx="764" cy="502" r="6"/>
+  </g>
+  <path d="M176 500c18-30 52-24 52 10 0 38-52 66-52 66s-52-28-52-66c0-34 34-40 52-10z" fill="#d69ab0" opacity=".38"/>
+  <path d="M678 438c18-30 52-24 52 10 0 38-52 66-52 66s-52-28-52-66c0-34 34-40 52-10z" fill="#c8bfe4" opacity=".46"/>
+</svg>

@@ -5,6 +5,15 @@ export type StatItem = {
   detail: string;
 };
 
+export type ImageAsset = {
+  id: string;
+  src: string;
+  alt: string;
+  caption: string;
+  category: string;
+  sticker?: string;
+};
+
 export type ProfileBlock = {
   title: string;
   eyebrow: string;
@@ -38,6 +47,8 @@ export type TimelineEvent = {
   title: string;
   type: TimelineEventType;
   description: string;
+  image: ImageAsset;
+  gallery?: ImageAsset[];
   imageHint?: string;
 };
 
@@ -57,6 +68,7 @@ export type Achievement = {
   rarity: string;
   description: string;
   unlocked: boolean;
+  icon?: string;
 };
 
 export type LoveNote = {
@@ -80,7 +92,7 @@ export const coupleInfo = {
     her: "Ting",
     him: "Eric",
   },
-  shortLine: "Butterfly, cat, and all the little proof that we chose each other.",
+  shortLine: "今天也喜欢你，把心动、贴贴和小纸条都偷偷收藏好。",
   heroImage: "/images/romantic-scrapbook-hero.png",
 };
 
@@ -90,6 +102,137 @@ export const importantDates = {
   firstLongTalk: "2024-06-12",
   firstTrip: "2025-01-18",
 };
+
+const coupleMemory: ImageAsset = {
+  id: "couple-memory",
+  src: "/images/memory-couple.svg",
+  alt: "粉色和薰衣草色的情侣记忆插画",
+  caption: "普通日子也因为你发光",
+  category: "romantic couple memory",
+  sticker: "贴贴",
+};
+
+const catMemory: ImageAsset = {
+  id: "cat-memory",
+  src: "/images/memory-cat.svg",
+  alt: "奶油色小猫陪伴插画",
+  caption: "小猫陪着我们，把世界变软",
+  category: "cute cat",
+  sticker: "小猫",
+};
+
+const butterflyMemory: ImageAsset = {
+  id: "butterfly-memory",
+  src: "/images/memory-butterfly.svg",
+  alt: "薰衣草蝴蝶花园插画",
+  caption: "蝴蝶把没说出口的心事送到你身边",
+  category: "soft butterfly",
+  sticker: "蝴蝶",
+};
+
+const flowerMemory: ImageAsset = {
+  id: "flower-memory",
+  src: "/images/memory-flowers.svg",
+  alt: "粉色和薰衣草色花束插画",
+  caption: "她笑起来的时候，像一束被偏爱的花",
+  category: "pink/lavender flowers",
+  sticker: "发光",
+};
+
+const noteMemory: ImageAsset = {
+  id: "note-memory",
+  src: "/images/memory-note.svg",
+  alt: "情书和小纸条插画",
+  caption: "想你就写成一张小纸条",
+  category: "love letter / paper note",
+  sticker: "想你",
+};
+
+const skyMemory: ImageAsset = {
+  id: "sky-memory",
+  src: "/images/memory-sky.svg",
+  alt: "柔软粉蓝色天空和夕阳插画",
+  caption: "那天的风、光和心跳",
+  category: "soft sky / sunset",
+  sticker: "心动",
+};
+
+const travelMemory: ImageAsset = {
+  id: "travel-memory",
+  src: "/images/memory-travel.svg",
+  alt: "旅行票根和行李箱插画",
+  caption: "奔赴也被我们收藏成甜甜的一页",
+  category: "travel memory",
+  sticker: "旅行",
+};
+
+const cozyMemory: ImageAsset = {
+  id: "cozy-memory",
+  src: "/images/memory-cozy.svg",
+  alt: "温暖室内杯子和毛毯插画",
+  caption: "安静待在一起，也觉得很贴贴",
+  category: "cozy indoor moment",
+  sticker: "抱抱",
+};
+
+const giftMemory: ImageAsset = {
+  id: "gift-memory",
+  src: "/images/memory-gift.svg",
+  alt: "香槟金礼物和丝带插画",
+  caption: "把想念打成蝴蝶结送给你",
+  category: "gift / ribbon",
+  sticker: "礼物",
+};
+
+const stickerMemory: ImageAsset = {
+  id: "sticker-memory",
+  src: "/images/memory-stickers.svg",
+  alt: "爱心、猫爪和蝴蝶贴纸插画",
+  caption: "每个小表情都值得贴进本子里",
+  category: "scrapbook sticker",
+  sticker: "收藏",
+};
+
+export const heroImages: ImageAsset[] = [
+  coupleMemory,
+  catMemory,
+  butterflyMemory,
+  noteMemory,
+  flowerMemory,
+];
+
+export const memoryImages: ImageAsset[] = [
+  coupleMemory,
+  flowerMemory,
+  catMemory,
+  butterflyMemory,
+  noteMemory,
+  skyMemory,
+  travelMemory,
+  cozyMemory,
+  giftMemory,
+];
+
+export const profileHerImages: ImageAsset[] = [
+  flowerMemory,
+  butterflyMemory,
+  noteMemory,
+  coupleMemory,
+];
+
+export const profileHimImages: ImageAsset[] = [
+  catMemory,
+  cozyMemory,
+  giftMemory,
+  skyMemory,
+];
+
+export const noteDecorImages: ImageAsset[] = [
+  noteMemory,
+  stickerMemory,
+  butterflyMemory,
+  catMemory,
+];
 
 const dayMs = 24 * 60 * 60 * 1000;
 
@@ -112,6 +255,7 @@ export const achievements: Achievement[] = [
     rarity: "0.1%",
     description: "我们已经说过太多只属于彼此的话。",
     unlocked: true,
+    icon: "✦",
   },
   {
     id: "mountains-rivers",
@@ -119,6 +263,7 @@ export const achievements: Achievement[] = [
     rarity: "0.1%",
     description: "距离没有让我们走散，反而让奔赴更珍贵。",
     unlocked: true,
+    icon: "✧",
   },
   {
     id: "many-sails",
@@ -126,6 +271,7 @@ export const achievements: Achievement[] = [
     rarity: "5%",
     description: "经历过很多，最后仍然认定彼此。",
     unlocked: true,
+    icon: "♡",
   },
   {
     id: "back-together",
@@ -133,6 +279,7 @@ export const achievements: Achievement[] = [
     rarity: "1%",
     description: "分别、误解、距离，都没能让我们彻底错过。",
     unlocked: true,
+    icon: "↺",
   },
   {
     id: "same-heart",
@@ -140,6 +287,7 @@ export const achievements: Achievement[] = [
     rarity: "3%",
     description: "一个眼神，一个停顿，就已经明白彼此。",
     unlocked: true,
+    icon: "❀",
   },
   {
     id: "no-walls",
@@ -147,6 +295,7 @@ export const achievements: Achievement[] = [
     rarity: "0.5%",
     description: "从秘密到脆弱，我们都敢向彼此打开。",
     unlocked: true,
+    icon: "✉",
   },
   {
     id: "finally-you",
@@ -154,6 +303,7 @@ export const achievements: Achievement[] = [
     rarity: "0.1%",
     description: "世界很大，但最后想牵手的人还是你。",
     unlocked: true,
+    icon: "♡",
   },
   {
     id: "clingy-license",
@@ -161,6 +311,47 @@ export const achievements: Achievement[] = [
     rarity: "1%",
     description: "开始习惯把想念、分享和依赖都给你。",
     unlocked: true,
+    icon: "⌁",
+  },
+  {
+    id: "sudden-heartbeat",
+    name: "怦然一瞬",
+    rarity: "0.1%",
+    description: "第一次觉得，心跳好像被你轻轻碰了一下。",
+    unlocked: true,
+    icon: "✧",
+  },
+  {
+    id: "hug-addiction",
+    name: "贴贴成瘾",
+    rarity: "1%",
+    description: "开始习惯把拥抱、分享和依赖都留给你。",
+    unlocked: true,
+    icon: "♡",
+  },
+  {
+    id: "cat-companion",
+    name: "小猫陪伴",
+    rarity: "2%",
+    description: "安静待在一起，也觉得世界很软。",
+    unlocked: true,
+    icon: "⌒",
+  },
+  {
+    id: "butterfly-secret",
+    name: "蝴蝶心事",
+    rarity: "0.5%",
+    description: "那些没说出口的小心动，后来都飞到了你身边。",
+    unlocked: true,
+    icon: "✦",
+  },
+  {
+    id: "love-you-today",
+    name: "今天也喜欢你",
+    rarity: "0.1%",
+    description: "喜欢不是某一天的事，是每天都重新选择你。",
+    unlocked: true,
+    icon: "❀",
   },
 ];
 
@@ -172,6 +363,8 @@ export const timelineEvents: TimelineEvent[] = [
     type: "相遇",
     description:
       "那天没有盛大的开场，但后来回头看，像是命运轻轻把一页纸折了角，提醒我们从这里开始。",
+    image: coupleMemory,
+    gallery: [skyMemory, noteMemory, butterflyMemory],
     imageHint: "一张浅色车票、聊天截图或那天的天空都适合放在这里。",
   },
   {
@@ -181,6 +374,8 @@ export const timelineEvents: TimelineEvent[] = [
     type: "心动",
     description:
       "话题从普通的日常慢慢走到心里，那一刻才发现，原来有人愿意认真听，也是一件很珍贵的事。",
+    image: noteMemory,
+    gallery: [butterflyMemory, cozyMemory, skyMemory],
     imageHint: "可以放一张夜晚、咖啡或聊天记录的照片。",
   },
   {
@@ -190,6 +385,8 @@ export const timelineEvents: TimelineEvent[] = [
     type: "约会",
     description:
       "没有刻意安排成电影里的桥段，却因为身边是对方，连走路、等车、分享一口甜的都变得值得收藏。",
+    image: flowerMemory,
+    gallery: [coupleMemory, catMemory, noteMemory],
   },
   {
     id: "together",
@@ -198,6 +395,8 @@ export const timelineEvents: TimelineEvent[] = [
     type: "重要决定",
     description:
       "从试探、靠近，到愿意把未来也放进句子里。那天以后，很多事情开始有了一个共同的名字：我俩。",
+    image: coupleMemory,
+    gallery: [giftMemory, butterflyMemory, stickerMemory],
   },
   {
     id: "soft-fight",
@@ -206,6 +405,8 @@ export const timelineEvents: TimelineEvent[] = [
     type: "争执",
     description:
       "我们都不是故意让对方难过。后来才明白，爱不是永远不误会，而是愿意停下来，把对方真正想说的话听完。",
+    image: skyMemory,
+    gallery: [noteMemory, cozyMemory, butterflyMemory],
   },
   {
     id: "make-up",
@@ -214,6 +415,8 @@ export const timelineEvents: TimelineEvent[] = [
     type: "和好",
     description:
       "和好的时候没有谁必须低头，只有两个人都舍不得让距离继续变远。那一天，我们又学会了一点点爱。",
+    image: cozyMemory,
+    gallery: [catMemory, noteMemory, flowerMemory],
   },
   {
     id: "first-trip",
@@ -222,6 +425,8 @@ export const timelineEvents: TimelineEvent[] = [
     type: "旅行",
     description:
       "换一个城市，牵同一双手。风景当然很好看，但更好看的是你在风景里回头找我的样子。",
+    image: travelMemory,
+    gallery: [skyMemory, coupleMemory, stickerMemory],
     imageHint: "这里适合放旅行合照、票根或一张风景照。",
   },
   {
@@ -231,6 +436,8 @@ export const timelineEvents: TimelineEvent[] = [
     type: "礼物",
     description:
       "礼物真正被记住的地方，不在价格，而在你知道我会喜欢，也愿意花心思让我开心。",
+    image: giftMemory,
+    gallery: [noteMemory, flowerMemory, butterflyMemory],
   },
   {
     id: "anniversary",
@@ -239,6 +446,8 @@ export const timelineEvents: TimelineEvent[] = [
     type: "纪念日",
     description:
       "一年不是故事的终点，而是我们证明过：很多小事累在一起，就会变成很坚定的喜欢。",
+    image: stickerMemory,
+    gallery: [coupleMemory, giftMemory, noteMemory],
   },
   {
     id: "ordinary-day",
@@ -247,6 +456,8 @@ export const timelineEvents: TimelineEvent[] = [
     type: "普通但珍贵的一天",
     description:
       "没有特别安排，也没有一定要记住的大事件。只是一起吃饭、说话、分享今天，却让人很安心。",
+    image: cozyMemory,
+    gallery: [catMemory, skyMemory, flowerMemory],
   },
 ];
 
@@ -275,7 +486,33 @@ export const seedNotes: LoveNote[] = [
     content:
       "从遇见你开始，普通的日子像被撒了一点细细的光。我想把这些光都收好，等以后一起翻出来看。",
   },
+  {
+    id: "note-4",
+    author: "Eric",
+    date: "2026-06-01",
+    mood: "贴贴",
+    content:
+      "今天也想把你抱抱。不是因为发生了什么特别大的事，只是忽然觉得，有你在的世界会变得很软。",
+  },
+  {
+    id: "note-5",
+    author: "Eric",
+    date: "2026-06-18",
+    mood: "撒娇",
+    content:
+      "你撒娇的时候真的很可爱，哪怕只是一点点小语气，也会让我觉得：好吧，今天又更喜欢你一点。",
+  },
+  {
+    id: "note-6",
+    author: "Ting",
+    date: "2026-07-01",
+    mood: "晚安",
+    content:
+      "晚安不是一句结束，是把今天也好好放进我们的小盒子里。希望明天醒来，还是先想到你。",
+  },
 ];
+
+export const moodOptions = ["想你", "撒娇", "心软", "贴贴", "纪念", "和好", "开心", "晚安"];
 
 export const futureLetters: FutureLetter[] = [
   {
@@ -336,34 +573,70 @@ export const profileHer: Profile = {
   sections: [
     {
       title: "她的样子",
-      eyebrow: "The way she is",
+      eyebrow: "她被偏爱的样子",
       body:
-        "她不是单一的甜。她有柔软，也有边界；有撒娇，也有不愿将就。正因为这些都是真的，她才更值得被认真看见。",
+        "她不是单一的甜。她有柔软，也有边界；有撒娇，也有不愿将就。正因为这些都是真的，她才更值得被认真看见、认真喜欢、认真珍惜。",
       details: ["喜欢被细节回应", "会把在意藏进小语气", "看似独立，其实很珍惜稳定的偏爱"],
     },
     {
       title: "让我心动的瞬间",
-      eyebrow: "Tiny heartbeats",
+      eyebrow: "心动会偷偷发光",
       body:
-        "她不经意回头的时候，认真讲一件小事的时候，明明在乎却还假装没关系的时候，都会让我想把时间放慢一点。",
+        "她不经意回头的时候，认真讲一件小事的时候，明明在乎却还假装没关系的时候，都会让我想把时间放慢一点，悄悄贴一张蝴蝶贴纸。",
       details: ["认真听我说话", "分享今天发生的小事", "嘴硬之后又悄悄靠近"],
     },
     {
       title: "她的小习惯",
-      eyebrow: "Her little rituals",
+      eyebrow: "小习惯也想收藏",
       body:
         "她的小习惯像书页里的香气，轻轻一翻就会出现。那些别人可能忽略的地方，对我来说都是她很可爱的证据。",
       details: ["会反复确认我有没有懂", "喜欢把重要的东西收得很仔细", "生气也会留一点余地给和好"],
     },
     {
       title: "我想认真记住她",
-      eyebrow: "To remember her well",
+      eyebrow: "想把她放进小纸条里",
       body:
-        "我想记住她被照顾时松下来的神情，也记住她不开心时真正需要的不是大道理，而是一句清楚的我在。",
+        "我想记住她被照顾时松下来的神情，也记住她不开心时真正需要的不是大道理，而是一句清楚的我在、一个坚定的抱抱。",
       details: ["记住她喜欢的颜色和味道", "记住她不想被敷衍", "记住她值得被很确定地爱"],
     },
   ],
 };
+
+export const profileHerSweetProofs = [
+  {
+    title: "她笑起来的时候",
+    body: "像粉色小灯亮了一下，让普通空气都变得甜甜的。",
+    image: flowerMemory,
+  },
+  {
+    title: "她嘴硬但心软的时候",
+    body: "明明还在假装没关系，却已经悄悄给和好留了门缝。",
+    image: noteMemory,
+  },
+  {
+    title: "她认真在乎的时候",
+    body: "会把小小的不安说出来，因为她真的想和我走得更近。",
+    image: butterflyMemory,
+  },
+  {
+    title: "她撒娇的时候",
+    body: "一点点小语气，就足够让我想立刻把她抱进怀里。",
+    image: catMemory,
+  },
+  {
+    title: "她需要被坚定选择的时候",
+    body: "她不是难哄，她只是想确认自己真的被偏爱、被珍惜。",
+    image: coupleMemory,
+  },
+];
+
+export const profileHerSecretCollection = [
+  "她认真看消息时的停顿",
+  "她说想你时藏不住的小软",
+  "她生气后还愿意听解释的心软",
+  "她被夸时假装镇定的样子",
+  "她把重要小事记得很清楚的在乎",
+];
 
 export const profileHim: Profile = {
   name: "她眼里的他",
@@ -374,34 +647,52 @@ export const profileHim: Profile = {
   sections: [
     {
       title: "他的样子",
-      eyebrow: "The way he stays",
+      eyebrow: "像小猫一样靠近",
       body:
-        "他有时候反应慢，有时候不知道怎么把心里的话说漂亮。可他愿意留下来，愿意改，愿意把喜欢落在行动里。",
+        "他有时候反应慢，有时候不知道怎么把心里的话说漂亮。可他愿意留下来，愿意改，愿意像小猫一样慢慢靠近，把喜欢落在行动里。",
       details: ["认真听完再回应", "会记得她随口说过的话", "想把很多事情做得更可靠"],
     },
     {
       title: "他的可爱瞬间",
-      eyebrow: "Small softness",
+      eyebrow: "笨拙但很软",
       body:
         "他靠近的时候有一点笨拙，却又很诚实。那些想分享、想确认、想被她夸一下的瞬间，让人很难不心软。",
       details: ["开心时会忍不住多说几句", "想念会藏不太住", "被安慰后会变得很乖"],
     },
     {
       title: "她心软的瞬间",
-      eyebrow: "When she softens",
+      eyebrow: "她会想摸摸他的头",
       body:
         "当她看见他不是在逃避，而是在努力学习怎么爱她，她就会愿意再给一点耐心，也给这段关系多一点温柔。",
       details: ["他认真解释的时候", "他主动靠近的时候", "他把承诺变成小行动的时候"],
     },
     {
       title: "他也在学习爱",
-      eyebrow: "Learning love",
+      eyebrow: "把喜欢学得更好",
       body:
         "他正在学会：爱不只是证明自己没错，也是看见她为什么难过；不是等她开口才补救，而是提前把她放在心上。",
       details: ["学会更早回应", "学会把在意说清楚", "学会在关系里更温柔也更坚定"],
     },
   ],
 };
+
+export const profileHimCuteMoments = [
+  {
+    title: "他的笨拙可爱瞬间",
+    body: "想表达很多，但句子总是慢半拍，于是认真本身就变得很可爱。",
+    image: catMemory,
+  },
+  {
+    title: "他想被她夸一下的时候",
+    body: "像小猫把爪爪放到手心里，明明不好意思，却又期待被看见。",
+    image: cozyMemory,
+  },
+  {
+    title: "他在学习怎么更好地爱她",
+    body: "他会复盘、会靠近、会把下一次做得更温柔一点。",
+    image: noteMemory,
+  },
+];
 
 export const frictionRecords: FrictionRecord[] = [
   {
@@ -449,26 +740,26 @@ export const navigationCards = [
   {
     href: "/her",
     title: "他眼里的她",
-    description: "把她值得被珍惜的地方，一页一页写下来。",
+    description: "把她可爱、心软、发光的地方，一页一页偷偷收藏。",
   },
   {
     href: "/him",
     title: "她眼里的他",
-    description: "记录他笨拙但认真靠近的样子。",
+    description: "记录他笨拙但认真靠近，也想被她夸一下的样子。",
   },
   {
     href: "/story",
     title: "相遇以来",
-    description: "从第一次靠近，到每一次更懂彼此。",
+    description: "从第一次靠近，到每一次心动、和好、抱抱。",
   },
   {
     href: "/notes",
     title: "写给你的小纸条",
-    description: "今天也有话想写给你。",
+    description: "想你、撒娇、贴贴、晚安，都可以写在这里。",
   },
   {
     href: "/achievements",
     title: "心动藏品",
-    description: "把爱收藏成一枚枚小小勋章。",
+    description: "把爱收藏成一枚枚甜甜的蝴蝶勋章。",
   },
 ];

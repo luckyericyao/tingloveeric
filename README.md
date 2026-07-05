@@ -33,9 +33,15 @@ Edit these exports to update the site:
 - `coupleInfo`: names, site line, hero image path
 - `importantDates`: dates used for relationship stats
 - `stats`: homepage stat cards
+- `heroImages`: layered hero collage images
+- `memoryImages`: homepage bento gallery images
+- `profileHerImages` / `profileHimImages`: profile page collage images
+- `profileHerSweetProofs` / `profileHimCuteMoments`: sweet profile detail cards
 - `profileHer`: `/her`, how he sees her
 - `profileHim`: `/him`, how she sees him
 - `timelineEvents`: `/story`, relationship timeline entries
+- `moodOptions`: note composer mood tags
+- `noteDecorImages`: visual cards for the notes page
 - `frictionRecords`: `/story`, growth and understanding records
 - `achievements`: `/achievements`, romantic badge collection
 - `seedNotes`: initial note cards

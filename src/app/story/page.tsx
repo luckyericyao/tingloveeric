@@ -17,8 +17,8 @@ export default function StoryPage() {
         <div className="content-wrap">
           <div className="relative">
             <ButterflyDecor className="right-4 top-0" />
-            <SectionTitle kicker="Relationship timeline" title="相遇以来" align="center">
-              从第一次靠近，到每一次更懂彼此。
+            <SectionTitle kicker="我们的故事" title="相遇以来" align="center">
+              从第一次靠近，到每一次更懂彼此。照片、贴纸、心软和抱抱，都被夹进时间里。
             </SectionTitle>
           </div>
 
@@ -39,11 +39,11 @@ export default function StoryPage() {
       <section className="page-band bg-[rgba(255,250,244,0.38)]">
         <div className="content-wrap">
           <SectionTitle
-            kicker="Tender growth"
+            kicker="我们一起变软的地方"
             title="我们学会更爱彼此的地方"
             align="center"
           >
-            这些记录不是为了反复证明谁对谁错，而是为了记住：我们怎样一次次把误会变成更靠近。
+            这些记录不是为了反复证明谁对谁错，而是为了记住：我们怎样一次次把误会变成更靠近，把难过变成更懂彼此。
           </SectionTitle>
           <div className="mt-10 grid gap-4 lg:grid-cols-3">
             {frictionRecords.map((record) => (

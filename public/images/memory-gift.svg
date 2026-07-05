@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 680" role="img" aria-labelledby="title desc">
+  <title id="title">Gift and ribbon placeholder</title>
+  <desc id="desc">A champagne ribbon gift illustration for a romantic memory.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop stop-color="#fffaf4"/>
+      <stop offset=".52" stop-color="#f8dfea"/>
+      <stop offset="1" stop-color="#ece7f7"/>
+    </linearGradient>
+  </defs>
+  <rect width="900" height="680" rx="58" fill="url(#bg)"/>
+  <rect x="224" y="274" width="452" height="274" rx="42" fill="#fffaf4" stroke="#c9a968" stroke-opacity=".35" stroke-width="8"/>
+  <rect x="224" y="350" width="452" height="70" fill="#d69ab0" opacity=".62"/>
+  <rect x="414" y="274" width="72" height="274" fill="#c9a968" opacity=".68"/>
+  <path d="M450 274c-78-72-182-80-182-18 0 58 110 46 182 18zM450 274c78-72 182-80 182-18 0 58-110 46-182 18z" fill="#c9a968" opacity=".72"/>
+  <path d="M134 172c28-42 78-30 76 16-2 54-76 94-76 94s-74-40-76-94c-2-46 48-58 76-16z" fill="#d69ab0" opacity=".36"/>
+  <g fill="#c8bfe4" opacity=".58">
+    <circle cx="722" cy="188" r="8"/><circle cx="760" cy="222" r="5"/><circle cx="714" cy="530" r="7"/>
+  </g>
+  <path d="M164 520c160 60 406 60 572 0" fill="none" stroke="#b7c5b0" stroke-width="12" stroke-linecap="round" opacity=".32"/>
+</svg>

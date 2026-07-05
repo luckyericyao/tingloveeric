@@ -16,8 +16,8 @@ export default function AchievementsPage() {
         <div className="relative">
           <ButterflyDecor className="left-4 top-0" tone="gold" />
           <ButterflyDecor className="right-6 top-10" size="small" />
-          <SectionTitle kicker="Romantic badges" title="心动藏品" align="center">
-            把我们经历过的爱，收藏成一枚枚小小勋章。
+          <SectionTitle kicker="心动收藏夹" title="心动藏品" align="center">
+            把我们经历过的爱，收藏成一枚枚小小勋章。每一枚都像贴纸一样，证明今天也喜欢你。
           </SectionTitle>
         </div>
 
