@@ -1,15 +1,15 @@
 @import "tailwindcss";
 
 :root {
-  --background: #fbf7f0;
-  --foreground: #433b43;
-  --color-ink: #433b43;
-  --color-muted: #7a7280;
-  --color-ivory: #fbf7f0;
+  --background: #f7f3ec;
+  --foreground: #211c1d;
+  --color-ink: #211c1d;
+  --color-muted: #6f6667;
+  --color-ivory: #f7f3ec;
   --color-card: rgba(255, 252, 247, 0.82);
   --color-card-strong: rgba(255, 250, 244, 0.94);
-  --color-mist-rose: #ead0d9;
-  --color-rose: #d69ab0;
+  --color-mist-rose: #d8b9c0;
+  --color-rose: #a66572;
   --color-lavender: #c8bfe4;
   --color-gold: #c9a968;
   --color-blue-gray: #8c9cab;
@@ -40,47 +40,13 @@ html {
 
 body {
   min-height: 100vh;
-  background:
-    radial-gradient(circle at 12% 8%, rgba(234, 208, 217, 0.68), transparent 30rem),
-    radial-gradient(circle at 82% 12%, rgba(200, 191, 228, 0.52), transparent 28rem),
-    radial-gradient(circle at 72% 80%, rgba(183, 197, 176, 0.3), transparent 26rem),
-    radial-gradient(circle at 24% 72%, rgba(255, 238, 244, 0.72), transparent 24rem),
-    linear-gradient(135deg, #fbf7f0 0%, #fff8f2 38%, #f7eff8 100%);
+  background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans-soft);
 }
 
-body::before {
-  position: fixed;
-  inset: 0;
-  z-index: -2;
-  pointer-events: none;
-  content: "";
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.28) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.24) 1px, transparent 1px);
-  background-size: 42px 42px;
-  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.56), transparent 86%);
-}
-
-body::after {
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  content: "";
-  background-image:
-    radial-gradient(rgba(201, 169, 104, 0.12) 1px, transparent 1px),
-    radial-gradient(rgba(140, 156, 171, 0.12) 1px, transparent 1px);
-  background-position:
-    0 0,
-    18px 18px;
-  background-size: 36px 36px;
-  opacity: 0.54;
-}
-
 ::selection {
-  background: rgba(214, 154, 176, 0.35);
+  background: rgba(166, 101, 114, 0.26);
 }
 
 a {

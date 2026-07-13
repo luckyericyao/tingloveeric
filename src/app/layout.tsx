@@ -4,8 +4,8 @@ import { SiteHeader } from "@/components/SiteHeader";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "我俩 | Ting & Eric",
-  description: "一个温柔保存关系细节的私人浪漫记录网站。",
+  title: "私人档案馆 | Ting 与 Eric",
+  description: "不是一个恋爱 App，而是只对两个人开放的私人档案馆。",
   robots: {
     index: false,
     follow: false,

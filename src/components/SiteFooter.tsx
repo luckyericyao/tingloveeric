@@ -1,13 +1,9 @@
-import { coupleInfo } from "@/data/love";
-
 export function SiteFooter() {
   return (
-    <footer className="border-t border-[color:var(--color-line)] bg-[rgba(255,250,244,0.52)]">
-      <div className="content-wrap flex flex-col gap-4 py-10 text-sm text-[var(--color-muted)] md:flex-row md:items-center md:justify-between">
-        <p>她被认真看见。我俩被认真记录。这段关系被温柔保存。这是我俩的小世界。</p>
-        <p className="font-serif-elegant text-[0.76rem] uppercase tracking-normal">
-          {coupleInfo.shortLine}
-        </p>
+    <footer className="border-t border-[#211c1d]/15 bg-[#f7f3ec]">
+      <div className="content-wrap flex flex-col gap-2 py-9 text-sm text-[#211c1d]/55 md:flex-row md:items-center md:justify-between">
+        <p>只对 Ting 与 Eric 开放。</p>
+        <p className="font-serif-elegant">两个人的私人档案馆</p>
       </div>
     </footer>
   );
