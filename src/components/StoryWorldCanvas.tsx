@@ -1,7 +1,7 @@
 "use client";
 
 import { Canvas } from "@react-three/fiber";
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
 import * as THREE from "three";
 import { storyWorld } from "@/data/storyWorld";
 import { StoryWorldScene, type RenderQuality } from "@/components/StoryWorldScene";
@@ -15,6 +15,15 @@ type StoryWorldCanvasProps = {
   onAdvance: () => void;
   onReady: () => void;
 };
+
+function SceneReady({ onReady }: { onReady: () => void }) {
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(onReady);
+    return () => window.cancelAnimationFrame(frame);
+  }, [onReady]);
+
+  return null;
+}
 
 export function StoryWorldCanvas({
   activeChapter,
@@ -44,7 +53,6 @@ export function StoryWorldCanvas({
         gl.toneMapping = THREE.ACESFilmicToneMapping;
         gl.toneMappingExposure = 1.05;
         gl.outputColorSpace = THREE.SRGBColorSpace;
-        window.requestAnimationFrame(onReady);
       }}
     >
       <Suspense fallback={null}>
@@ -56,6 +64,7 @@ export function StoryWorldCanvas({
           onSelectChapter={onSelectChapter}
           onAdvance={onAdvance}
         />
+        <SceneReady onReady={onReady} />
       </Suspense>
     </Canvas>
   );

@@ -74,7 +74,8 @@ async function runViewport(browser, options) {
   }));
   await page.screenshot({ path: options.introPath });
   await page.getByRole("button", { name: "进入故事" }).click();
-  await page.waitForTimeout(options.reducedMotion === "reduce" ? 400 : 1600);
+  await page.locator("article h2").waitFor({ state: "visible", timeout: 20000 });
+  await page.waitForTimeout(options.reducedMotion === "reduce" ? 120 : 1000);
 
   const canvas = page.locator("canvas");
   await canvas.waitFor({ state: "visible" });
