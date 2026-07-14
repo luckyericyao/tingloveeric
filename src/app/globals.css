@@ -45,6 +45,33 @@ body {
   font-family: var(--font-sans-soft);
 }
 
+body.immersive-page {
+  overflow: hidden;
+  background: #070a12;
+  overscroll-behavior: none;
+}
+
+.story-world-label {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  width: max-content;
+  padding: 0.34rem 0.54rem;
+  border: 1px solid rgba(245, 238, 226, 0.17);
+  border-radius: 2px;
+  background: rgba(7, 10, 18, 0.68);
+  color: rgba(245, 238, 226, 0.78);
+  font-family: var(--font-sans-soft);
+  font-size: 0.56rem;
+  line-height: 1;
+  white-space: nowrap;
+  backdrop-filter: blur(8px);
+}
+
+.story-world-label span {
+  color: rgba(199, 167, 109, 0.82);
+}
+
 ::selection {
   background: rgba(166, 101, 114, 0.26);
 }

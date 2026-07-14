@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
-import { SiteFooter } from "@/components/SiteFooter";
-import { SiteHeader } from "@/components/SiteHeader";
+import { AppFrame } from "@/components/AppFrame";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "私人档案馆 | Ting 与 Eric",
-  description: "不是一个恋爱 App，而是只对两个人开放的私人档案馆。",
+  title: "Ting & Eric | 一段可以走进去的故事",
+  description: "一个只对两个人开放、可以亲手探索的 3D Love Story。",
   robots: {
     index: false,
     follow: false,
@@ -24,9 +23,7 @@ export default function RootLayout({
   return (
     <html lang="zh-CN">
       <body>
-        <SiteHeader />
-        {children}
-        <SiteFooter />
+        <AppFrame>{children}</AppFrame>
       </body>
     </html>
   );

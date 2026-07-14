@@ -1,6 +1,6 @@
-# 我俩
+# Ting & Eric
 
-A private romantic relationship record website for Ting and Eric, built with Next.js App Router, TypeScript, and Tailwind CSS.
+A private, cinematic love-story archive built with Next.js, React Three Fiber, Three.js, and an original ambient score. The homepage is a real-time 3D night garden that can be followed from the prologue through seven story chapters.
 
 ## Run locally
 
@@ -20,15 +20,51 @@ pnpm build
 pnpm lint
 ```
 
-## Edit the content
+## Edit the 3D story
 
-Most relationship content is in one file:
+The homepage chapters, dates, places, quotes, camera positions, and memory links live in:
+
+```text
+src/data/storyWorld.ts
+```
+
+The source photos and the rest of the archive content still live in:
 
 ```text
 src/data/love.ts
 ```
 
-Edit these exports to update the site:
+Add a chapter in `storyWorld.ts` to extend the 3D route. Each chapter provides its own camera target, world position, artifact type, copy, and optional archive link. The real-time scene is implemented in `src/components/StoryWorldScene.tsx`; the music and interface controls are in `src/components/LoveStoryExperience.tsx`.
+
+The current Shanghai photo is intentionally isolated at:
+
+```text
+public/images/shanghai-night-walk.jpg
+```
+
+Replace that file with a real photo using the same filename, or update `PhotoArtifact` to point to a new image.
+
+## Music
+
+`public/audio/our-night.m4a` is an original 64-second ambient score generated for this project. Replace it with Ting and Eric's chosen track, then update `storyWorld.music` if the filename changes. Audio begins only after the visitor clicks **进入故事**, so browser autoplay rules are respected.
+
+The generated score can be rebuilt with:
+
+```bash
+python3 scripts/generate_ambient.py
+afconvert public/audio/our-night.wav public/audio/our-night.m4a -f m4af -d aac -b 96000
+```
+
+## Controls
+
+- Click or touch the butterfly, cat, or illuminated memory artifacts to advance.
+- Use the bottom timeline, arrow keys, or horizontal swipe to move between chapters.
+- The top controls provide play/pause, mute, volume, and a lower-power render mode.
+- `prefers-reduced-motion` automatically disables camera drift and switches to the simplified scene.
+
+## Archive content
+
+Edit these exports in `src/data/love.ts` to update the supporting routes:
 
 - `coupleInfo`: names, site line, hero image path
 - `importantDates`: dates used for relationship stats
@@ -49,12 +85,6 @@ Edit these exports to update the site:
 - `achievements`: `/achievements`, romantic badge collection
 - `seedNotes`: initial note cards
 - `futureLetters`: future letters section on `/notes`
-
-The generated hero artwork is stored at:
-
-```text
-public/images/romantic-scrapbook-hero.png
-```
 
 ## Notes behavior
 
@@ -87,8 +117,11 @@ Set `LOVE_SITE_PASSCODE` to require a simple passcode gate before entering the s
 ```text
 src/app             App Router pages
 src/components      Reusable UI components
+src/data/storyWorld.ts  3D story, chapters, and music
 src/data/love.ts    Editable relationship data
-public/images       Site images
+public/audio        Original score and replacement notes
+public/images       Archive photos and fallback imagery
+scripts             Audio generation and browser visual QA
 ```
 
 ## Build
@@ -101,4 +134,10 @@ If you use pnpm:
 
 ```bash
 pnpm build
+```
+
+Run the browser-based visual and interaction checks against a running dev server:
+
+```bash
+pnpm qa:visual
 ```
