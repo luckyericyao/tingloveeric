@@ -223,6 +223,28 @@ function OrbArtifact() {
   );
 }
 
+function CoordinatesArtifact() {
+  const texture = useTexture("/images/coordinates/cp-cottage.jpg");
+
+  return (
+    <group position={[0, 1.08, 0]} rotation={[0.02, -0.16, -0.035]}>
+      <mesh castShadow>
+        <boxGeometry args={[0.82, 1.64, 0.08]} />
+        <meshStandardMaterial color="#9b8262" metalness={0.62} roughness={0.28} />
+      </mesh>
+      <mesh position={[0, 0, 0.047]}>
+        <planeGeometry args={[0.74, 1.54]} />
+        <meshBasicMaterial map={texture} toneMapped={false} />
+      </mesh>
+      <mesh position={[0, -0.66, 0.1]} rotation={[Math.PI / 2, 0, 0]}>
+        <torusGeometry args={[0.1, 0.012, 8, 28]} />
+        <meshStandardMaterial color={gold} emissive={gold} emissiveIntensity={0.4} />
+      </mesh>
+      <pointLight position={[0.25, 0.5, 1]} color="#b7a6e2" intensity={3.6} distance={4.2} />
+    </group>
+  );
+}
+
 function BookArtifact() {
   return (
     <group position={[0, 0.88, 0]} rotation={[-0.2, 0.15, -0.06]}>
@@ -315,6 +337,7 @@ function LetterArtifact() {
 }
 
 function Artifact({ artifact }: { artifact: StoryArtifact }) {
+  if (artifact === "coordinates") return <CoordinatesArtifact />;
   if (artifact === "orb") return <OrbArtifact />;
   if (artifact === "book") return <BookArtifact />;
   if (artifact === "garden") return <GardenArtifact />;

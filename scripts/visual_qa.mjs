@@ -133,7 +133,7 @@ async function runViewport(browser, options) {
 
   const routeStatuses = {};
   if (options.checkRoutes) {
-    for (const route of ["/her", "/story", "/world", "/board"]) {
+    for (const route of ["/her", "/story", "/world", "/board", "/coordinates"]) {
       const response = await context.request.get(`${baseURL}${route}`);
       routeStatuses[route] = response.status();
     }
@@ -179,6 +179,59 @@ async function runViewport(browser, options) {
   };
 }
 
+async function runCoordinatesViewport(browser, options) {
+  const context = await browser.newContext({
+    viewport: options.viewport,
+    deviceScaleFactor: 1,
+    hasTouch: options.hasTouch,
+    isMobile: options.hasTouch,
+    reducedMotion: options.reducedMotion || "no-preference",
+  });
+  const page = await context.newPage();
+  const consoleErrors = [];
+  const failedRequests = [];
+
+  page.on("console", (message) => {
+    if (message.type() === "error") consoleErrors.push(message.text());
+  });
+  page.on("pageerror", (error) => consoleErrors.push(error.message));
+  page.on("requestfailed", (request) => {
+    failedRequests.push(`${request.method()} ${request.url()} ${request.failure()?.errorText || "failed"}`);
+  });
+
+  await page.goto(`${baseURL}/coordinates`, { waitUntil: "domcontentloaded" });
+  await page.getByRole("heading", { name: "我们最初在 Soul 相遇" }).waitFor({ state: "visible" });
+  await page.screenshot({ path: options.heroPath });
+
+  const firstArchiveImage = page.getByRole("button", { name: "沉浸查看：那时候她叫 Hanni" });
+  await firstArchiveImage.scrollIntoViewIfNeeded();
+  await firstArchiveImage.click();
+  await page.getByRole("dialog", { name: "查看图片：那时候她叫 Hanni" }).waitFor({ state: "visible" });
+  await page.screenshot({ path: options.viewerPath });
+  await page.getByRole("button", { name: "下一张图片" }).click();
+  const viewerAdvanced = await page.getByRole("dialog", { name: "查看图片：她最早向外展示的生活" }).isVisible();
+  const closeButtons = page.getByRole("button", { name: "关闭图片" });
+  await closeButtons.nth(1).click();
+
+  const catsHeading = page.getByRole("heading", { name: "诺诺与小伊" });
+  await catsHeading.scrollIntoViewIfNeeded();
+  await page.waitForTimeout(options.reducedMotion === "reduce" ? 80 : 950);
+  await page.screenshot({ path: options.catsPath });
+
+  const state = await page.evaluate(() => ({
+    bodyOverflowX: document.body.scrollWidth - document.documentElement.clientWidth,
+    reducedMotion: window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+    images: Array.from(document.images).map((image) => ({
+      alt: image.alt,
+      complete: image.complete,
+      naturalWidth: image.naturalWidth,
+    })),
+  }));
+
+  await context.close();
+  return { ...state, viewerAdvanced, consoleErrors, failedRequests };
+}
+
 const browser = await chromium.launch({
   executablePath,
   headless: true,
@@ -217,7 +270,39 @@ try {
     advanceToShanghai: false,
   });
 
-  console.log(JSON.stringify({ desktop, mobile, reducedMotion }, null, 2));
+  const coordinatesDesktop = await runCoordinatesViewport(browser, {
+    viewport: { width: 1440, height: 900 },
+    hasTouch: false,
+    heroPath: "/tmp/ting-coordinates-hero-desktop.png",
+    viewerPath: "/tmp/ting-coordinates-viewer-desktop.png",
+    catsPath: "/tmp/ting-coordinates-cats-desktop.png",
+  });
+
+  const coordinatesMobile = await runCoordinatesViewport(browser, {
+    viewport: { width: 390, height: 844 },
+    hasTouch: true,
+    heroPath: "/tmp/ting-coordinates-hero-mobile.png",
+    viewerPath: "/tmp/ting-coordinates-viewer-mobile.png",
+    catsPath: "/tmp/ting-coordinates-cats-mobile.png",
+  });
+
+  const coordinatesReducedMotion = await runCoordinatesViewport(browser, {
+    viewport: { width: 1280, height: 800 },
+    hasTouch: false,
+    reducedMotion: "reduce",
+    heroPath: "/tmp/ting-coordinates-hero-reduced.png",
+    viewerPath: "/tmp/ting-coordinates-viewer-reduced.png",
+    catsPath: "/tmp/ting-coordinates-cats-reduced.png",
+  });
+
+  console.log(JSON.stringify({
+    desktop,
+    mobile,
+    reducedMotion,
+    coordinatesDesktop,
+    coordinatesMobile,
+    coordinatesReducedMotion,
+  }, null, 2));
 } finally {
   await browser.close();
 }

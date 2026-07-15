@@ -1,5 +1,6 @@
 export type StoryArtifact =
   | "prologue"
+  | "coordinates"
   | "orb"
   | "book"
   | "garden"
@@ -52,26 +53,30 @@ export const storyWorld = {
       lookAt: [-5.5, 1.1, -1.3],
     },
     {
-      id: "first-sight",
+      id: "coordinates",
       index: "01",
-      label: "初见",
-      title: "第一次认真看见彼此",
-      date: "2024.05.20",
-      place: "故事开始的地方",
-      quote: "那天没有盛大的开场。",
-      body: "后来回头看，像是时间轻轻把那一页折了角，提醒我们：从这里开始。",
-      prompt: "靠近光点，打开初见",
-      artifact: "orb",
+      label: "原始坐标",
+      title: "我们在 Soul 相遇",
+      date: "2025.01",
+      place: "Soul",
+      quote: "那时候，我们还只是两个陌生人。",
+      body: "她那时叫 Hanni。一张自拍，一只猫，一缸鱼和一盆发财树，是故事最早被保存下来的画面。",
+      prompt: "触碰这份数字遗迹",
+      artifact: "coordinates",
       position: [-3, 0, -3.2],
       camera: [-4.8, 2.6, 5.4],
       lookAt: [-2.7, 1.1, -3.2],
+      action: {
+        label: "打开原始坐标",
+        href: "/coordinates",
+      },
     },
     {
       id: "heartbeat",
       index: "02",
       label: "心动",
       title: "聊到舍不得结束",
-      date: "2024.06.12",
+      date: "后来",
       place: "深夜",
       quote: "原来有人愿意认真听，也是一件很珍贵的事。",
       body: "话题从普通日常慢慢走到心里。夜已经很深了，谁都没有先说结束。",
@@ -86,8 +91,8 @@ export const storyWorld = {
       index: "03",
       label: "她的世界",
       title: "她嘴硬，也会心软",
-      date: "2024.08.08",
-      place: "成为我们以后",
+      date: "靠近以后",
+      place: "她的世界",
       quote: "你靠近一点、认真一点，我还是会很心软。",
       body: "她喜欢蝴蝶，也喜欢猫。她需要被清楚选择，生气的时候，也会悄悄给和好留一扇门。",
       prompt: "跟着小猫走进花园",
@@ -105,7 +110,7 @@ export const storyWorld = {
       index: "04",
       label: "我们的记忆",
       title: "人很多的街，普通的夜晚",
-      date: "2025.01.18",
+      date: "后来",
       place: "上海",
       quote: "世界很大，但想一起去的人是你。",
       body: "一起走过人很多的街，也把一个普通夜晚过成后来会反复想起的样子。",

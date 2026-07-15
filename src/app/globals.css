@@ -51,6 +51,11 @@ body.immersive-page {
   overscroll-behavior: none;
 }
 
+body.cinematic-page {
+  background: #07090e;
+  overscroll-behavior-y: none;
+}
+
 .story-world-label {
   display: flex;
   align-items: center;

@@ -44,6 +44,14 @@ public/images/shanghai-night-walk.jpg
 
 Replace that file with a real photo using the same filename, or update `PhotoArtifact` to point to a new image.
 
+The real-image chapter **The Original Coordinates** lives at `/coordinates`. Its narrative data is in:
+
+```text
+src/data/originalCoordinates.ts
+```
+
+Its five optimized source images are in `public/images/coordinates/`. The first 3D memory beacon links directly to this chapter. Add future memories to the data file rather than writing copy into the component.
+
 ## Music
 
 `public/audio/our-night.m4a` is an original 64-second ambient score generated for this project. Replace it with Ting and Eric's chosen track, then update `storyWorld.music` if the filename changes. Audio begins only after the visitor clicks **进入故事**, so browser autoplay rules are respected.
