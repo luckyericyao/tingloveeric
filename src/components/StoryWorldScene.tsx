@@ -509,41 +509,71 @@ function ButterflyGuide({
   );
 }
 
-function CatGuide({ activeChapter, reducedMotion, onAdvance }: Pick<SceneProps, "activeChapter" | "reducedMotion" | "onAdvance">) {
-  const group = useRef<THREE.Group>(null);
+type CompanionCatVariant = "nono" | "xiaoyi";
+
+function CompanionCat({
+  variant,
+  position,
+  side,
+  reducedMotion,
+  onAdvance,
+}: {
+  variant: CompanionCatVariant;
+  position: [number, number, number];
+  side: -1 | 1;
+  reducedMotion: boolean;
+  onAdvance: () => void;
+}) {
+  const animated = useRef<THREE.Group>(null);
   const tail = useRef<THREE.Mesh>(null);
   const [hovered, setHovered] = useState(false);
-  const target = useMemo(() => new THREE.Vector3(), []);
+  const isNono = variant === "nono";
+  const colors = isNono
+    ? {
+        coat: "#f6f0e6",
+        chest: "#fffaf1",
+        point: "#554b4c",
+        pointSoft: "#6d6261",
+        iris: "#91a6b2",
+      }
+    : {
+        coat: "#f5f1e9",
+        chest: "#fffdf7",
+        point: "#b8b5ae",
+        pointSoft: "#d9d6cf",
+        iris: "#7e9489",
+      };
   const tailCurve = useMemo(
     () =>
       new THREE.CatmullRomCurve3([
-        new THREE.Vector3(0.48, 0.58, -0.06),
-        new THREE.Vector3(0.82, 0.78, -0.12),
-        new THREE.Vector3(0.92, 1.22, 0.08),
-        new THREE.Vector3(0.66, 1.45, 0.2),
+        new THREE.Vector3(side * 0.38, 0.58, -0.08),
+        new THREE.Vector3(side * 0.7, 0.7, -0.1),
+        new THREE.Vector3(side * 0.82, 1.04, 0.02),
+        new THREE.Vector3(side * 0.63, 1.28, 0.16),
       ]),
-    [],
+    [side],
   );
-  const tailGeometry = useMemo(() => new THREE.TubeGeometry(tailCurve, 34, 0.075, 10, false), [tailCurve]);
+  const tailGeometry = useMemo(
+    () => new THREE.TubeGeometry(tailCurve, 34, isNono ? 0.075 : 0.09, 10, false),
+    [isNono, tailCurve],
+  );
 
-  useFrame((state, delta) => {
-    if (!group.current) return;
-    const chapter = storyWorld.chapters[activeChapter];
-    target.set(chapter.position[0] + 0.95, 0.06, chapter.position[2] + 1.15);
-    group.current.position.lerp(target, 1 - Math.exp(-delta * 2.1));
-    group.current.rotation.y = THREE.MathUtils.lerp(group.current.rotation.y, activeChapter % 2 ? -0.28 : 0.24, 1 - Math.exp(-delta * 2.5));
-    if (!reducedMotion) {
-      group.current.position.y += Math.sin(state.clock.elapsedTime * 3.2) * 0.003;
-      if (tail.current) tail.current.rotation.z = Math.sin(state.clock.elapsedTime * 1.8) * 0.12;
-    }
+  useFrame((state) => {
+    if (!animated.current || reducedMotion) return;
+    const phase = isNono ? 0 : 0.85;
+    animated.current.position.y = Math.sin(state.clock.elapsedTime * 1.6 + phase) * 0.012;
+    animated.current.rotation.z = Math.sin(state.clock.elapsedTime * 0.72 + phase) * 0.012;
+    if (tail.current) tail.current.rotation.z = Math.sin(state.clock.elapsedTime * 1.45 + phase) * 0.1;
   });
 
-  const velvet = hovered ? "#2d2635" : "#171722";
+  const coat = hovered ? "#fffaf0" : colors.coat;
 
   return (
     <group
-      ref={group}
-      scale={0.72}
+      name={isNono ? "Nono-left-companion" : "Xiaoyi-right-companion"}
+      userData={{ companion: variant, referenceSide: side === -1 ? "left" : "right" }}
+      position={position}
+      scale={isNono ? 0.59 : 0.57}
       onPointerOver={(event) => {
         event.stopPropagation();
         setHovered(true);
@@ -559,52 +589,150 @@ function CatGuide({ activeChapter, reducedMotion, onAdvance }: Pick<SceneProps, 
         onAdvance();
       }}
     >
-      <mesh castShadow position={[0, 0.72, 0]} scale={[0.68, 0.88, 1.02]}>
-        <sphereGeometry args={[0.58, 30, 24]} />
-        <meshStandardMaterial color={velvet} roughness={0.72} metalness={0.05} />
-      </mesh>
-      <mesh castShadow position={[0, 1.52, 0.05]} scale={[0.92, 0.86, 0.84]}>
-        <sphereGeometry args={[0.46, 30, 24]} />
-        <meshStandardMaterial color={velvet} roughness={0.7} />
-      </mesh>
-      <mesh castShadow position={[-0.26, 1.91, 0.02]} rotation={[0, 0, -0.18]}>
-        <coneGeometry args={[0.2, 0.44, 4]} />
-        <meshStandardMaterial color={velvet} roughness={0.72} />
-      </mesh>
-      <mesh castShadow position={[0.26, 1.91, 0.02]} rotation={[0, 0, 0.18]}>
-        <coneGeometry args={[0.2, 0.44, 4]} />
-        <meshStandardMaterial color={velvet} roughness={0.72} />
-      </mesh>
-      <mesh position={[-0.15, 1.57, 0.42]} scale={[1, 0.7, 0.45]}>
-        <sphereGeometry args={[0.052, 16, 12]} />
-        <meshStandardMaterial color="#d6b76e" emissive={gold} emissiveIntensity={1.1} />
-      </mesh>
-      <mesh position={[0.15, 1.57, 0.42]} scale={[1, 0.7, 0.45]}>
-        <sphereGeometry args={[0.052, 16, 12]} />
-        <meshStandardMaterial color="#d6b76e" emissive={gold} emissiveIntensity={1.1} />
-      </mesh>
-      <mesh position={[0, 1.42, 0.47]} rotation={[Math.PI / 2, 0, 0]}>
-        <coneGeometry args={[0.045, 0.08, 3]} />
-        <meshStandardMaterial color="#a97079" roughness={0.65} />
-      </mesh>
-      <mesh position={[0, 1.16, 0.13]} rotation={[Math.PI / 2, 0, 0]}>
-        <torusGeometry args={[0.31, 0.028, 8, 36]} />
-        <meshStandardMaterial color="#8c7047" emissive={gold} emissiveIntensity={0.34} metalness={0.78} roughness={0.28} />
-      </mesh>
-      <mesh position={[0, 1.02, 0.42]}>
-        <sphereGeometry args={[0.07, 14, 12]} />
-        <meshStandardMaterial color="#c7a76d" emissive={gold} emissiveIntensity={0.56} metalness={0.72} roughness={0.3} />
-      </mesh>
-      {[-0.28, 0.28].map((x) => (
-        <mesh key={x} castShadow position={[x, 0.25, 0.22]}>
-          <capsuleGeometry args={[0.13, 0.42, 8, 16]} />
-          <meshStandardMaterial color={velvet} roughness={0.74} />
+      <group ref={animated}>
+        <mesh castShadow position={[0, 0.72, 0]} scale={[0.72, 0.9, 0.86]}>
+          <sphereGeometry args={[0.58, 36, 28]} />
+          <meshStandardMaterial color={coat} roughness={0.94} metalness={0.01} />
         </mesh>
-      ))}
-      <mesh ref={tail} geometry={tailGeometry}>
-        <meshStandardMaterial color={velvet} roughness={0.72} />
-      </mesh>
-      {hovered ? <pointLight position={[0, 1.2, 0.5]} color={gold} intensity={2.2} distance={2.2} /> : null}
+        <mesh castShadow position={[0, 1.06, 0.18]} scale={[0.72, 0.62, 0.58]}>
+          <sphereGeometry args={[0.5, 32, 24]} />
+          <meshStandardMaterial color={colors.chest} roughness={0.97} />
+        </mesh>
+        <mesh castShadow position={[0, 1.52, 0.06]} scale={isNono ? [1, 0.88, 0.9] : [1.04, 0.92, 0.92]}>
+          <sphereGeometry args={[0.46, 36, 28]} />
+          <meshStandardMaterial color={coat} roughness={0.92} />
+        </mesh>
+        {[-1, 1].map((cheekSide) => (
+          <mesh key={`cheek-${cheekSide}`} castShadow position={[cheekSide * 0.31, 1.46, 0.16]} scale={[1.15, 0.9, 0.72]}>
+            <sphereGeometry args={[0.22, 24, 18]} />
+            <meshStandardMaterial color={coat} roughness={0.96} />
+          </mesh>
+        ))}
+
+        {[-1, 1].map((earSide) => (
+          <group key={`ear-${earSide}`} position={[earSide * 0.27, 1.91, 0.035]} rotation={[0, 0, earSide * 0.16]}>
+            <mesh castShadow>
+              <coneGeometry args={[0.205, 0.46, 4]} />
+              <meshStandardMaterial color={isNono ? colors.point : colors.pointSoft} roughness={0.9} />
+            </mesh>
+            <mesh position={[0, -0.015, 0.035]} scale={[0.58, 0.72, 0.58]}>
+              <coneGeometry args={[0.17, 0.39, 4]} />
+              <meshStandardMaterial color="#cfaeb0" roughness={0.94} />
+            </mesh>
+          </group>
+        ))}
+
+        {isNono ? (
+          <>
+            {[-1, 1].map((maskSide) => (
+              <mesh
+                key={`mask-${maskSide}`}
+                position={[maskSide * 0.185, 1.58, 0.38]}
+                rotation={[0, maskSide * 0.09, maskSide * -0.16]}
+                scale={[1.5, 1.55, 0.34]}
+              >
+                <sphereGeometry args={[0.18, 28, 20]} />
+                <meshStandardMaterial color={colors.pointSoft} roughness={0.93} />
+              </mesh>
+            ))}
+          </>
+        ) : (
+          <>
+            <mesh position={[0, 1.8, 0.31]} scale={[1.18, 0.3, 0.25]}>
+              <sphereGeometry args={[0.22, 28, 20]} />
+              <meshStandardMaterial color="#d1cec7" roughness={0.95} />
+            </mesh>
+            {[-0.12, 0, 0.12].map((stripeX, index) => (
+              <mesh
+                key={`stripe-${stripeX}`}
+                position={[stripeX, 1.78 - Math.abs(stripeX) * 0.18, 0.405]}
+                rotation={[0, 0, (index - 1) * 0.22]}
+                scale={[0.42, 0.9, 0.2]}
+              >
+                <sphereGeometry args={[0.035, 16, 12]} />
+                <meshStandardMaterial color="#aaa7a1" roughness={0.96} />
+              </mesh>
+            ))}
+          </>
+        )}
+
+        {[-1, 1].map((eyeSide) => (
+          <group key={`eye-${eyeSide}`} position={[eyeSide * 0.155, 1.56, 0.445]}>
+            <mesh scale={[1, 1.08, 0.5]}>
+              <sphereGeometry args={[0.084, 22, 16]} />
+              <meshStandardMaterial color={colors.iris} roughness={0.35} metalness={0.08} emissive={colors.iris} emissiveIntensity={0.18} />
+            </mesh>
+            <mesh position={[0, 0, 0.037]} scale={[0.52, 0.9, 0.38]}>
+              <sphereGeometry args={[0.054, 18, 14]} />
+              <meshStandardMaterial color="#111116" roughness={0.22} />
+            </mesh>
+            <mesh position={[-0.018, 0.024, 0.061]}>
+              <sphereGeometry args={[0.013, 12, 10]} />
+              <meshBasicMaterial color="#fffdf6" />
+            </mesh>
+          </group>
+        ))}
+
+        {[-1, 1].map((muzzleSide) => (
+          <mesh key={`muzzle-${muzzleSide}`} position={[muzzleSide * 0.095, 1.4, 0.445]} scale={[1.25, 0.84, 0.58]}>
+            <sphereGeometry args={[0.105, 24, 18]} />
+            <meshStandardMaterial color={colors.chest} roughness={0.96} />
+          </mesh>
+        ))}
+        <mesh position={[0, 1.43, 0.515]} rotation={[Math.PI / 2, 0, 0]}>
+          <coneGeometry args={[0.055, 0.075, 3]} />
+          <meshStandardMaterial color="#d69a9e" roughness={0.72} />
+        </mesh>
+
+        {[-1, 1].flatMap((whiskerSide) =>
+          [-0.05, 0, 0.05].map((offset, index) => (
+            <mesh
+              key={`whisker-${whiskerSide}-${index}`}
+              position={[whiskerSide * 0.31, 1.36 + offset, 0.47]}
+              rotation={[0, 0, Math.PI / 2 + whiskerSide * offset * 2.5]}
+            >
+              <cylinderGeometry args={[0.006, 0.003, 0.32, 6]} />
+              <meshBasicMaterial color="#d9d2c8" transparent opacity={0.78} />
+            </mesh>
+          )),
+        )}
+
+        {[-0.27, 0.27].map((x) => (
+          <mesh key={`paw-${x}`} castShadow position={[x, 0.27, 0.24]}>
+            <capsuleGeometry args={[0.135, 0.44, 8, 18]} />
+            <meshStandardMaterial color={colors.chest} roughness={0.96} />
+          </mesh>
+        ))}
+        <mesh ref={tail} geometry={tailGeometry}>
+          <meshStandardMaterial color={isNono ? colors.point : colors.pointSoft} roughness={0.94} />
+        </mesh>
+        {hovered ? <pointLight position={[0, 1.4, 0.65]} color={isNono ? "#aebfd1" : "#c8d8ca"} intensity={2.4} distance={2.3} /> : null}
+      </group>
+    </group>
+  );
+}
+
+function CatCompanions({ activeChapter, reducedMotion, onAdvance }: Pick<SceneProps, "activeChapter" | "reducedMotion" | "onAdvance">) {
+  const group = useRef<THREE.Group>(null);
+  const target = useMemo(() => new THREE.Vector3(), []);
+
+  useFrame((state, delta) => {
+    if (!group.current) return;
+    const chapter = storyWorld.chapters[activeChapter];
+    target.set(chapter.position[0], 0.055, chapter.position[2] + 1.22);
+    group.current.position.lerp(target, 1 - Math.exp(-delta * 2.1));
+    group.current.rotation.y = THREE.MathUtils.lerp(
+      group.current.rotation.y,
+      activeChapter % 2 ? -0.2 : 0.18,
+      1 - Math.exp(-delta * 2.5),
+    );
+    if (!reducedMotion) group.current.position.y += Math.sin(state.clock.elapsedTime * 2.2) * 0.002;
+  });
+
+  return (
+    <group ref={group} name="Nono-and-Xiaoyi-companions">
+      <CompanionCat variant="nono" position={[-0.82, 0, 0]} side={-1} reducedMotion={reducedMotion} onAdvance={onAdvance} />
+      <CompanionCat variant="xiaoyi" position={[0.82, 0, 0]} side={1} reducedMotion={reducedMotion} onAdvance={onAdvance} />
     </group>
   );
 }
@@ -676,7 +804,7 @@ export function StoryWorldScene({
         })}
 
         <ButterflyGuide activeChapter={activeChapter} reducedMotion={reducedMotion} onAdvance={onAdvance} />
-        <CatGuide activeChapter={activeChapter} reducedMotion={reducedMotion} onAdvance={onAdvance} />
+        <CatCompanions activeChapter={activeChapter} reducedMotion={reducedMotion} onAdvance={onAdvance} />
       </WorldParallax>
 
       <ContactShadows
