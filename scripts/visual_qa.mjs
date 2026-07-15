@@ -215,6 +215,11 @@ async function runCoordinatesViewport(browser, options) {
 
   const catsHeading = page.getByRole("heading", { name: "诺诺与小伊" });
   await catsHeading.scrollIntoViewIfNeeded();
+  await page.waitForFunction(
+    () => Array.from(document.images).every((image) => image.complete && image.naturalWidth > 0),
+    undefined,
+    { timeout: 10000 },
+  );
   await page.waitForTimeout(options.reducedMotion === "reduce" ? 80 : 950);
   await page.screenshot({ path: options.catsPath });
 
