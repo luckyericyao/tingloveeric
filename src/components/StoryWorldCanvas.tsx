@@ -37,7 +37,7 @@ export function StoryWorldCanvas({
     <Canvas
       className={styles.canvas}
       shadows={quality === "cinematic"}
-      dpr={quality === "cinematic" ? [1, 1.65] : 1}
+      dpr={quality === "cinematic" ? [1, 1.45] : 1}
       camera={{
         fov: 42,
         near: 0.1,
@@ -51,7 +51,7 @@ export function StoryWorldCanvas({
       }}
       onCreated={({ gl }) => {
         gl.toneMapping = THREE.ACESFilmicToneMapping;
-        gl.toneMappingExposure = 1.05;
+        gl.toneMappingExposure = 0.94;
         gl.outputColorSpace = THREE.SRGBColorSpace;
       }}
     >

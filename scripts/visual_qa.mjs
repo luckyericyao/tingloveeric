@@ -3,6 +3,17 @@ import { PNG } from "pngjs";
 
 const executablePath = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 const baseURL = process.env.QA_URL || "http://127.0.0.1:3000";
+const generatedSceneAssets = [
+  "/assets/cats/nono-front.webp",
+  "/assets/cats/nono-left.webp",
+  "/assets/cats/nono-right.webp",
+  "/assets/cats/nono-blink.webp",
+  "/assets/cats/xiaoyi-front.webp",
+  "/assets/cats/xiaoyi-left.webp",
+  "/assets/cats/xiaoyi-right.webp",
+  "/assets/cats/xiaoyi-blink.webp",
+  "/assets/butterfly/pearl-wing.webp",
+];
 
 function analyzePng(buffer) {
   const png = PNG.sync.read(buffer);
@@ -139,6 +150,20 @@ async function runViewport(browser, options) {
     }
   }
 
+  const assetStatuses = {};
+  if (options.checkAssets) {
+    for (const asset of generatedSceneAssets) {
+      const response = await context.request.get(`${baseURL}${asset}`);
+      assetStatuses[asset] = {
+        status: response.status(),
+        contentType: response.headers()["content-type"],
+      };
+    }
+
+    const failedAssets = Object.entries(assetStatuses).filter(([, result]) => result.status !== 200);
+    if (failedAssets.length > 0) throw new Error(`Generated scene assets failed: ${JSON.stringify(failedAssets)}`);
+  }
+
   const state = await page.evaluate(() => {
     const audio = document.querySelector("audio");
     const canvasElement = document.querySelector("canvas");
@@ -174,6 +199,7 @@ async function runViewport(browser, options) {
     interactionChecks,
     finale,
     routeStatuses,
+    assetStatuses,
     consoleErrors,
     failedRequests,
   };
@@ -255,6 +281,7 @@ try {
     advanceToFinale: true,
     checkControls: true,
     checkRoutes: true,
+    checkAssets: true,
   });
 
   const mobile = await runViewport(browser, {

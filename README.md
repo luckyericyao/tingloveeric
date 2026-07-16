@@ -34,6 +34,16 @@ The source photos and the rest of the archive content still live in:
 src/data/love.ts
 ```
 
+The two homepage companions are textured 2.5D Three.js characters implemented in:
+
+```text
+src/components/CatSprite3D.tsx
+```
+
+Their generated front, left, right, and blink textures live in `public/assets/cats/`. Adjust `CAT_LAYOUT` for each cat's proportions and crop, and edit the two `CatSprite3D` calls near the bottom of the component to change desktop/mobile position and scale. Blink intervals are set in `seededDelay(...)` calls inside `useFrame`.
+
+The pearl-winged guide and its curved flight path are implemented in `src/components/Butterfly3D.tsx`; edit the `path` control points to change its route, and the `targetScale` values to change its size.
+
 Add a chapter in `storyWorld.ts` to extend the 3D route. Each chapter provides its own camera target, world position, artifact type, copy, and optional archive link. The real-time scene is implemented in `src/components/StoryWorldScene.tsx`; the music and interface controls are in `src/components/LoveStoryExperience.tsx`.
 
 The current Shanghai photo is intentionally isolated at:
@@ -129,6 +139,7 @@ src/data/storyWorld.ts  3D story, chapters, and music
 src/data/love.ts    Editable relationship data
 public/audio        Original score and replacement notes
 public/images       Archive photos and fallback imagery
+public/assets       Generated transparent cat and butterfly textures
 scripts             Audio generation and browser visual QA
 ```
 
