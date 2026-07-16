@@ -95,6 +95,13 @@ async function runViewport(browser, options) {
   await page.screenshot({ path: options.storyPath });
 
   const interactionChecks = {};
+  if (options.panelClosedPath) {
+    await page.getByRole("button", { name: "收起旁白" }).click();
+    await page.waitForTimeout(options.reducedMotion === "reduce" ? 80 : 520);
+    interactionChecks.reopenPanelVisible = await page.getByRole("button", { name: "序章", exact: true }).isVisible();
+    await page.screenshot({ path: options.panelClosedPath });
+  }
+
   if (options.checkControls) {
     await page.getByRole("button", { name: "静音" }).click();
     interactionChecks.mutedVolume = await page.locator("audio").evaluate((audio) => audio.volume);
@@ -275,6 +282,7 @@ try {
     hasTouch: false,
     introPath: "/tmp/ting-3d-intro-desktop.png",
     storyPath: "/tmp/ting-3d-story-desktop.png",
+    panelClosedPath: "/tmp/ting-3d-story-desktop-closed.png",
     shanghaiPath: "/tmp/ting-3d-shanghai-desktop.png",
     finalePath: "/tmp/ting-3d-finale-desktop.png",
     advanceToShanghai: true,
@@ -289,6 +297,7 @@ try {
     hasTouch: true,
     introPath: "/tmp/ting-3d-intro-mobile.png",
     storyPath: "/tmp/ting-3d-story-mobile.png",
+    panelClosedPath: "/tmp/ting-3d-story-mobile-closed.png",
     advanceToShanghai: false,
     testSwipe: true,
   });

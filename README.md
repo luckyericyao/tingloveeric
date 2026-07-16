@@ -40,7 +40,7 @@ The two homepage companions are textured 2.5D Three.js characters implemented in
 src/components/CatSprite3D.tsx
 ```
 
-Their generated front, left, right, and blink textures live in `public/assets/cats/`. Adjust `CAT_LAYOUT` for each cat's proportions and crop, and edit the two `CatSprite3D` calls near the bottom of the component to change desktop/mobile position and scale. Blink intervals are set in `seededDelay(...)` calls inside `useFrame`.
+Their generated front, left, right, and blink textures live in `public/assets/cats/`. In `CatSprite3D.tsx`, `CAT_LAYOUT` controls the texture-plane proportions and tint. `CAT_STAGE_LAYOUT` controls the separate desktop/mobile foreground composition: `depth`, `openY`/`closedY`, per-cat `xOpen`/`xClosed`, `y`, `z`, `scaleOpen`/`scaleClosed`, and inward `yaw`. Entrance duration and overshoot are inside `useFrame`; the two `entranceDelay` props near the bottom of the component control the stagger. Blink intervals are set by the `seededDelay(...)` calls.
 
 The pearl-winged guide and its curved flight path are implemented in `src/components/Butterfly3D.tsx`; edit the `path` control points to change its route, and the `targetScale` values to change its size.
 

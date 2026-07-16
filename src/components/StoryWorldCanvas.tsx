@@ -9,6 +9,7 @@ import styles from "./LoveStoryExperience.module.css";
 
 type StoryWorldCanvasProps = {
   activeChapter: number;
+  panelOpen: boolean;
   quality: RenderQuality;
   reducedMotion: boolean;
   onSelectChapter: (chapter: number) => void;
@@ -27,6 +28,7 @@ function SceneReady({ onReady }: { onReady: () => void }) {
 
 export function StoryWorldCanvas({
   activeChapter,
+  panelOpen,
   quality,
   reducedMotion,
   onSelectChapter,
@@ -59,6 +61,7 @@ export function StoryWorldCanvas({
         <StoryWorldScene
           activeChapter={activeChapter}
           started
+          panelOpen={panelOpen}
           quality={quality}
           reducedMotion={reducedMotion}
           onSelectChapter={onSelectChapter}

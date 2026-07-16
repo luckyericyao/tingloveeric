@@ -166,6 +166,7 @@ export function LoveStoryExperience() {
       {webglSupported && started ? (
         <StoryWorldCanvas
           activeChapter={activeChapter}
+          panelOpen={panelOpen}
           quality={quality}
           reducedMotion={reducedMotion}
           onSelectChapter={selectChapter}

@@ -14,6 +14,7 @@ type RenderQuality = "cinematic" | "quiet";
 type SceneProps = {
   activeChapter: number;
   started: boolean;
+  panelOpen: boolean;
   quality: RenderQuality;
   reducedMotion: boolean;
   onSelectChapter: (chapter: number) => void;
@@ -423,6 +424,7 @@ function WorldParallax({ children, reducedMotion }: { children: React.ReactNode;
 export function StoryWorldScene({
   activeChapter,
   started,
+  panelOpen,
   quality,
   reducedMotion,
   onSelectChapter,
@@ -475,7 +477,7 @@ export function StoryWorldScene({
         })}
 
         <Butterfly3D activeChapter={activeChapter} reducedMotion={reducedMotion} quiet={quiet} onAdvance={onAdvance} />
-        <CatCompanions activeChapter={activeChapter} reducedMotion={reducedMotion} onAdvance={onAdvance} />
+        <CatCompanions activeChapter={activeChapter} panelOpen={panelOpen} reducedMotion={reducedMotion} onAdvance={onAdvance} />
       </WorldParallax>
 
       <ContactShadows

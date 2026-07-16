@@ -7,7 +7,9 @@
   - `/Users/ericyao/.codex/attachments/50d4cb8a-b0ac-4dfd-bcb7-8f3f3ad13c7b/image-1.jpeg` (Xiaoyi: silver-white coat, pale forehead markings, round grey-green eyes)
 - Browser-rendered implementation:
   - `/tmp/ting-3d-story-desktop.png`
+  - `/tmp/ting-3d-story-desktop-closed.png`
   - `/tmp/ting-3d-story-mobile.png`
+  - `/tmp/ting-3d-story-mobile-closed.png`
   - `/tmp/ting-3d-shanghai-desktop.png`
 - Desktop viewport: `1440 x 900`, local `/`, story entered with narration open.
 - Mobile viewport: `390 x 844`, local `/`, story entered with narration open.
@@ -17,7 +19,8 @@
 - No actionable P0, P1, or P2 findings remain.
 - Nono is fixed on the left and reads immediately as a seal-bicolor ragdoll: white inverted-V face, dark ears and eye mask, pink nose, and blue-grey eyes.
 - Xiaoyi is fixed on the right and reads immediately as a silver-white longhair: rounder face, silver crown and ears, pink nose, and grey-green eyes.
-- The mobile pair is raised above the default narration panel so both faces remain visible without covering copy or controls.
+- The desktop pair now frames the story from the foreground: Xiaoyi on the lower left and Nono on the lower right, both turned slightly inward.
+- Mobile uses independent open/closed scales and positions. Open narration keeps both faces above the reading surface; closing narration lets both cats settle larger into the lower corners.
 - The butterfly is now a restrained pearl-white and pale-gold textured form with independent wings, a small 3D body, and no strong bloom.
 
 ## Required Fidelity Surfaces
@@ -31,9 +34,10 @@
 ## Comparison History
 
 1. Replaced the basic-geometry cats entirely with curved textured planes and separate identity assets.
-2. Added camera-relative view blending, 200-350ms crossfades, asynchronous blinking, breathing, tiny head and ear movement, restrained billboard limits, and contact shadows.
-3. Added a feathered head-depth layer and rear parallax layer. The feather mask removed the visible crop seam found during desktop review.
-4. Raised the cats on compact screens after the first mobile capture showed the narration panel hiding them.
+2. Added camera-relative dominant-view crossfades, asynchronous blinking, breathing, tiny head movement, restrained billboard limits, and contact shadows.
+3. Removed the separate head-depth crop after foreground scaling exposed a visible double-face offset; the curved main plane and low-opacity rear layer retain subtle depth without ghosting.
+4. Added a 1.02-second rise/fade/overshoot entrance with a 150ms stagger and initialized the cat group directly at the active chapter instead of letting it travel from the world origin.
+5. Added separate desktop/mobile and narration-open/closed stage layouts, plus render culling for inactive transparent views.
 
 ## Interaction And Runtime Checks
 
@@ -42,7 +46,7 @@
 
 ## Follow-up Polish
 
-- P3: Fully groomed fur meshes would exceed the intended mobile budget; the present 2.5D treatment prioritizes the fixed cinematic camera and identity fidelity.
+- P3: Fully groomed fur meshes would exceed the intended mobile budget; the enlarged 2.5D treatment prioritizes the fixed cinematic camera, face clarity, and identity fidelity.
 
 ## Implementation Checklist
 
