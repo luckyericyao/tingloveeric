@@ -10,7 +10,7 @@ type Butterfly3DProps = {
   activeChapter: number;
   reducedMotion: boolean;
   quiet: boolean;
-  onAdvance: () => void;
+  onInteract: () => void;
 };
 
 const WING_TEXTURE = "/assets/butterfly/pearl-wing.webp";
@@ -44,7 +44,7 @@ function createAntennaGeometry(side: -1 | 1) {
   return new THREE.TubeGeometry(curve, 12, 0.0045, 5, false);
 }
 
-export function Butterfly3D({ activeChapter, reducedMotion, quiet, onAdvance }: Butterfly3DProps) {
+export function Butterfly3D({ activeChapter, reducedMotion, quiet, onInteract }: Butterfly3DProps) {
   const anchor = useRef<THREE.Group>(null);
   const butterfly = useRef<THREE.Group>(null);
   const leftWing = useRef<THREE.Group>(null);
@@ -90,6 +90,7 @@ export function Butterfly3D({ activeChapter, reducedMotion, quiet, onAdvance }: 
   const progress = useRef(0.08);
   const flapPhase = useRef(0);
   const reveal = useRef(0);
+  const interactionBoost = useRef(0);
 
   useEffect(
     () => () => {
@@ -106,9 +107,12 @@ export function Butterfly3D({ activeChapter, reducedMotion, quiet, onAdvance }: 
     const chapter = storyWorld.chapters[activeChapter];
     target.set(chapter.position[0], 0, chapter.position[2]);
     anchor.current.position.lerp(target, 1 - Math.exp(-delta * 2.25));
+    interactionBoost.current = Math.max(0, interactionBoost.current - delta * 1.15);
 
     if (!reducedMotion) {
-      const speed = (quiet ? 0.026 : 0.032) * (1 + Math.sin(state.clock.elapsedTime * 0.41) * 0.16);
+      const speed = (quiet ? 0.026 : 0.032)
+        * (1 + Math.sin(state.clock.elapsedTime * 0.41) * 0.16)
+        * (1 + interactionBoost.current * 1.5);
       progress.current = (progress.current + delta * speed) % 1;
     }
 
@@ -147,7 +151,7 @@ export function Butterfly3D({ activeChapter, reducedMotion, quiet, onAdvance }: 
       if (!material) return;
       material.opacity = reveal.current * (index < 2 ? (quiet ? 0.75 : 0.82) : 0.1);
     });
-    const targetScale = hovered ? 0.84 : quiet ? 0.7 : 0.76;
+    const targetScale = (hovered ? 0.84 : quiet ? 0.7 : 0.76) + interactionBoost.current * 0.08;
     targetScaleVector.set(targetScale, targetScale, targetScale);
     butterfly.current.scale.lerp(
       targetScaleVector,
@@ -208,7 +212,8 @@ export function Butterfly3D({ activeChapter, reducedMotion, quiet, onAdvance }: 
         }}
         onClick={(event) => {
           event.stopPropagation();
-          onAdvance();
+          onInteract();
+          interactionBoost.current = 1;
         }}
       >
         {wing(false, 0)}

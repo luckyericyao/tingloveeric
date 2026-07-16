@@ -1,10 +1,15 @@
 .experience {
-  position: relative;
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100dvh;
   min-height: 100svh;
   overflow: hidden;
+  overscroll-behavior: none;
   background: #070a12;
   color: #f5eee2;
   isolation: isolate;
+  touch-action: none;
 }
 
 .canvas {
@@ -265,12 +270,37 @@
   background: rgba(5, 7, 13, 0.72);
   backdrop-filter: blur(18px);
   transition: transform 420ms ease, opacity 420ms ease;
+  will-change: transform, opacity;
 }
 
 .chapterPanelHidden {
   transform: translateX(-24px);
   opacity: 0;
   pointer-events: none;
+}
+
+.chapterPanelPlaying .chapterMeta,
+.chapterPanelPlaying h2,
+.chapterPanelPlaying .chapterQuote,
+.chapterPanelPlaying .chapterBody,
+.chapterPanelPlaying .chapterFooter {
+  animation: chapterContentIn 760ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.chapterPanelPlaying h2 {
+  animation-delay: 120ms;
+}
+
+.chapterPanelPlaying .chapterQuote {
+  animation-delay: 280ms;
+}
+
+.chapterPanelPlaying .chapterBody {
+  animation-delay: 440ms;
+}
+
+.chapterPanelPlaying .chapterFooter {
+  animation-delay: 620ms;
 }
 
 .panelClose {
@@ -419,11 +449,29 @@
 }
 
 .chapterDotActive span,
-.chapterDot:hover span {
+.chapterDotViewed:hover span {
   width: 11px;
   height: 11px;
   border-color: #d1af74;
   background: #9f5968;
+}
+
+.chapterDotViewed::before {
+  background: rgba(199, 167, 109, 0.34);
+}
+
+.chapterDotFuture {
+  cursor: default;
+  opacity: 0.34;
+}
+
+.chapterDot[aria-disabled="true"] {
+  cursor: default;
+}
+
+.nextControl {
+  border-color: rgba(245, 238, 226, 0.12);
+  color: rgba(245, 238, 226, 0.58);
 }
 
 .chapterStatus {
@@ -436,6 +484,7 @@
   gap: 10px;
   color: rgba(245, 238, 226, 0.42);
   font-size: 10px;
+  transition: opacity 300ms ease, transform 300ms ease;
 }
 
 .chapterStatus::before {
@@ -443,6 +492,27 @@
   height: 1px;
   content: "";
   background: rgba(130, 119, 168, 0.72);
+}
+
+.firstHint {
+  color: rgba(245, 238, 226, 0.72);
+  animation: firstHintIn 800ms ease both;
+}
+
+.navNotice {
+  position: absolute;
+  z-index: 13;
+  right: 50%;
+  bottom: 82px;
+  margin: 0;
+  padding: 8px 12px;
+  border: 1px solid rgba(245, 238, 226, 0.14);
+  background: rgba(5, 7, 13, 0.7);
+  color: rgba(245, 238, 226, 0.64);
+  font-size: 10px;
+  transform: translateX(50%);
+  backdrop-filter: blur(12px);
+  animation: noticeIn 240ms ease both;
 }
 
 .errorNote {
@@ -459,6 +529,33 @@
   to { transform: translateX(116%); }
 }
 
+@keyframes chapterContentIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes firstHintIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes noticeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 @media (max-width: 767px) {
   .topbar {
     min-height: 64px;
@@ -471,8 +568,19 @@
 
   .brandSubtitle,
   .volumeSlider,
-  .chapterStatus,
   .controlLink {
+    display: none;
+  }
+
+  .chapterStatus {
+    top: 76px;
+    right: 14px;
+    left: 14px;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .chapterStatus::before {
     display: none;
   }
 
@@ -514,7 +622,7 @@
     left: 0;
     width: 100%;
     min-height: 0;
-    max-height: 48svh;
+    max-height: 48dvh;
     overflow-y: auto;
     padding: 20px 22px 22px;
     border-top: 1px solid rgba(245, 238, 226, 0.16);
@@ -579,6 +687,10 @@
   .chapterDot {
     height: 32px;
   }
+
+  .navNotice {
+    bottom: 68px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -586,7 +698,13 @@
   .chapterPanel,
   .loadingFill,
   .iconButton,
-  .chapterDot span {
+  .chapterDot span,
+  .chapterStatus,
+  .chapterPanelPlaying .chapterMeta,
+  .chapterPanelPlaying h2,
+  .chapterPanelPlaying .chapterQuote,
+  .chapterPanelPlaying .chapterBody,
+  .chapterPanelPlaying .chapterFooter {
     animation: none;
     transition-duration: 0.01ms;
   }

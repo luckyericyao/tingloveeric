@@ -18,14 +18,14 @@ type CatSprite3DProps = {
   lockFront: boolean;
   reducedMotion: boolean;
   renderOrder: number;
-  onAdvance: () => void;
+  onInteract: () => void;
 };
 
 type CatCompanionsProps = {
   activeChapter: number;
   panelOpen: boolean;
   reducedMotion: boolean;
-  onAdvance: () => void;
+  onInteract: () => void;
 };
 
 const CAT_TEXTURES = {
@@ -138,7 +138,7 @@ export function CatSprite3D({
   lockFront,
   reducedMotion,
   renderOrder,
-  onAdvance,
+  onInteract,
 }: CatSprite3DProps) {
   const anchor = useRef<THREE.Group>(null);
   const motion = useRef<THREE.Group>(null);
@@ -179,6 +179,8 @@ export function CatSprite3D({
   const nextTwitchAt = useRef(0);
   const twitchStartedAt = useRef(-1);
   const twitchCycle = useRef(0);
+  const interactionRequested = useRef(false);
+  const interactionPulse = useRef(0);
   const seed = identity === "nono" ? 1.37 : 4.83;
   const targetAnchorPosition = useMemo(() => new THREE.Vector3(), []);
   const targetAnchorScale = useMemo(() => new THREE.Vector3(), []);
@@ -218,6 +220,13 @@ export function CatSprite3D({
     }
 
     const now = state.clock.elapsedTime;
+    if (interactionRequested.current) {
+      interactionRequested.current = false;
+      interactionPulse.current = 1;
+      blinkStartedAt.current = now;
+      twitchStartedAt.current = now;
+    }
+    interactionPulse.current = Math.max(0, interactionPulse.current - delta * 1.35);
     if (nextBlinkAt.current === 0) nextBlinkAt.current = now + seededDelay(seed, 0, 2.5, 4.8);
     if (nextTwitchAt.current === 0) nextTwitchAt.current = now + seededDelay(seed + 2.1, 0, 3.8, 7.4);
 
@@ -277,6 +286,7 @@ export function CatSprite3D({
       if (mainMaterial) {
         mainMaterial.opacity = mainOpacity;
         mainMaterial.visible = mainOpacity > 0.002;
+        mainMaterial.color.set(hovered || interactionPulse.current > 0.08 ? "#eee7dc" : layout.tint);
       }
       if (depthMaterial) {
         depthMaterial.opacity = depthOpacity;
@@ -301,8 +311,10 @@ export function CatSprite3D({
       entranceScale,
     );
     motion.current.rotation.y = inwardYaw + THREE.MathUtils.clamp(cameraAngle * 0.15, -0.12, 0.12) + headDrift;
-    motion.current.rotation.z = reducedMotion ? 0 : Math.sin(now * 0.43 + seed) * 0.006 + twitchAmount * side * 0.008;
-    motion.current.position.y = (reducedMotion ? 0 : breathing * 0.008) - (1 - entranceEase) * 0.28;
+    motion.current.rotation.z = reducedMotion
+      ? 0
+      : Math.sin(now * 0.43 + seed) * 0.006 + twitchAmount * side * 0.008 + interactionPulse.current * side * 0.006;
+    motion.current.position.y = (reducedMotion ? 0 : breathing * 0.008) - (1 - entranceEase) * 0.28 + interactionPulse.current * 0.012;
   });
 
   return (
@@ -310,20 +322,6 @@ export function CatSprite3D({
       ref={anchor}
       name={`${identity}-cat-sprite-3d`}
       userData={{ identity, treatment: "2.5d-texture-sprite" }}
-      onPointerOver={(event) => {
-        event.stopPropagation();
-        setHovered(true);
-        document.body.style.cursor = "pointer";
-      }}
-      onPointerOut={(event) => {
-        event.stopPropagation();
-        setHovered(false);
-        document.body.style.cursor = "default";
-      }}
-      onClick={(event) => {
-        event.stopPropagation();
-        onAdvance();
-      }}
     >
       <mesh position={[0.08 * side, 0.018, -0.08]} rotation={[-Math.PI / 2, 0, side * 0.08]} renderOrder={renderOrder - 2}>
         <planeGeometry args={[1.46, 0.52]} />
@@ -338,6 +336,27 @@ export function CatSprite3D({
       </mesh>
 
       <group ref={motion} position={[0, layout.centerY, 0]}>
+        <mesh
+          position={[0, -layout.height * 0.03, 0.045]}
+          onPointerOver={(event) => {
+            event.stopPropagation();
+            setHovered(true);
+            document.body.style.cursor = "pointer";
+          }}
+          onPointerOut={(event) => {
+            event.stopPropagation();
+            setHovered(false);
+            document.body.style.cursor = "default";
+          }}
+          onClick={(event) => {
+            event.stopPropagation();
+            onInteract();
+            interactionRequested.current = true;
+          }}
+        >
+          <planeGeometry args={[layout.width * 0.58, layout.height * 0.78]} />
+          <meshBasicMaterial transparent opacity={0} depthWrite={false} colorWrite={false} />
+        </mesh>
         {textures.map((texture, index) => (
           <group key={VIEW_ORDER[index]}>
             <mesh geometry={geometry} position={[side * -0.008, 0.006, -0.026]} scale={[1.018, 1.012, 1]} renderOrder={renderOrder - 1}>
@@ -360,7 +379,7 @@ export function CatSprite3D({
                   mainMaterials.current[index] = material;
                 }}
                 map={texture}
-                color={hovered ? "#eee7dc" : layout.tint}
+                color={layout.tint}
                 transparent
                 opacity={0}
                 alphaTest={0.018}
@@ -375,7 +394,7 @@ export function CatSprite3D({
   );
 }
 
-export function CatCompanions({ activeChapter, panelOpen, reducedMotion, onAdvance }: CatCompanionsProps) {
+export function CatCompanions({ activeChapter, panelOpen, reducedMotion, onInteract }: CatCompanionsProps) {
   const group = useRef<THREE.Group>(null);
   const target = useMemo(() => new THREE.Vector3(), []);
   const groupInitialized = useRef(false);
@@ -413,7 +432,7 @@ export function CatCompanions({ activeChapter, panelOpen, reducedMotion, onAdvan
         lockFront={compact}
         reducedMotion={reducedMotion}
         renderOrder={32}
-        onAdvance={onAdvance}
+        onInteract={onInteract}
       />
       <CatSprite3D
         identity="nono"
@@ -425,7 +444,7 @@ export function CatCompanions({ activeChapter, panelOpen, reducedMotion, onAdvan
         lockFront={compact}
         reducedMotion={reducedMotion}
         renderOrder={40}
-        onAdvance={onAdvance}
+        onInteract={onInteract}
       />
     </group>
   );

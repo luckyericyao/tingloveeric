@@ -4,7 +4,12 @@ import { Canvas } from "@react-three/fiber";
 import { Suspense, useEffect } from "react";
 import * as THREE from "three";
 import { storyWorld } from "@/data/storyWorld";
-import { StoryWorldScene, type RenderQuality } from "@/components/StoryWorldScene";
+import {
+  StoryWorldScene,
+  type RenderQuality,
+  type StoryPlaybackDirection,
+  type StoryPlaybackState,
+} from "@/components/StoryWorldScene";
 import styles from "./LoveStoryExperience.module.css";
 
 type StoryWorldCanvasProps = {
@@ -12,8 +17,10 @@ type StoryWorldCanvasProps = {
   panelOpen: boolean;
   quality: RenderQuality;
   reducedMotion: boolean;
-  onSelectChapter: (chapter: number) => void;
-  onAdvance: () => void;
+  playbackState: StoryPlaybackState;
+  playbackDirection: StoryPlaybackDirection;
+  onRequestAdvance: () => boolean;
+  onSceneInteraction: () => void;
   onReady: () => void;
 };
 
@@ -31,8 +38,10 @@ export function StoryWorldCanvas({
   panelOpen,
   quality,
   reducedMotion,
-  onSelectChapter,
-  onAdvance,
+  playbackState,
+  playbackDirection,
+  onRequestAdvance,
+  onSceneInteraction,
   onReady,
 }: StoryWorldCanvasProps) {
   return (
@@ -51,6 +60,7 @@ export function StoryWorldCanvas({
         alpha: false,
         powerPreference: quality === "cinematic" ? "high-performance" : "low-power",
       }}
+      onPointerMissed={() => onRequestAdvance()}
       onCreated={({ gl }) => {
         gl.toneMapping = THREE.ACESFilmicToneMapping;
         gl.toneMappingExposure = 0.94;
@@ -64,8 +74,9 @@ export function StoryWorldCanvas({
           panelOpen={panelOpen}
           quality={quality}
           reducedMotion={reducedMotion}
-          onSelectChapter={onSelectChapter}
-          onAdvance={onAdvance}
+          playbackState={playbackState}
+          playbackDirection={playbackDirection}
+          onSceneInteraction={onSceneInteraction}
         />
         <SceneReady onReady={onReady} />
       </Suspense>

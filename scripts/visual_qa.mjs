@@ -56,6 +56,24 @@ async function waitForIntro(page) {
   });
 }
 
+async function waitForChapterEnd(page, chapter) {
+  await page.waitForFunction(
+    (target) => {
+      const main = document.querySelector("main");
+      const state = main?.getAttribute("data-playback");
+      return Number(main?.getAttribute("data-chapter")) === target
+        && (state === "settled" || state === "completed");
+    },
+    chapter,
+    { timeout: 15000 },
+  );
+}
+
+async function advanceWithButton(page, chapter) {
+  await page.getByRole("button", { name: "下一幕" }).click();
+  await waitForChapterEnd(page, chapter);
+}
+
 async function runViewport(browser, options) {
   const context = await browser.newContext({
     viewport: options.viewport,
@@ -118,28 +136,33 @@ async function runViewport(browser, options) {
   }
 
   if (options.advanceToShanghai) {
-    const next = page.getByRole("button", { name: "下一幕" });
-    for (let step = 0; step < 4; step += 1) {
-      await next.click();
-      await page.waitForTimeout(options.reducedMotion === "reduce" ? 120 : 480);
-    }
+    for (let chapter = 1; chapter <= 4; chapter += 1) await advanceWithButton(page, chapter);
     await page.screenshot({ path: options.shanghaiPath });
   }
 
   if (options.testSwipe) {
-    const main = page.locator("main");
-    await main.dispatchEvent("pointerdown", { clientX: 330, clientY: 180, pointerType: "touch" });
-    await main.dispatchEvent("pointerup", { clientX: 80, clientY: 180, pointerType: "touch" });
-    await page.waitForTimeout(options.reducedMotion === "reduce" ? 120 : 520);
+    const session = await context.newCDPSession(page);
+    await session.send("Input.dispatchTouchEvent", {
+      type: "touchStart",
+      touchPoints: [{ x: 195, y: 520 }],
+    });
+    await session.send("Input.dispatchTouchEvent", {
+      type: "touchMove",
+      touchPoints: [{ x: 195, y: 488 }],
+    });
+    await session.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+    await session.detach();
+    await waitForChapterEnd(page, 1);
     interactionChecks.swipeTitle = await page.locator("article h2").textContent();
   }
 
   let finale = null;
   if (options.advanceToFinale) {
     const next = page.getByRole("button", { name: "下一幕" });
-    while (!(await next.isDisabled())) {
-      await next.click();
-      await page.waitForTimeout(options.reducedMotion === "reduce" ? 100 : 430);
+    let currentChapter = Number(await page.locator("main").getAttribute("data-chapter"));
+    while (currentChapter < 6) {
+      currentChapter += 1;
+      await advanceWithButton(page, currentChapter);
     }
     await page.screenshot({ path: options.finalePath });
     finale = {

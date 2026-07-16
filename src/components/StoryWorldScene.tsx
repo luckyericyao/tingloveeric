@@ -10,6 +10,8 @@ import { CatCompanions } from "@/components/CatSprite3D";
 import { storyWorld, type StoryArtifact } from "@/data/storyWorld";
 
 type RenderQuality = "cinematic" | "quiet";
+type StoryPlaybackState = "idle" | "transitioning" | "playing" | "settled" | "completed";
+type StoryPlaybackDirection = "forward" | "backward";
 
 type SceneProps = {
   activeChapter: number;
@@ -17,8 +19,9 @@ type SceneProps = {
   panelOpen: boolean;
   quality: RenderQuality;
   reducedMotion: boolean;
-  onSelectChapter: (chapter: number) => void;
-  onAdvance: () => void;
+  playbackState: StoryPlaybackState;
+  playbackDirection: StoryPlaybackDirection;
+  onSceneInteraction: () => void;
 };
 
 const ink = "#070a12";
@@ -30,7 +33,9 @@ function CinematicRig({
   activeChapter,
   started,
   reducedMotion,
-}: Pick<SceneProps, "activeChapter" | "started" | "reducedMotion">) {
+  playbackState,
+  playbackDirection,
+}: Pick<SceneProps, "activeChapter" | "started" | "reducedMotion" | "playbackState" | "playbackDirection">) {
   const { camera, pointer } = useThree();
   const lookAt = useRef(new THREE.Vector3(...storyWorld.chapters[0].lookAt));
   const targetPosition = useRef(new THREE.Vector3());
@@ -50,7 +55,9 @@ function CinematicRig({
       camera.position.copy(targetPosition.current);
       lookAt.current.copy(targetLookAt.current);
     } else {
-      const cameraEase = 1 - Math.exp(-delta * (started ? 1.55 : 0.72));
+      const transitionRate = playbackDirection === "backward" ? 3.35 : 2.18;
+      const cameraRate = playbackState === "transitioning" ? transitionRate : started ? 1.7 : 0.72;
+      const cameraEase = 1 - Math.exp(-delta * cameraRate);
       camera.position.lerp(targetPosition.current, cameraEase);
       lookAt.current.lerp(targetLookAt.current, cameraEase * 1.15);
     }
@@ -353,20 +360,22 @@ function MemoryBeacon({
   chapterIndex,
   active,
   reducedMotion,
-  onSelect,
+  onSceneInteraction,
 }: {
   chapterIndex: number;
   active: boolean;
   reducedMotion: boolean;
-  onSelect: () => void;
+  onSceneInteraction: () => void;
 }) {
   const chapter = storyWorld.chapters[chapterIndex];
   const group = useRef<THREE.Group>(null);
   const [hovered, setHovered] = useState(false);
+  const interactionPulse = useRef(0);
 
   useFrame((state, delta) => {
     if (!group.current) return;
-    const targetScale = active || hovered ? 1.08 : 0.9;
+    interactionPulse.current = Math.max(0, interactionPulse.current - delta * 1.8);
+    const targetScale = (active || hovered ? 1.08 : 0.9) + interactionPulse.current * 0.12;
     group.current.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 1 - Math.exp(-delta * 7));
     if (!reducedMotion) {
       group.current.position.y = Math.sin(state.clock.elapsedTime * 0.8 + chapterIndex) * 0.045;
@@ -388,7 +397,8 @@ function MemoryBeacon({
       onPointerOut={handlePointer}
       onClick={(event) => {
         event.stopPropagation();
-        onSelect();
+        onSceneInteraction();
+        interactionPulse.current = 1;
       }}
     >
       <mesh position={[0, 0.96, -0.08]} rotation={[Math.PI / 2, 0, 0]}>
@@ -427,8 +437,9 @@ export function StoryWorldScene({
   panelOpen,
   quality,
   reducedMotion,
-  onSelectChapter,
-  onAdvance,
+  playbackState,
+  playbackDirection,
+  onSceneInteraction,
 }: SceneProps) {
   const quiet = quality === "quiet";
 
@@ -436,7 +447,13 @@ export function StoryWorldScene({
     <>
       <color attach="background" args={[ink]} />
       <fog attach="fog" args={[ink, 7, quiet ? 25 : 33]} />
-      <CinematicRig activeChapter={activeChapter} started={started} reducedMotion={reducedMotion} />
+      <CinematicRig
+        activeChapter={activeChapter}
+        started={started}
+        reducedMotion={reducedMotion}
+        playbackState={playbackState}
+        playbackDirection={playbackDirection}
+      />
 
       <ambientLight intensity={0.4} color="#8e8790" />
       <directionalLight
@@ -471,13 +488,23 @@ export function StoryWorldScene({
               chapterIndex={chapterIndex}
               active={activeChapter === chapterIndex}
               reducedMotion={reducedMotion}
-              onSelect={() => onSelectChapter(chapterIndex)}
+              onSceneInteraction={onSceneInteraction}
             />
           );
         })}
 
-        <Butterfly3D activeChapter={activeChapter} reducedMotion={reducedMotion} quiet={quiet} onAdvance={onAdvance} />
-        <CatCompanions activeChapter={activeChapter} panelOpen={panelOpen} reducedMotion={reducedMotion} onAdvance={onAdvance} />
+        <Butterfly3D
+          activeChapter={activeChapter}
+          reducedMotion={reducedMotion}
+          quiet={quiet}
+          onInteract={onSceneInteraction}
+        />
+        <CatCompanions
+          activeChapter={activeChapter}
+          panelOpen={panelOpen}
+          reducedMotion={reducedMotion}
+          onInteract={onSceneInteraction}
+        />
       </WorldParallax>
 
       <ContactShadows
@@ -500,4 +527,4 @@ export function StoryWorldScene({
   );
 }
 
-export type { RenderQuality };
+export type { RenderQuality, StoryPlaybackDirection, StoryPlaybackState };
