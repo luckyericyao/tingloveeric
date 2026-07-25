@@ -28,13 +28,38 @@ export type StoryChapter = {
   };
 };
 
+export type StoryMusicTrack = {
+  id: string;
+  title: string;
+  artist: string;
+  src: string;
+  type: "audio/mp4" | "audio/mpeg";
+  available: boolean;
+};
+
 export const storyWorld = {
   title: "Ting & Eric",
   subtitle: "一段可以走进去的故事",
   music: {
-    src: "/audio/our-night.m4a",
-    title: "Our Night",
-    credit: "Original ambient score generated for this private archive.",
+    title: "我们的歌",
+    tracks: [
+      {
+        id: "wo-shi-yi-zhi-yu",
+        title: "我是一只鱼",
+        artist: "任贤齐",
+        src: "/audio/wo-shi-yi-zhi-yu.m4a",
+        type: "audio/mp4",
+        available: true,
+      },
+      {
+        id: "forever-and-ever-and-always",
+        title: "Forever and Ever and Always",
+        artist: "Ryan Mack",
+        src: "/audio/forever-and-ever-and-always.m4a",
+        type: "audio/mp4",
+        available: false,
+      },
+    ] satisfies StoryMusicTrack[],
   },
   chapters: [
     {

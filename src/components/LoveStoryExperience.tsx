@@ -10,6 +10,7 @@ import {
   Gauge,
   Pause,
   Play,
+  SkipForward,
   Sparkles,
   Volume2,
   VolumeX,
@@ -66,8 +67,10 @@ export function LoveStoryExperience() {
   const [muted, setMuted] = useState(false);
   const [volume, setVolume] = useState(0.42);
   const [audioError, setAudioError] = useState(false);
+  const [activeTrackIndex, setActiveTrackIndex] = useState(0);
   const experienceRef = useRef<HTMLElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const isPlayingRef = useRef(false);
   const activeChapterRef = useRef(0);
   const maxViewedChapterRef = useRef(0);
   const playbackStateRef = useRef<StoryPlaybackState>("idle");
@@ -77,6 +80,9 @@ export function LoveStoryExperience() {
   const noticeTimer = useRef<number | null>(null);
   const suppressSceneClickUntil = useRef(0);
   const chapter = storyWorld.chapters[activeChapter];
+  const availableTracks = storyWorld.music.tracks.filter((track) => track.available);
+  const activeTrack = availableTracks[activeTrackIndex] ?? null;
+  const musicAvailable = activeTrack !== null;
   const lastChapter = storyWorld.chapters.length - 1;
   const controlsUnlocked = playbackState === "idle" || playbackState === "settled";
 
@@ -213,6 +219,21 @@ export function LoveStoryExperience() {
   }, [muted, volume]);
 
   useEffect(() => {
+    isPlayingRef.current = isPlaying;
+  }, [isPlaying]);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio || !activeTrack) return;
+    audio.load();
+    if (!isPlayingRef.current) return;
+    void audio.play().catch(() => {
+      setAudioError(true);
+      setIsPlaying(false);
+    });
+  }, [activeTrack]);
+
+  useEffect(() => {
     const handleKey = (event: KeyboardEvent) => {
       if (!started) return;
       if (["ArrowDown", "ArrowRight", " "].includes(event.key)) {
@@ -334,7 +355,7 @@ export function LoveStoryExperience() {
     setStarted(true);
     setPanelOpen(true);
     const audio = audioRef.current;
-    if (!audio) return;
+    if (!audio || !activeTrack) return;
     try {
       audio.volume = volume;
       await audio.play();
@@ -348,7 +369,7 @@ export function LoveStoryExperience() {
 
   const toggleMusic = async () => {
     const audio = audioRef.current;
-    if (!audio) return;
+    if (!audio || !activeTrack) return;
     if (isPlaying) {
       audio.pause();
       setIsPlaying(false);
@@ -365,6 +386,11 @@ export function LoveStoryExperience() {
   };
 
   const toggleMute = () => setMuted((current) => !current);
+
+  const playNextTrack = useCallback(() => {
+    if (availableTracks.length === 0) return;
+    setActiveTrackIndex((current) => (current + 1) % availableTracks.length);
+  }, [availableTracks.length]);
 
   const handleSceneInteraction = useCallback(() => {
     suppressSceneClickUntil.current = performance.now() + 300;
@@ -389,8 +415,13 @@ export function LoveStoryExperience() {
       data-chapter={activeChapter}
       data-max-viewed={maxViewedChapter}
     >
-      <audio ref={audioRef} loop preload="metadata">
-        <source src={storyWorld.music.src} type="audio/mp4" />
+      <audio
+        ref={audioRef}
+        preload="metadata"
+        loop={availableTracks.length === 1}
+        onEnded={playNextTrack}
+      >
+        {activeTrack ? <source src={activeTrack.src} type={activeTrack.type} /> : null}
       </audio>
 
       {webglSupported && started ? (
@@ -440,7 +471,7 @@ export function LoveStoryExperience() {
             <span>{started ? "正在进入" : "进入故事"}</span>
             <ArrowRight size={16} strokeWidth={1.5} />
           </button>
-          <p className={styles.audioNote}>进入后音乐才会开始；随时可以静音。</p>
+          {musicAvailable ? <p className={styles.audioNote}>进入后，我们的歌会和故事一起开始。</p> : null}
         </div>
       </section>
 
@@ -456,28 +487,39 @@ export function LoveStoryExperience() {
             </div>
 
             <div className={styles.topControls}>
-              <div className={styles.volumeControl}>
-                <button className={styles.iconButton} type="button" onClick={toggleMusic} title={isPlaying ? "暂停音乐" : "播放音乐"} aria-label={isPlaying ? "暂停音乐" : "播放音乐"}>
-                  {isPlaying ? <Pause size={17} /> : <Play size={17} />}
-                </button>
-                <button className={styles.iconButton} type="button" onClick={toggleMute} title={muted ? "取消静音" : "静音"} aria-label={muted ? "取消静音" : "静音"}>
-                  {muted ? <VolumeX size={18} /> : <Volume2 size={18} />}
-                </button>
-                <input
-                  className={styles.volumeSlider}
-                  type="range"
-                  min="0"
-                  max="1"
-                  step="0.02"
-                  value={volume}
-                  onChange={(event) => {
-                    setVolume(Number(event.target.value));
-                    setMuted(false);
-                  }}
-                  aria-label="音乐音量"
-                  title="音乐音量"
-                />
-              </div>
+              {musicAvailable ? (
+                <div className={styles.volumeControl}>
+                  <span className={styles.nowPlaying} aria-live="polite">
+                    <strong>{activeTrack.title}</strong>
+                    <span>{activeTrack.artist}</span>
+                  </span>
+                  <button className={styles.iconButton} type="button" onClick={toggleMusic} title={isPlaying ? "暂停音乐" : "播放音乐"} aria-label={isPlaying ? "暂停音乐" : "播放音乐"}>
+                    {isPlaying ? <Pause size={17} /> : <Play size={17} />}
+                  </button>
+                  {availableTracks.length > 1 ? (
+                    <button className={styles.iconButton} type="button" onClick={playNextTrack} title="下一首" aria-label="下一首">
+                      <SkipForward size={17} />
+                    </button>
+                  ) : null}
+                  <button className={styles.iconButton} type="button" onClick={toggleMute} title={muted ? "取消静音" : "静音"} aria-label={muted ? "取消静音" : "静音"}>
+                    {muted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+                  </button>
+                  <input
+                    className={styles.volumeSlider}
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.02"
+                    value={volume}
+                    onChange={(event) => {
+                      setVolume(Number(event.target.value));
+                      setMuted(false);
+                    }}
+                    aria-label="音乐音量"
+                    title="音乐音量"
+                  />
+                </div>
+              ) : null}
               <button
                 className={`${styles.iconButton} ${quality === "quiet" ? styles.qualityActive : ""}`}
                 type="button"

@@ -121,13 +121,17 @@ async function runViewport(browser, options) {
   }
 
   if (options.checkControls) {
-    await page.getByRole("button", { name: "静音" }).click();
-    interactionChecks.mutedVolume = await page.locator("audio").evaluate((audio) => audio.volume);
-    await page.getByRole("button", { name: "取消静音" }).click();
+    const muteButton = page.getByRole("button", { name: "静音" });
+    interactionChecks.musicAvailable = await muteButton.count() > 0;
+    if (interactionChecks.musicAvailable) {
+      await muteButton.click();
+      interactionChecks.mutedVolume = await page.locator("audio").evaluate((audio) => audio.volume);
+      await page.getByRole("button", { name: "取消静音" }).click();
 
-    const slider = page.getByRole("slider", { name: "音乐音量" });
-    await slider.fill("0.28");
-    interactionChecks.adjustedVolume = await page.locator("audio").evaluate((audio) => audio.volume);
+      const slider = page.getByRole("slider", { name: "音乐音量" });
+      await slider.fill("0.28");
+      interactionChecks.adjustedVolume = await page.locator("audio").evaluate((audio) => audio.volume);
+    }
 
     await page.getByRole("button", { name: "切换到简化模式" }).click();
     interactionChecks.quietMode = await page.locator("main").getAttribute("data-quality");

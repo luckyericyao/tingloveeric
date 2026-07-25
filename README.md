@@ -64,20 +64,17 @@ Its five optimized source images are in `public/images/coordinates/`. The first 
 
 ## Music
 
-`public/audio/our-night.m4a` is an original 64-second ambient score generated for this project. Replace it with Ting and Eric's chosen track, then update `storyWorld.music` if the filename changes. Audio begins only after the visitor clicks **进入故事**, so browser autoplay rules are respected.
-
-The generated score can be rebuilt with:
-
-```bash
-python3 scripts/generate_ambient.py
-afconvert public/audio/our-night.wav public/audio/our-night.m4a -f m4af -d aac -b 96000
-```
+The story music is a user-supplied playlist configured in
+`src/data/storyWorld.ts`. Place properly licensed audio in `public/audio/`, then
+mark each installed track as `available: true`. Music begins only after the
+visitor clicks **进入故事**, so browser autoplay rules are respected. See
+`public/audio/README.md` for the exact filenames expected by the playlist.
 
 ## Controls
 
-- Click or touch the butterfly, cat, or illuminated memory artifacts to advance.
-- Use the bottom timeline, arrow keys, or horizontal swipe to move between chapters.
-- The top controls provide play/pause, mute, volume, and a lower-power render mode.
+- Gently scroll, swipe up, click the empty scene, or use the next button to start a chapter timeline.
+- Cat, butterfly, and memory-object clicks are optional easter eggs and never block the story.
+- The top controls provide playlist playback, skip, mute, volume, and a lower-power render mode when music is installed.
 - `prefers-reduced-motion` automatically disables camera drift and switches to the simplified scene.
 
 ## Archive content
