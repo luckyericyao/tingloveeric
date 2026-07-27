@@ -69,6 +69,9 @@ The story music is a user-supplied playlist configured in
 mark each installed track as `available: true`. Music begins only after the
 visitor clicks **进入故事**, so browser autoplay rules are respected. See
 `public/audio/README.md` for the exact filenames expected by the playlist.
+Profile-specific music can use the same optimized audio directory; Eric's
+theme player is mounted on `/him` and is intentionally separate from the main
+story playlist.
 
 ## Controls
 

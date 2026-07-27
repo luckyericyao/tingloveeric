@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { MemoryImageCard } from "@/components/MemoryImageCard";
 import { ProfileSection } from "@/components/ProfileSection";
+import { ProfileThemePlayer } from "@/components/ProfileThemePlayer";
 import { SectionTitle } from "@/components/SectionTitle";
 import { PawPrint, RibbonLabel, Sticker } from "@/components/ScrapbookDecor";
 import { profileHim, profileHimCuteMoments, profileHimImages } from "@/data/love";
@@ -16,6 +17,11 @@ export default function HimPage() {
       <section className="page-band">
         <div className="content-wrap">
           <ProfileSection profile={profileHim} mode="him" images={profileHimImages} />
+          <ProfileThemePlayer
+            src="/audio/ymca.m4a"
+            title="Y.M.C.A."
+            artist="Village People"
+          />
         </div>
       </section>
 

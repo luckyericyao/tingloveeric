@@ -44,6 +44,14 @@ export const storyWorld = {
     title: "我们的歌",
     tracks: [
       {
+        id: "jiu-shi-ai-ni",
+        title: "就是爱你",
+        artist: "陶喆",
+        src: "/audio/jiu-shi-ai-ni.m4a",
+        type: "audio/mp4",
+        available: true,
+      },
+      {
         id: "wo-shi-yi-zhi-yu",
         title: "我是一只鱼",
         artist: "任贤齐",
