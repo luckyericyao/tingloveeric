@@ -82,6 +82,7 @@ export function LoveStoryExperience() {
   const chapter = storyWorld.chapters[activeChapter];
   const availableTracks = storyWorld.music.tracks.filter((track) => track.available);
   const activeTrack = availableTracks[activeTrackIndex] ?? null;
+  const storyTrackIndex = availableTracks.findIndex((track) => track.id === "wo-shi-yi-zhi-yu");
   const musicAvailable = activeTrack !== null;
   const lastChapter = storyWorld.chapters.length - 1;
   const controlsUnlocked = playbackState === "idle" || playbackState === "settled";
@@ -226,12 +227,25 @@ export function LoveStoryExperience() {
     const audio = audioRef.current;
     if (!audio || !activeTrack) return;
     audio.load();
+    if (!started) {
+      void audio.play().then(() => {
+        isPlayingRef.current = true;
+        setIsPlaying(true);
+        setAudioError(false);
+      }).catch(() => {
+        isPlayingRef.current = false;
+        setIsPlaying(false);
+        setAudioError(true);
+      });
+      return;
+    }
     if (!isPlayingRef.current) return;
     void audio.play().catch(() => {
+      isPlayingRef.current = false;
       setAudioError(true);
       setIsPlaying(false);
     });
-  }, [activeTrack]);
+  }, [activeTrack, started]);
 
   useEffect(() => {
     const handleKey = (event: KeyboardEvent) => {
@@ -344,7 +358,7 @@ export function LoveStoryExperience() {
     if (noticeTimer.current !== null) window.clearTimeout(noticeTimer.current);
   }, [clearTimeline]);
 
-  const startStory = async () => {
+  const startStory = () => {
     clearTimeline();
     activeChapterRef.current = 0;
     maxViewedChapterRef.current = 0;
@@ -354,17 +368,10 @@ export function LoveStoryExperience() {
     setPlayback("idle");
     setStarted(true);
     setPanelOpen(true);
-    const audio = audioRef.current;
-    if (!audio || !activeTrack) return;
-    try {
-      audio.volume = volume;
-      await audio.play();
-      setIsPlaying(true);
-      setAudioError(false);
-    } catch {
-      setAudioError(true);
-      setIsPlaying(false);
-    }
+    isPlayingRef.current = true;
+    setIsPlaying(true);
+    setAudioError(false);
+    setActiveTrackIndex(storyTrackIndex >= 0 ? storyTrackIndex : 0);
   };
 
   const toggleMusic = async () => {
@@ -417,8 +424,17 @@ export function LoveStoryExperience() {
     >
       <audio
         ref={audioRef}
+        autoPlay
         preload="metadata"
         loop={availableTracks.length === 1}
+        onPlay={() => {
+          isPlayingRef.current = true;
+          setIsPlaying(true);
+        }}
+        onPause={() => {
+          isPlayingRef.current = false;
+          setIsPlaying(false);
+        }}
         onEnded={playNextTrack}
       >
         {activeTrack ? <source src={activeTrack.src} type={activeTrack.type} /> : null}
@@ -471,7 +487,7 @@ export function LoveStoryExperience() {
             <span>{started ? "正在进入" : "进入故事"}</span>
             <ArrowRight size={16} strokeWidth={1.5} />
           </button>
-          {musicAvailable ? <p className={styles.audioNote}>进入后，我们的歌会和故事一起开始。</p> : null}
+          {musicAvailable ? <p className={styles.audioNote}>《就是爱你》先陪你等在这里。</p> : null}
         </div>
       </section>
 

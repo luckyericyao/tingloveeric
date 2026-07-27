@@ -66,9 +66,10 @@ Its five optimized source images are in `public/images/coordinates/`. The first 
 
 The story music is a user-supplied playlist configured in
 `src/data/storyWorld.ts`. Place properly licensed audio in `public/audio/`, then
-mark each installed track as `available: true`. Music begins only after the
-visitor clicks **进入故事**, so browser autoplay rules are respected. See
-`public/audio/README.md` for the exact filenames expected by the playlist.
+mark each installed track as `available: true`. The opening screen attempts to
+play **就是爱你** immediately; clicking **进入故事** switches to
+**我是一只鱼** and starts the story playlist. See `public/audio/README.md` for
+the exact filenames expected by the playlist.
 Profile-specific music can use the same optimized audio directory; Eric's
 theme player is mounted on `/him` and is intentionally separate from the main
 story playlist.
