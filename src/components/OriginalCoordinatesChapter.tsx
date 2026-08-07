@@ -134,7 +134,7 @@ export function OriginalCoordinatesChapter() {
   return (
     <main ref={chapterRef} className={styles.chapter}>
       <header className={styles.chapterHeader}>
-        <Link className={styles.backLink} href="/" aria-label="回到 3D 故事世界">
+        <Link className={styles.backLink} href="/" aria-label="回到私人档案馆首页">
           <ArrowLeft size={17} strokeWidth={1.5} />
           <span>Ting & Eric</span>
         </Link>
@@ -207,6 +207,28 @@ export function OriginalCoordinatesChapter() {
         </div>
       </section>
 
+      <section className={styles.tenderBand}>
+        <div className={styles.tenderInner}>
+          <div className={styles.tenderHeading} data-reveal>
+            <p className={styles.eyebrow}>{originalCoordinates.tenderMoments.eyebrow}</p>
+            <h2>{originalCoordinates.tenderMoments.title}</h2>
+            <p>{originalCoordinates.tenderMoments.lead}</p>
+          </div>
+
+          <div className={styles.tenderStory} data-reveal>
+            {originalCoordinates.tenderMoments.paragraphs.map((paragraph) => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
+            <blockquote className={styles.tenderReplies}>
+              {originalCoordinates.tenderMoments.replies.map((reply) => (
+                <span key={reply}>“{reply}”</span>
+              ))}
+            </blockquote>
+            <p className={styles.tenderClosing}>{originalCoordinates.tenderMoments.closing}</p>
+          </div>
+        </div>
+      </section>
+
       <section className={styles.relicBand}>
         <div className={styles.relicInner}>
           <div className={`${styles.reveal} ${styles.relicCopy}`} data-reveal>
@@ -257,14 +279,17 @@ export function OriginalCoordinatesChapter() {
 
       <section className={styles.epilogue}>
         <div className={styles.epilogueInner} data-reveal>
-          <p>
-            后来我们靠近过，也最终失去了联系。
-            <br />
-            钱已经还清，旧的金钱关系结束了。我们重新成为两个自由、独立的人。
-          </p>
+          <p className={styles.eyebrow}>{originalCoordinates.change.eyebrow}</p>
+          <h2>{originalCoordinates.change.title}</h2>
+          <div className={styles.changeGrid}>
+            {originalCoordinates.change.paragraphs.map((paragraph) => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
+          </div>
+          <p className={styles.changeFuture}>{originalCoordinates.change.future}</p>
           <blockquote>“{originalCoordinates.closing}”</blockquote>
-          <Link className={styles.returnLink} href="/">
-            <span>回到故事世界</span>
+          <Link className={styles.returnLink} href="/cinema">
+            <span>进入电影故事</span>
             <ArrowRight size={17} strokeWidth={1.5} />
           </Link>
         </div>

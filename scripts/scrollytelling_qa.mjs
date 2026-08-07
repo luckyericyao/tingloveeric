@@ -2,10 +2,11 @@ import { chromium } from "playwright-core";
 
 const executablePath = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 const baseURL = process.env.QA_URL || "http://127.0.0.1:3000";
+const storyURL = `${baseURL}/cinema`;
 const chapterCount = 7;
 
 async function enterStory(page) {
-  await page.goto(baseURL, { waitUntil: "domcontentloaded" });
+  await page.goto(storyURL, { waitUntil: "domcontentloaded" });
   const enter = page.getByRole("button", { name: "进入故事" });
   await enter.waitFor({ state: "visible" });
   await page.waitForFunction(() => {

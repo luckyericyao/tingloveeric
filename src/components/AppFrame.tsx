@@ -7,9 +7,10 @@ import { SiteHeader } from "@/components/SiteHeader";
 
 export function AppFrame({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const storyWorld = pathname === "/";
+  const archiveHome = pathname === "/";
+  const storyWorld = pathname === "/cinema";
   const cinematicChapter = pathname === "/coordinates";
-  const immersive = storyWorld || cinematicChapter;
+  const immersive = archiveHome || storyWorld || cinematicChapter;
 
   useEffect(() => {
     document.body.classList.toggle("immersive-page", storyWorld);

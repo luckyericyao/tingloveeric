@@ -1,6 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const unlockedCookie = "love_site_unlocked";
+const protectedPaths = [
+  "/private",
+  "/world",
+  "/board",
+  "/notes",
+  "/achievements",
+  "/her",
+  "/him",
+  "/story",
+];
 
 function shouldSkip(pathname: string) {
   return (
@@ -12,8 +22,19 @@ function shouldSkip(pathname: string) {
   );
 }
 
+function requiresAccess(pathname: string) {
+  return (
+    pathname === "/api/board/messages" ||
+    pathname === "/api/notes" ||
+    pathname === "/api/world/places" ||
+    protectedPaths.some((path) => pathname === path || pathname.startsWith(`${path}/`))
+  );
+}
+
 export function middleware(request: NextRequest) {
-  if (!process.env.LOVE_SITE_PASSCODE || shouldSkip(request.nextUrl.pathname)) {
+  const pathname = request.nextUrl.pathname;
+
+  if (shouldSkip(pathname) || !requiresAccess(pathname)) {
     return NextResponse.next();
   }
 

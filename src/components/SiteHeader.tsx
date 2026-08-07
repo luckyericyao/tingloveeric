@@ -6,6 +6,7 @@ import { useState } from "react";
 
 const navItems = [
   { href: "/", label: "首页" },
+  { href: "/private", label: "私人房间" },
   { href: "/her", label: "Ting" },
   { href: "/him", label: "Eric" },
   { href: "/story", label: "故事" },

@@ -233,6 +233,7 @@ export function LoveStoryExperience() {
         setIsPlaying(true);
         setAudioError(false);
       }).catch(() => {
+        if (!audio.paused) return;
         isPlayingRef.current = false;
         setIsPlaying(false);
         setAudioError(true);
@@ -241,6 +242,7 @@ export function LoveStoryExperience() {
     }
     if (!isPlayingRef.current) return;
     void audio.play().catch(() => {
+      if (!audio.paused) return;
       isPlayingRef.current = false;
       setAudioError(true);
       setIsPlaying(false);
@@ -358,7 +360,7 @@ export function LoveStoryExperience() {
     if (noticeTimer.current !== null) window.clearTimeout(noticeTimer.current);
   }, [clearTimeline]);
 
-  const startStory = () => {
+  const startStory = async () => {
     clearTimeline();
     activeChapterRef.current = 0;
     maxViewedChapterRef.current = 0;
@@ -371,7 +373,29 @@ export function LoveStoryExperience() {
     isPlayingRef.current = true;
     setIsPlaying(true);
     setAudioError(false);
-    setActiveTrackIndex(storyTrackIndex >= 0 ? storyTrackIndex : 0);
+    const nextTrackIndex = storyTrackIndex >= 0 ? storyTrackIndex : 0;
+    const nextTrack = availableTracks[nextTrackIndex] ?? null;
+    setActiveTrackIndex(nextTrackIndex);
+
+    const audio = audioRef.current;
+    if (!audio || !nextTrack) return;
+    audio.src = nextTrack.src;
+    audio.load();
+    audio.volume = muted ? 0 : volume;
+    try {
+      await audio.play();
+      isPlayingRef.current = true;
+      setIsPlaying(true);
+      setAudioError(false);
+    } catch {
+      if (!audio.paused) {
+        setAudioError(false);
+        return;
+      }
+      isPlayingRef.current = false;
+      setIsPlaying(false);
+      setAudioError(true);
+    }
   };
 
   const toggleMusic = async () => {
@@ -424,21 +448,21 @@ export function LoveStoryExperience() {
     >
       <audio
         ref={audioRef}
+        src={activeTrack?.src}
         autoPlay
         preload="metadata"
         loop={availableTracks.length === 1}
         onPlay={() => {
           isPlayingRef.current = true;
           setIsPlaying(true);
+          setAudioError(false);
         }}
         onPause={() => {
           isPlayingRef.current = false;
           setIsPlaying(false);
         }}
         onEnded={playNextTrack}
-      >
-        {activeTrack ? <source src={activeTrack.src} type={activeTrack.type} /> : null}
-      </audio>
+      />
 
       {webglSupported && started ? (
         <StoryWorldCanvas

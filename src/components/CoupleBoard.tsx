@@ -1,8 +1,9 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { RefreshCw, Reply } from "lucide-react";
 import type { BoardMessage, BoardMood } from "@/data/love";
-import { boardMoodOptions } from "@/data/love";
+import { boardMoodOptions, boardSeedMessages } from "@/data/love";
 import { ButterflyTrail, HeartSparkles, PawPrint, RibbonLabel, Sticker } from "./ScrapbookDecor";
 
 type BoardFilter = "all" | "fromEric" | "fromTing";
@@ -25,6 +26,79 @@ const filterOptions: Array<{ value: BoardFilter; label: string }> = [
   { value: "fromEric", label: "我写给她" },
   { value: "fromTing", label: "她写给我" },
 ];
+
+const quickNotes: Array<{ label: string; content: string; mood: BoardMood }> = [
+  { label: "晚安", content: "晚安，今天也想把你放在最后一句里。", mood: "晚安" },
+  { label: "想你", content: "今天路过一个很小的瞬间，第一反应还是想告诉你。", mood: "想你" },
+  { label: "抱抱", content: "先把一个抱抱留在这里，等你有空的时候再来收。", mood: "抱抱" },
+];
+
+const boardStorageKey = "tingloveeric.boardMessages";
+const boardPendingStorageKey = "tingloveeric.boardPendingMessages";
+const seedMessageIds = new Set(boardSeedMessages.map((message) => message.id));
+
+function isStoredBoardMessage(value: unknown): value is BoardMessage {
+  const message = value as Partial<BoardMessage>;
+  return (
+    typeof message.id === "string" &&
+    message.id.length <= 120 &&
+    typeof message.sender === "string" &&
+    (message.sender === "Eric" || message.sender === "Ting") &&
+    typeof message.receiver === "string" &&
+    (message.receiver === "Eric" || message.receiver === "Ting") &&
+    typeof message.datetime === "string" &&
+    !Number.isNaN(new Date(message.datetime).getTime()) &&
+    typeof message.content === "string" &&
+    message.content.trim().length > 0 &&
+    message.content.length <= 360 &&
+    typeof message.mood === "string" &&
+    boardMoodOptions.includes(message.mood as BoardMood)
+  );
+}
+
+function sortMessages(messages: BoardMessage[]) {
+  const unique = new Map(messages.map((message) => [message.id, message]));
+  return [...unique.values()].sort((a, b) => b.datetime.localeCompare(a.datetime));
+}
+
+function readStoredMessages(storageKey: string) {
+  if (typeof window === "undefined") return [];
+
+  try {
+    const raw = window.localStorage.getItem(storageKey);
+    const parsed = raw ? (JSON.parse(raw) as unknown) : [];
+    return Array.isArray(parsed) ? sortMessages(parsed.filter(isStoredBoardMessage)) : [];
+  } catch {
+    window.localStorage.removeItem(storageKey);
+    return [];
+  }
+}
+
+function readLocalMessages() {
+  return readStoredMessages(boardStorageKey);
+}
+
+function readPendingMessages() {
+  return readStoredMessages(boardPendingStorageKey).filter((message) => message.id.startsWith("local-"));
+}
+
+function writeLocalMessages(messages: BoardMessage[]) {
+  if (typeof window === "undefined") return;
+
+  const customMessages = sortMessages(messages)
+    .filter((message) => !seedMessageIds.has(message.id))
+    .slice(0, 100);
+  window.localStorage.setItem(boardStorageKey, JSON.stringify(customMessages));
+}
+
+function writePendingMessages(messages: BoardMessage[]) {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(boardPendingStorageKey, JSON.stringify(sortMessages(messages).slice(0, 50)));
+}
+
+function mergeMessages(remoteMessages: BoardMessage[], localMessages: BoardMessage[]) {
+  return sortMessages([...remoteMessages, ...localMessages]);
+}
 
 function localDateTimeValue(date = new Date()) {
   const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60_000);
@@ -64,6 +138,9 @@ export function CoupleBoard() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [pendingMessages, setPendingMessages] = useState<BoardMessage[]>([]);
+  const [isRetrying, setIsRetrying] = useState(false);
+  const composerRef = useRef<HTMLFormElement>(null);
 
   const receiver: BoardMessage["receiver"] = form.sender === "Eric" ? "Ting" : "Eric";
 
@@ -73,6 +150,9 @@ export function CoupleBoard() {
     async function loadMessages() {
       setIsLoading(true);
       setError("");
+      const localMessages = readLocalMessages();
+      const localPending = readPendingMessages();
+      setPendingMessages(localPending);
       const response = await fetch("/api/board/messages", { cache: "no-store" }).catch(() => null);
 
       if (!isMounted) {
@@ -80,7 +160,13 @@ export function CoupleBoard() {
       }
 
       if (!response) {
-        setError("留言板暂时没有打开成功，等一下再试试。");
+        setMessages(mergeMessages(boardSeedMessages, localMessages));
+        setShowOwnerStorageNote(true);
+        setError(
+          localMessages.length
+            ? "留言接口暂时没回应，先打开这台设备保存过的话。"
+            : "留言板暂时没有打开成功，等一下再试试。",
+        );
         setIsLoading(false);
         return;
       }
@@ -88,6 +174,8 @@ export function CoupleBoard() {
       const payload = (await response.json().catch(() => null)) as BoardResponse | null;
 
       if (!response.ok || !payload?.messages) {
+        setMessages(mergeMessages(boardSeedMessages, localMessages));
+        setShowOwnerStorageNote(true);
         setError(
           typeof payload?.message === "string"
             ? payload.message
@@ -97,12 +185,13 @@ export function CoupleBoard() {
         return;
       }
 
-      setMessages(payload.messages);
+      const nextMessages = payload.persistence === "redis"
+        ? mergeMessages(payload.messages, localPending)
+        : mergeMessages(payload.messages, localMessages);
+      setMessages(nextMessages);
+      writeLocalMessages(nextMessages);
       setShowOwnerStorageNote(
-        payload.persistence === "memory" &&
-          (window.location.hostname === "localhost" ||
-            window.location.hostname === "127.0.0.1" ||
-            window.location.search.includes("owner=1")),
+        payload.persistence === "memory" || localPending.length > 0,
       );
       setIsLoading(false);
     }
@@ -135,6 +224,23 @@ export function CoupleBoard() {
     setForm((current) => ({ ...current, [field]: value }));
   }
 
+  function replyTo(message: BoardMessage) {
+    const compactContent = message.content.trim().replace(/\s+/g, " ");
+    const shortenedContent = compactContent.length > 72
+      ? `${compactContent.slice(0, 72)}...`
+      : compactContent;
+
+    updateForm("sender", message.receiver);
+    updateForm("datetime", localDateTimeValue());
+    updateForm("mood", message.mood === "晚安" ? "晚安" : "心软");
+    updateForm("content", `回复「${shortenedContent}」：`);
+    setStatus("已经把这句话放进编辑器了。回一句吧。");
+    setError("");
+    window.requestAnimationFrame(() => {
+      composerRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setStatus("");
@@ -146,23 +252,65 @@ export function CoupleBoard() {
     }
 
     setIsSubmitting(true);
+    const parsedDatetime = new Date(form.datetime);
+    const optimisticDatetime = Number.isNaN(parsedDatetime.getTime())
+      ? new Date().toISOString()
+      : parsedDatetime.toISOString();
 
+    const optimisticMessage: BoardMessage = {
+      id: `local-${Date.now()}`,
+      sender: form.sender,
+      receiver,
+      datetime: optimisticDatetime,
+      content: form.content.trim(),
+      mood: form.mood,
+    };
     const response = await fetch("/api/board/messages", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
+        id: optimisticMessage.id,
         sender: form.sender,
         receiver,
         datetime: form.datetime,
         content: form.content,
         mood: form.mood,
       }),
-    });
+    }).catch(() => null);
+
+    function rememberPendingMessage() {
+      setPendingMessages((current) => {
+        const nextPending = mergeMessages([...current, optimisticMessage], []);
+        writePendingMessages(nextPending);
+        return nextPending;
+      });
+    }
+
+    if (!response) {
+      const nextMessages = mergeMessages([...messages, optimisticMessage], readLocalMessages());
+      setMessages(nextMessages);
+      writeLocalMessages(nextMessages);
+      rememberPendingMessage();
+      setShowOwnerStorageNote(true);
+      setIsSubmitting(false);
+      setForm((current) => ({
+        ...current,
+        datetime: localDateTimeValue(),
+        content: "",
+      }));
+      setStatus("接口暂时没回应，这句话先收在这台设备里。网络恢复后仍然可以再同步。");
+      return;
+    }
 
     const payload = (await response.json().catch(() => null)) as BoardResponse | null;
     setIsSubmitting(false);
 
     if (!response.ok || !payload?.messages) {
+      const nextMessages = mergeMessages([...messages, optimisticMessage], readLocalMessages());
+      setMessages(nextMessages);
+      writeLocalMessages(nextMessages);
+      rememberPendingMessage();
+      setShowOwnerStorageNote(true);
       setError(
         typeof payload?.message === "string"
           ? payload.message
@@ -171,13 +319,63 @@ export function CoupleBoard() {
       return;
     }
 
-    setMessages(payload.messages);
+    const remainingPending = pendingMessages.filter((message) => message.id !== optimisticMessage.id);
+    const nextMessages = payload.persistence === "redis"
+      ? mergeMessages(payload.messages, remainingPending)
+      : mergeMessages(payload.messages, readLocalMessages().filter((message) => message.id !== optimisticMessage.id));
+    setMessages(nextMessages);
+    writeLocalMessages(nextMessages);
+    setPendingMessages(remainingPending);
+    writePendingMessages(remainingPending);
+    setShowOwnerStorageNote(payload.persistence === "memory" || remainingPending.length > 0);
     setForm((current) => ({
       ...current,
       datetime: localDateTimeValue(),
       content: "",
     }));
-    setStatus(`这句话已经留给${receiver === "Ting" ? "她" : "他"}了。`);
+    setStatus(
+      payload.persistence === "redis"
+        ? `这句话已经留给${receiver === "Ting" ? "她" : "他"}了。`
+        : "这句话已经留在这里，本机也收好了一份。",
+    );
+  }
+
+  async function retryPendingMessages() {
+    if (!pendingMessages.length || isRetrying) return;
+
+    setIsRetrying(true);
+    setError("");
+    let remaining = [...pendingMessages];
+    let nextMessages = messages;
+    let usedMemoryPersistence = false;
+
+    for (const pending of pendingMessages) {
+      const response = await fetch("/api/board/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(pending),
+      }).catch(() => null);
+
+      if (!response) continue;
+      const payload = (await response.json().catch(() => null)) as BoardResponse | null;
+      if (!response.ok || !payload?.messages) continue;
+
+      if (payload.persistence === "memory") usedMemoryPersistence = true;
+      remaining = remaining.filter((message) => message.id !== pending.id);
+      nextMessages = mergeMessages(payload.messages, nextMessages.filter((message) => message.id !== pending.id));
+    }
+
+    setPendingMessages(remaining);
+    writePendingMessages(remaining);
+    setMessages(nextMessages);
+    writeLocalMessages(nextMessages);
+    setShowOwnerStorageNote(usedMemoryPersistence || remaining.length > 0);
+    setStatus(
+      remaining.length
+        ? `还有 ${remaining.length} 句话暂时没有同步，先留在这台设备里。`
+        : "这几句话已经重新收好，留言板里也有了。",
+    );
+    setIsRetrying(false);
   }
 
   return (
@@ -206,6 +404,15 @@ export function CoupleBoard() {
                 <p className="mt-3 text-xs text-[var(--color-muted)]">
                   {formatDateTime(highlighted.datetime)}
                 </p>
+                <button
+                  type="button"
+                  data-testid={`reply-highlight-${highlighted.id}`}
+                  onClick={() => replyTo(highlighted)}
+                  className="mt-4 inline-flex items-center gap-2 rounded-full border border-[rgba(214,154,176,0.32)] bg-white/68 px-3 py-2 text-xs text-[var(--color-rose)] transition hover:bg-white"
+                >
+                  <Reply size={14} />
+                  回一句
+                </button>
               </div>
             ) : (
               <p className="mt-5 rounded-[1.6rem] border border-[color:var(--color-line)] bg-white/58 p-5 text-sm leading-7 text-[var(--color-muted)]">
@@ -214,7 +421,7 @@ export function CoupleBoard() {
             )}
           </div>
 
-          <form onSubmit={handleSubmit} className="paper-note grid gap-4 p-5">
+          <form ref={composerRef} onSubmit={handleSubmit} className="paper-note grid gap-4 p-5">
             <div className="grid gap-3 sm:grid-cols-2">
               {[
                 { sender: "Eric" as const, label: "Eric → Ting" },
@@ -276,6 +483,28 @@ export function CoupleBoard() {
               </div>
             </div>
 
+            <div className="grid gap-2 text-sm text-[var(--color-ink)]">
+              轻轻留一句
+              <div className="flex flex-wrap gap-2">
+                {quickNotes.map((note) => (
+                  <button
+                    key={note.label}
+                    type="button"
+                    data-testid={`quick-note-${note.label}`}
+                    onClick={() => {
+                      updateForm("content", note.content);
+                      updateForm("mood", note.mood);
+                      setStatus("");
+                      setError("");
+                    }}
+                    className="tap-bounce rounded-full border border-[rgba(214,154,176,0.32)] bg-[rgba(255,247,250,0.72)] px-3 py-2 text-sm text-[var(--color-rose)] transition hover:bg-white"
+                  >
+                    {note.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <label className="grid gap-2 text-sm text-[var(--color-ink)]">
               想说的话
               <textarea
@@ -299,15 +528,35 @@ export function CoupleBoard() {
               {isSubmitting ? "正在保存..." : "留下这句话"}
             </button>
             {status ? (
-              <p data-testid="board-status" className="text-sm text-[var(--color-rose)]">
+              <p data-testid="board-status" className="text-sm text-[var(--color-rose)]" role="status" aria-live="polite">
                 {status}
               </p>
             ) : null}
-            {error ? <p className="text-sm text-[var(--color-rose)]">{error}</p> : null}
+            {error ? <p className="text-sm text-[var(--color-rose)]" role="alert">{error}</p> : null}
             {showOwnerStorageNote ? (
               <p className="rounded-2xl border border-[rgba(201,169,104,0.2)] bg-white/50 px-4 py-3 text-xs leading-6 text-[var(--color-muted)]">
-                当前留言板使用临时存储，建议配置 KV 后再长期使用。
+                当前留言板使用临时保存；配置 KV 后，两个人在不同设备也能看到这句话。
               </p>
+            ) : null}
+            {pendingMessages.length ? (
+              <div
+                data-testid="board-pending-sync"
+                className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[rgba(214,154,176,0.28)] bg-[rgba(255,247,250,0.72)] px-4 py-3 text-xs leading-6 text-[var(--color-rose)]"
+                role="status"
+                aria-live="polite"
+              >
+                <span>还有 {pendingMessages.length} 句话等网络回来。</span>
+                <button
+                  type="button"
+                  data-testid="board-retry-sync"
+                  onClick={() => void retryPendingMessages()}
+                  disabled={isRetrying}
+                  className="inline-flex items-center gap-1.5 border-b border-transparent py-1 transition hover:border-[var(--color-rose)] disabled:cursor-wait disabled:opacity-50"
+                >
+                  <RefreshCw size={13} className={isRetrying ? "animate-spin" : ""} />
+                  {isRetrying ? "正在同步..." : "重新同步"}
+                </button>
+              </div>
             ) : null}
           </form>
         </div>
@@ -356,6 +605,15 @@ export function CoupleBoard() {
                 <p className="mt-4 text-xs text-[var(--color-muted)]">
                   {formatDateTime(message.datetime)}
                 </p>
+                <button
+                  type="button"
+                  data-testid={`reply-${message.id}`}
+                  onClick={() => replyTo(message)}
+                  className="mt-4 inline-flex items-center gap-2 rounded-full border border-[rgba(214,154,176,0.3)] bg-white/58 px-3 py-2 text-xs text-[var(--color-rose)] transition hover:bg-white"
+                >
+                  <Reply size={14} />
+                  回一句
+                </button>
               </article>
             ))}
           </div>

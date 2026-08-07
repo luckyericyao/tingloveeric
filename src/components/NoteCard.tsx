@@ -3,7 +3,7 @@ import { PawPrint, ScrapbookTape, Sticker } from "./ScrapbookDecor";
 
 export function NoteCard({ note }: { note: LoveNote }) {
   return (
-    <article className="paper-note hover-lift rotate-[-0.6deg] p-5">
+    <article data-testid="note-card" className="paper-note hover-lift rotate-[-0.6deg] p-5">
       <ScrapbookTape className="right-8 top-[-0.6rem] rotate-[5deg]" />
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm font-medium text-[var(--color-ink)]">{note.author}</p>
