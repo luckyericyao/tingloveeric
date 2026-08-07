@@ -7,6 +7,7 @@ import { addBoardMessage, boardPersistenceMode, getBoardMessages } from "@/lib/b
 export const runtime = "nodejs";
 
 type BoardPayload = {
+  id?: unknown;
   sender?: unknown;
   receiver?: unknown;
   datetime?: unknown;
@@ -20,6 +21,10 @@ function isSender(value: unknown): value is BoardMessage["sender"] {
 
 function isMood(value: unknown): value is BoardMood {
   return typeof value === "string" && boardMoodOptions.includes(value as BoardMood);
+}
+
+function isMessageId(value: unknown): value is string {
+  return typeof value === "string" && value.length > 0 && value.length <= 120 && /^[a-zA-Z0-9_-]+$/.test(value);
 }
 
 export async function GET() {
@@ -72,7 +77,7 @@ export async function POST(request: NextRequest) {
   }
 
   const message: BoardMessage = {
-    id: randomUUID(),
+    id: isMessageId(payload.id) ? payload.id : randomUUID(),
     sender,
     receiver,
     datetime: datetimeValue.toISOString(),
@@ -82,7 +87,8 @@ export async function POST(request: NextRequest) {
 
   try {
     const messages = await addBoardMessage(message);
-    return NextResponse.json({ message, messages, persistence: boardPersistenceMode() }, { status: 201 });
+    const savedMessage = messages.find((item) => item.id === message.id) || message;
+    return NextResponse.json({ message: savedMessage, messages, persistence: boardPersistenceMode() }, { status: 201 });
   } catch {
     return NextResponse.json(
       { message: "留言没有保存成功，等一下再试试。" },

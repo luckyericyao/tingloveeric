@@ -3,6 +3,7 @@ import { PNG } from "pngjs";
 
 const executablePath = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 const baseURL = process.env.QA_URL || "http://127.0.0.1:3000";
+const storyURL = `${baseURL}/cinema`;
 const generatedSceneAssets = [
   "/assets/cats/nono-front.webp",
   "/assets/cats/nono-left.webp",
@@ -48,7 +49,7 @@ function analyzePng(buffer) {
 }
 
 async function waitForIntro(page) {
-  await page.goto(baseURL, { waitUntil: "domcontentloaded" });
+  await page.goto(storyURL, { waitUntil: "domcontentloaded" });
   await page.getByRole("button", { name: "进入故事" }).waitFor({ state: "visible" });
   await page.waitForFunction(() => {
     const button = Array.from(document.querySelectorAll("button")).find((item) => item.textContent?.includes("进入故事"));

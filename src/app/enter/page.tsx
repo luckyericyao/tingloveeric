@@ -1,11 +1,13 @@
 "use client";
 
 import { FormEvent, Suspense, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { ButterflyTrail, HeartSparkles, PawPrint, RibbonLabel } from "@/components/ScrapbookDecor";
+import Image from "next/image";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { ArrowLeft, ArrowRight, LockKeyhole } from "lucide-react";
+import styles from "./EnterGate.module.css";
 
 function EnterContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const nextPath = searchParams.get("next") || "/";
   const [passcode, setPasscode] = useState("");
@@ -17,67 +19,93 @@ function EnterContent() {
     setMessage("");
     setIsSubmitting(true);
 
-    const response = await fetch("/api/passcode", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ passcode }),
-    });
+    try {
+      const response = await fetch("/api/passcode", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ passcode }),
+      });
 
-    setIsSubmitting(false);
+      if (!response.ok) {
+        const payload = (await response.json().catch(() => null)) as { message?: string } | null;
+        setMessage(payload?.message || "暗号不对，再轻轻试一次。");
+        return;
+      }
 
-    if (!response.ok) {
-      const payload = (await response.json().catch(() => null)) as { message?: string } | null;
-      setMessage(payload?.message || "暗号不对，再轻轻试一次。");
-      return;
+      const safeNextPath = nextPath.startsWith("/") && !nextPath.startsWith("//") ? nextPath : "/";
+      window.location.replace(safeNextPath);
+    } catch {
+      setMessage("暗号门暂时没有回应，检查网络后再试一次。");
+    } finally {
+      setIsSubmitting(false);
     }
-
-    router.replace(nextPath.startsWith("/") ? nextPath : "/");
-    router.refresh();
   }
 
   return (
-    <main className="page-band min-h-[calc(100svh-12rem)]">
-      <div className="content-wrap grid place-items-center">
-        <section className="glass-panel-strong relative w-full max-w-xl overflow-hidden p-7 md:p-9">
-          <HeartSparkles className="left-8 top-8" />
-          <ButterflyTrail className="right-10 top-7" />
-          <div className="relative">
-            <RibbonLabel>Private</RibbonLabel>
-            <h1 className="mt-5 text-3xl font-semibold text-[var(--color-ink)] md:text-4xl">
-              进入我俩的小世界
-            </h1>
-            <p className="mt-4 text-sm leading-7 text-[var(--color-muted)]">
-              这里放着 Ting 和 Eric 的小秘密、小纸条、小地图和好多好多喜欢。
-            </p>
+    <main className={styles.entryPage}>
+      <Image
+        src="/images/home/hero-memory-collage.jpg"
+        alt="旧自拍、猫咪与鱼缸组成的记忆拼贴"
+        fill
+        priority
+        sizes="100vw"
+        className={styles.entryImage}
+      />
+      <div className={styles.entryVeil} aria-hidden="true" />
+      <div className={styles.entryStage}>
+        <div className={styles.entryContext}>
+          <p className={styles.entryOverline}>Private archive · Ting & Eric</p>
+          <h1>有些记忆，<br />只留给两个人。</h1>
+          <p>
+            从一张自拍、一只猫和一句晚安开始。这里保存的是曾经真实发生过的靠近，
+            也是我们各自继续生活以后，仍然愿意认真对待的片段。
+          </p>
+        </div>
 
-            <form onSubmit={handleSubmit} className="mt-7 grid gap-4">
-              <label className="grid gap-2 text-sm font-medium text-[var(--color-ink)]">
-                小暗号
-                <input
-                  value={passcode}
-                  onChange={(event) => setPasscode(event.target.value)}
-                  type="password"
-                  className="rounded-2xl border border-[color:var(--color-line)] bg-white/72 px-4 py-3 text-base outline-none transition focus:border-[rgba(214,154,176,0.52)] focus:bg-white"
-                  placeholder="输入只属于我俩的暗号"
-                />
-              </label>
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-[var(--color-ink)] px-5 py-3 text-sm font-medium text-[var(--color-ivory)] shadow-[0_14px_34px_rgba(67,59,67,0.18)] transition hover:bg-[var(--color-blue-gray)] disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                <PawPrint />
-                {isSubmitting ? "正在打开..." : "打开小世界"}
-              </button>
-              {message ? (
-                <p className="rounded-2xl border border-[rgba(214,154,176,0.24)] bg-white/64 px-4 py-3 text-sm text-[var(--color-rose)]">
-                  {message}
-                </p>
-              ) : null}
-            </form>
+        <section className={styles.entryGate} aria-labelledby="entry-title">
+          <div className={styles.gateTopline}>
+            <span className={styles.entryKicker}>只对两个人开放</span>
+            <LockKeyhole size={18} strokeWidth={1.5} aria-hidden="true" />
           </div>
+          <h2 id="entry-title">进入我俩的小世界</h2>
+          <p className={styles.gateIntro}>输入那句只属于我们的暗号，继续看完剩下的故事。</p>
+
+          <form onSubmit={handleSubmit} className={styles.entryForm}>
+            <label className={styles.entryLabel}>
+              小暗号
+              <input
+                value={passcode}
+                onChange={(event) => setPasscode(event.target.value)}
+                type="password"
+                autoComplete="current-password"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                maxLength={4}
+                autoCapitalize="off"
+                spellCheck={false}
+                className={styles.entryInput}
+                placeholder="输入暗号"
+                autoFocus
+              />
+            </label>
+            <button type="submit" disabled={isSubmitting} className={styles.entrySubmit}>
+              {isSubmitting ? "正在打开..." : "打开小世界"}
+              <ArrowRight size={16} strokeWidth={1.7} />
+            </button>
+            {message ? (
+              <p className={styles.entryMessage} role="alert" aria-live="assertive">
+                {message}
+              </p>
+            ) : null}
+          </form>
+
+          <Link className={styles.archiveLink} href="/">
+            <ArrowLeft size={15} strokeWidth={1.5} />
+            回到公开档案馆
+          </Link>
         </section>
       </div>
+      <p className={styles.entryCaption}>那时候，我们还只是两个陌生人。</p>
     </main>
   );
 }
@@ -86,11 +114,9 @@ export default function EnterPage() {
   return (
     <Suspense
       fallback={
-        <main className="page-band min-h-[calc(100svh-12rem)]">
-          <div className="content-wrap grid place-items-center">
-            <section className="glass-panel-strong w-full max-w-xl p-7 md:p-9">
-              <p className="text-sm text-[var(--color-muted)]">正在打开小世界...</p>
-            </section>
+        <main className={styles.entryPage}>
+          <div className={styles.entryStage}>
+            <p className={styles.entryKicker}>正在打开小世界...</p>
           </div>
         </main>
       }
