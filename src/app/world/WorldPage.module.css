@@ -1,0 +1,129 @@
+.page {
+  min-height: 100svh;
+  background: #f7f3ec;
+}
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(78px, 12vw, 150px) 24px clamp(88px, 12vw, 138px);
+  background: #e8ddd3;
+}
+
+.hero::after {
+  position: absolute;
+  right: 10%;
+  bottom: -52%;
+  width: min(420px, 42vw);
+  aspect-ratio: 1;
+  border: 1px solid rgba(166, 101, 114, 0.28);
+  border-radius: 50%;
+  content: "";
+  opacity: 0.7;
+}
+
+.heroInner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  width: min(1200px, 100%);
+  align-items: end;
+  justify-content: space-between;
+  gap: 60px;
+  margin: 0 auto;
+}
+
+.kicker {
+  margin: 0;
+  color: var(--color-rose);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+}
+
+.hero h1 {
+  margin: 21px 0 0;
+  color: var(--color-ink);
+  font-family: var(--font-serif-elegant);
+  font-size: clamp(58px, 10vw, 144px);
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 0.98;
+}
+
+.heroCopy {
+  max-width: 440px;
+  margin: 28px 0 0;
+  color: var(--color-muted);
+  font-size: 14px;
+  line-height: 1.9;
+}
+
+.heroAside {
+  width: min(270px, 100%);
+  padding-bottom: 8px;
+  border-top: 1px solid rgba(33, 28, 29, 0.28);
+  color: var(--color-muted);
+}
+
+.heroAside span {
+  display: block;
+  margin-top: 12px;
+  color: var(--color-rose);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.heroAside strong {
+  display: block;
+  margin-top: 27px;
+  color: var(--color-ink);
+  font-family: var(--font-serif-elegant);
+  font-size: 22px;
+  font-weight: 400;
+}
+
+.heroAside p {
+  margin: 10px 0 0;
+  font-size: 11px;
+  line-height: 1.8;
+}
+
+.boardWrap {
+  width: min(1240px, calc(100% - 48px));
+  margin: -42px auto 0;
+  padding-bottom: 110px;
+  position: relative;
+  z-index: 2;
+}
+
+@media (max-width: 700px) {
+  .hero {
+    padding: 74px 20px 82px;
+  }
+
+  .heroInner {
+    display: grid;
+    gap: 44px;
+  }
+
+  .hero h1 {
+    font-size: clamp(54px, 17vw, 84px);
+  }
+
+  .heroAside {
+    width: 100%;
+  }
+
+  .boardWrap {
+    width: min(100% - 24px, 620px);
+    margin-top: -28px;
+    padding-bottom: 72px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero::after {
+    display: none;
+  }
+}

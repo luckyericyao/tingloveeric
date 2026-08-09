@@ -1,43 +1,40 @@
 import type { Metadata } from "next";
-import { SectionTitle } from "@/components/SectionTitle";
 import { WorldMapBoard } from "@/components/WorldMapBoard";
-import { ButterflyTrail, RibbonLabel, Sticker } from "@/components/ScrapbookDecor";
 import { worldMapPlaces } from "@/data/love";
+import styles from "./WorldPage.module.css";
 
 export const metadata: Metadata = {
-  title: "甜蜜世界地图 | Ting & Eric",
-  description: "把已经一起走过的地方，和以后想一起去的地方，都先点亮在地图上。",
+  title: "带你看遍这个世界 | Ting & Eric",
+  description: "已经一起走过的地方，和以后想一起去的地方，都在一张真实的地图上留下坐标。",
 };
 
 export default function WorldPage() {
   return (
-    <main>
-      <section className="page-band">
-        <div className="content-wrap">
-          <SectionTitle kicker="旅行梦境板" title="甜蜜世界地图" align="center">
-            把已经一起走过的地方，和以后想一起去的地方，都先点亮在地图上。
-          </SectionTitle>
-          <div className="world-shell relative mt-10 p-6 md:p-8">
-            <ButterflyTrail className="right-10 top-8" />
-            <div className="relative grid gap-4 md:grid-cols-[0.9fr_1.1fr] md:items-center">
-              <div>
-                <RibbonLabel>旅行梦境板</RibbonLabel>
-                <h2 className="mt-4 text-3xl font-semibold text-[var(--color-ink)]">
-                  世界很大，但想一起去的人是你。
-                </h2>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <Sticker tone="rose">我们去过这里</Sticker>
-                <Sticker tone="gold">这里以后一起去</Sticker>
-                <Sticker tone="lavender">下一站的心愿</Sticker>
-              </div>
-            </div>
+    <main className={styles.page}>
+      <section className={styles.hero}>
+        <div className={styles.heroInner}>
+          <div>
+            <p className={styles.kicker}>PRIVATE TRAVEL ARCHIVE</p>
+            <h1>
+              带你看遍
+              <br />
+              这个世界
+            </h1>
+            <p className={styles.heroCopy}>
+              已经一起走过的地方，和以后想一起去的地方，先被我们轻轻点亮。
+            </p>
           </div>
-          <div className="mt-8">
-            <WorldMapBoard seedPlaces={worldMapPlaces} />
+          <div className={styles.heroAside}>
+            <span>Eric &amp; Ting</span>
+            <strong>Shanghai → everywhere</strong>
+            <p>一张可以放大、拖动、继续写下去的世界地图。</p>
           </div>
         </div>
       </section>
+
+      <div className={styles.boardWrap}>
+        <WorldMapBoard seedPlaces={worldMapPlaces} />
+      </div>
     </main>
   );
 }
