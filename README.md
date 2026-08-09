@@ -162,6 +162,11 @@ The world map uses the same KV variables and stores its edits under a separate
 key. The protected API routes require the same `love_site_unlocked` cookie as
 the private pages.
 
+The `/world` view uses local vector data from `world-atlas` for the world map
+and `us-atlas` for the United States state map. It supports drag and wheel or
+touchpad zooming, zoom controls, world/US view switching, selectable markers,
+and the existing place editor without loading external map tiles.
+
 The public archive homepage, `/coordinates`, and `/cinema` stay directly viewable.
 The private room hub is `/private`; its child rooms (`/world`, `/board`, `/notes`,
 `/achievements`, `/her`, `/him`, and `/story`) use the same passcode gate. The
