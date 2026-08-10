@@ -26,7 +26,7 @@ The following local city images are Wikimedia Commons thumbnails used as landmar
 - `travel/san-francisco.jpg`: Frank Schulenburg, “Golden Gate Bridge as seen from Marshall’s Beach, March 2018.jpg”, CC BY-SA 4.0. Source: https://commons.wikimedia.org/wiki/File:Golden_Gate_Bridge_as_seen_from_Marshall%E2%80%99s_Beach,_March_2018.jpg
 - `travel/starbase.jpg`: Alexander Hatley, “USA - Texas - Boca Chica - Starbase (51285305397).jpg”, CC BY 2.0. Source: https://commons.wikimedia.org/wiki/File:USA_-_Texas_-_Boca_Chica_-_Starbase_(51285305397).jpg
 - `travel/miami.jpg`: joiseyshowaa, “Miami Beach and Port of Miami Skyline (2720195951).jpg”, CC BY-SA 2.0. Source: https://commons.wikimedia.org/wiki/File:Miami_Beach_and_Port_of_Miami_Skyline_(2720195951).jpg
-- `travel/boston.jpg`: Beyond My Ken, “2017 Boston skyline from Boston Harbor 5 .jpg”, CC BY-SA 4.0. Source: https://commons.wikimedia.org/wiki/File:2017_Boston_skyline_from_Boston_Harbor_5_.jpg
+- `travel/boston.jpg`: Juneau Wang, “Boston Skyline Panorama.jpg”, CC BY-SA 4.0. Source: https://commons.wikimedia.org/wiki/File:Boston_Skyline_Panorama.jpg
 - `travel/san-diego.jpg`: Mickpb, “San Diego Skyline at Night.jpg”, CC BY-SA 3.0. Source: https://commons.wikimedia.org/wiki/File:San_Diego_Skyline_at_Night.jpg
 - `travel/yellowstone.jpg`: Carsten Steger, “Aerial image of Grand Prismatic Spring (view from the south).jpg”, CC BY-SA 4.0. Source: https://commons.wikimedia.org/wiki/File:Aerial_image_of_Grand_Prismatic_Spring_(view_from_the_south).jpg
 - `travel/chicago.jpg`: David Ohmer, “Chicago - Adler Planetarium Sundial & Skyline (983196683).jpg”, CC BY 2.0. Source: https://commons.wikimedia.org/wiki/File:Chicago_-_Adler_Planetarium_Sundial_%26_Skyline_(983196683).jpg
@@ -42,3 +42,12 @@ The following local city images are Wikimedia Commons thumbnails used as landmar
 - `travel/lijiang.jpg`: chensiyuan, “1 lijiang old town night.jpg”, CC BY-SA 4.0. Source: https://commons.wikimedia.org/wiki/File:1_lijiang_old_town_night.jpg
 - `travel/harbin.jpg`: 闫恩铭 / Enming Yan, “Saint Sophia Cathedral, Harbin 10.jpg”, CC BY-SA 4.0. Source: https://commons.wikimedia.org/wiki/File:Saint_Sophia_Cathedral,_Harbin_10.jpg
 - `travel/sanya.jpg`: Huangdan2060, “Beaches in Sanya, Hainan, China2.jpg”, CC0. Source: https://commons.wikimedia.org/wiki/File:Beaches_in_Sanya,_Hainan,_China2.jpg
+- `travel/taiyuan.jpg`: Gisling, “Goddess Temple Jinsi.JPG”, Wikimedia Commons license. Source: https://commons.wikimedia.org/wiki/File:Goddess_Temple_Jinsi.JPG
+- `travel/urumqi.jpg`: Alexander Flühmann, “Ürümqi skyline, Xinjiang, China, 2004.jpg”, CC BY-SA 3.0 / GFDL 1.2. Source: https://commons.wikimedia.org/wiki/File:Urumqi.jpg
+- `travel/lhasa.jpg`: René Heise, “Lhasa Potala.jpg”, CC0. Source: https://commons.wikimedia.org/wiki/File:Lhasa_Potala.jpg
+- `travel/marrakech.jpg`: Alraiti, “Jamaa el Fna Marrakesh.jpg”, CC BY-SA. Source: https://commons.wikimedia.org/wiki/File:Jamaa_el_Fna_Marrakesh.jpg
+- `travel/nairobi.jpg`: Mkimemia, “Nairobi Skyline from West.jpg”, public domain. Source: https://commons.wikimedia.org/wiki/File:Nairobi_Skyline_from_West.jpg
+- `travel/rio-de-janeiro.jpg`: JGHowes, “Rio de Janeiro.jpg”, Wikimedia Commons license. Source: https://commons.wikimedia.org/wiki/File:Rio_de_Janeiro.jpg
+- `travel/buenos-aires.jpg`: JOPARA, “Obelisco Buenos Aires Argentina.jpg”, CC BY-SA 2.0. Source: https://commons.wikimedia.org/wiki/File:Obelisco_Buenos_Aires_Argentina.jpg
+- `travel/machu-picchu.jpg`: Entropy1963, “Peru Machu Picchu.jpg”, public domain. Source: https://commons.wikimedia.org/wiki/File:Peru_Machu_Picchu.jpg
+- `travel/antarctica.jpg`: Pedro Szekely, “Antarctica landscape.jpg”, CC BY-SA 2.0. Source: https://commons.wikimedia.org/wiki/File:Antarctica_landscape.jpg
