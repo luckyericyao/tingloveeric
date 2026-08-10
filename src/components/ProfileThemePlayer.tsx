@@ -18,6 +18,7 @@ function formatTime(value: number) {
 
 export function ProfileThemePlayer({ src, title, artist }: ProfileThemePlayerProps) {
   const audioRef = useRef<HTMLAudioElement>(null);
+  const fadeFrameRef = useRef<number | null>(null);
   const [playing, setPlaying] = useState(false);
   const [muted, setMuted] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -27,20 +28,29 @@ export function ProfileThemePlayer({ src, title, artist }: ProfileThemePlayerPro
     const audio = audioRef.current;
     if (!audio) return;
 
-    audio.volume = 0.46;
-    void audio.play().catch(() => {
+    audio.volume = 0;
+    void audio.play().then(() => {
+      const startedAt = performance.now();
+      const fade = (now: number) => {
+        const progress = Math.min(1, (now - startedAt) / 1200);
+        audio.volume = 0.26 * progress;
+        if (progress < 1) fadeFrameRef.current = window.requestAnimationFrame(fade);
+      };
+      fadeFrameRef.current = window.requestAnimationFrame(fade);
+    }).catch(() => {
       setPlaying(false);
     });
 
     return () => {
       audio.pause();
+      if (fadeFrameRef.current !== null) window.cancelAnimationFrame(fadeFrameRef.current);
     };
   }, []);
 
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
-    audio.volume = muted ? 0 : 0.46;
+    audio.volume = muted ? 0 : 0.26;
   }, [muted]);
 
   const togglePlayback = async () => {
@@ -53,6 +63,7 @@ export function ProfileThemePlayer({ src, title, artist }: ProfileThemePlayerPro
 
     try {
       await audio.play();
+      audio.volume = muted ? 0 : 0.26;
     } catch {
       setPlaying(false);
     }
@@ -71,10 +82,10 @@ export function ProfileThemePlayer({ src, title, artist }: ProfileThemePlayerPro
         <p className="mt-1 text-xs text-[var(--color-muted)]">{artist}</p>
       </div>
 
-      <div className="grid min-w-0 grid-cols-[40px_minmax(0,1fr)_40px] items-center gap-3">
+      <div className="grid min-w-0 grid-cols-[44px_minmax(0,1fr)_44px] items-center gap-3">
         <button
           type="button"
-          className="grid size-10 place-items-center border border-[#211c1d]/18 bg-transparent text-[var(--color-ink)] transition-colors hover:border-[var(--color-rose)] hover:text-[var(--color-rose)]"
+          className="grid size-11 place-items-center border border-[#211c1d]/18 bg-transparent text-[var(--color-ink)] transition-colors hover:border-[var(--color-rose)] hover:text-[var(--color-rose)]"
           onClick={togglePlayback}
           title={playing ? "暂停主题曲" : "播放主题曲"}
           aria-label={playing ? "暂停主题曲" : "播放主题曲"}
@@ -107,7 +118,7 @@ export function ProfileThemePlayer({ src, title, artist }: ProfileThemePlayerPro
 
         <button
           type="button"
-          className="grid size-10 place-items-center border border-[#211c1d]/18 bg-transparent text-[var(--color-ink)] transition-colors hover:border-[var(--color-rose)] hover:text-[var(--color-rose)]"
+          className="grid size-11 place-items-center border border-[#211c1d]/18 bg-transparent text-[var(--color-ink)] transition-colors hover:border-[var(--color-rose)] hover:text-[var(--color-rose)]"
           onClick={() => setMuted((current) => !current)}
           title={muted ? "取消静音" : "静音"}
           aria-label={muted ? "取消静音" : "静音"}

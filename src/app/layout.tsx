@@ -4,7 +4,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Ting & Eric | 一段可以走进去的故事",
-  description: "一个只对两个人开放、可以亲手探索的 3D Love Story。",
+  description: "一段只保存真实发生过的相遇、靠近与个人感受。",
   robots: {
     index: false,
     follow: false,

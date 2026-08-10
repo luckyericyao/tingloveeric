@@ -23,7 +23,7 @@
   margin: 10px 0 0;
   color: var(--color-ink);
   font-family: var(--font-serif-elegant);
-  font-size: clamp(31px, 4vw, 58px);
+  font-size: clamp(31px, 42px, 58px);
   font-weight: 400;
   line-height: 1.15;
 }
@@ -88,6 +88,7 @@
 
 .retryButton {
   display: inline-flex;
+  min-height: 44px;
   align-items: center;
   gap: 6px;
   border-bottom: 1px solid transparent;
@@ -149,7 +150,7 @@
 }
 
 .mapModeTab {
-  min-height: 32px;
+  min-height: 44px;
   padding: 0 12px;
   color: rgba(247, 243, 236, 0.54);
   font-size: 11px;
@@ -225,8 +226,8 @@
 
 .mapControlButton {
   display: grid;
-  width: 38px;
-  height: 38px;
+  width: 44px;
+  height: 44px;
   place-items: center;
   border-bottom: 1px solid rgba(33, 28, 29, 0.12);
   color: var(--color-ink);
@@ -318,7 +319,7 @@
 }
 
 .filterButton {
-  min-height: 30px;
+  min-height: 44px;
   padding: 0 10px;
   border: 1px solid rgba(247, 243, 236, 0.16);
   color: rgba(247, 243, 236, 0.55);
@@ -352,7 +353,7 @@
 
 .detailLabel {
   display: inline-flex;
-  min-height: 25px;
+  min-height: 44px;
   align-items: center;
   padding: 0 9px;
   background: var(--color-rose);
@@ -442,7 +443,7 @@
 .quietButton,
 .primaryButton {
   display: inline-flex;
-  min-height: 36px;
+  min-height: 44px;
   align-items: center;
   gap: 7px;
   padding: 0 11px;
@@ -463,6 +464,27 @@
   border-color: var(--color-ink);
   background: var(--color-ink);
   color: var(--color-ivory);
+}
+
+.editorTrigger {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 13px;
+  border: 1px solid rgba(33, 28, 29, 0.18);
+  background: rgba(255, 252, 247, 0.78);
+  color: var(--color-ink);
+  font-size: 10px;
+  transition: border-color 180ms ease, color 180ms ease, background 180ms ease;
+}
+
+.editorTrigger:hover,
+.editorTrigger:focus-visible {
+  border-color: var(--color-rose);
+  background: #fffaf4;
+  color: var(--color-rose);
 }
 
 .editorPanel {
@@ -487,8 +509,8 @@
 
 .closeEditor {
   display: grid;
-  width: 30px;
-  height: 30px;
+  width: 44px;
+  height: 44px;
   place-items: center;
   border: 1px solid rgba(33, 28, 29, 0.14);
   color: var(--color-muted);
@@ -547,6 +569,8 @@
 }
 
 .presetButton {
+  min-width: 44px;
+  min-height: 44px;
   padding: 6px 8px;
   border: 1px solid rgba(201, 169, 104, 0.35);
   background: rgba(255, 244, 210, 0.45);

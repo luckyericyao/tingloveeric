@@ -6,7 +6,7 @@
   min-height: 100svh;
   overflow: hidden;
   overscroll-behavior: none;
-  background: #070a12;
+  background: #171319;
   color: #f5eee2;
   isolation: isolate;
   touch-action: none;
@@ -24,7 +24,7 @@
   position: absolute;
   inset: 0;
   overflow: hidden;
-  background: #070a12;
+  background: #171319;
 }
 
 .fallbackVisual img {
@@ -45,7 +45,7 @@
 
 .sceneVeil {
   z-index: 2;
-  background: linear-gradient(180deg, rgba(5, 7, 13, 0.46) 0%, transparent 26%, transparent 68%, rgba(5, 7, 13, 0.7) 100%);
+  background: linear-gradient(180deg, rgba(24, 17, 24, 0.38) 0%, transparent 30%, transparent 68%, rgba(24, 17, 24, 0.62) 100%);
 }
 
 .topbar {
@@ -108,8 +108,8 @@
 .panelClose,
 .navArrow {
   display: inline-grid;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   place-items: center;
   border: 1px solid rgba(245, 238, 226, 0.18);
   border-radius: 2px;
@@ -334,8 +334,8 @@
   position: absolute;
   top: 16px;
   right: 16px;
-  width: 34px;
-  height: 34px;
+  width: 44px;
+  height: 44px;
 }
 
 .chapterMeta {
@@ -391,6 +391,10 @@
 }
 
 .chapterAction {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  padding: 0 4px;
   color: #d4b77f;
   font-size: 12px;
   transition: color 180ms ease;
@@ -406,7 +410,7 @@
   bottom: 112px;
   left: 28px;
   display: inline-flex;
-  min-height: 40px;
+  min-height: 44px;
   align-items: center;
   gap: 10px;
   padding: 0 14px;
@@ -426,14 +430,14 @@
   bottom: 28px;
   left: 28px;
   display: grid;
-  grid-template-columns: 40px minmax(0, 1fr) 40px;
+  grid-template-columns: 44px minmax(0, 1fr) 44px;
   align-items: center;
   gap: 18px;
 }
 
 .chapterTrack {
   display: grid;
-  grid-template-columns: repeat(7, minmax(30px, 1fr));
+  grid-template-columns: repeat(6, minmax(30px, 1fr));
   align-items: center;
   gap: 0;
 }
@@ -441,7 +445,7 @@
 .chapterDot {
   position: relative;
   display: grid;
-  height: 38px;
+  min-height: 44px;
   place-items: center;
   border: 0;
   background: transparent;
@@ -617,8 +621,8 @@
   }
 
   .iconButton {
-    width: 38px;
-    height: 38px;
+    width: 44px;
+    height: 44px;
   }
 
   .intro {
@@ -699,21 +703,21 @@
     right: 14px;
     bottom: 16px;
     left: 14px;
-    grid-template-columns: 38px minmax(0, 1fr) 38px;
+    grid-template-columns: 44px minmax(0, 1fr) 44px;
     gap: 10px;
   }
 
   .navArrow {
-    width: 38px;
-    height: 38px;
+    width: 44px;
+    height: 44px;
   }
 
   .chapterTrack {
-    grid-template-columns: repeat(7, minmax(20px, 1fr));
+    grid-template-columns: repeat(6, minmax(20px, 1fr));
   }
 
   .chapterDot {
-    height: 32px;
+    min-height: 44px;
   }
 
   .navNotice {

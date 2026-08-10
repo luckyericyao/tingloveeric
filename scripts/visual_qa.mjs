@@ -117,7 +117,7 @@ async function runViewport(browser, options) {
   if (options.panelClosedPath) {
     await page.getByRole("button", { name: "收起旁白" }).click();
     await page.waitForTimeout(options.reducedMotion === "reduce" ? 80 : 520);
-    interactionChecks.reopenPanelVisible = await page.getByRole("button", { name: "序章", exact: true }).isVisible();
+    interactionChecks.reopenPanelVisible = await page.getByRole("button", { name: "私人档案馆", exact: true }).isVisible();
     await page.screenshot({ path: options.panelClosedPath });
   }
 
@@ -165,7 +165,7 @@ async function runViewport(browser, options) {
   if (options.advanceToFinale) {
     const next = page.getByRole("button", { name: "下一幕" });
     let currentChapter = Number(await page.locator("main").getAttribute("data-chapter"));
-    while (currentChapter < 6) {
+    while (currentChapter < 5) {
       currentChapter += 1;
       await advanceWithButton(page, currentChapter);
     }
@@ -173,7 +173,7 @@ async function runViewport(browser, options) {
     finale = {
       title: await page.locator("article h2").textContent(),
       nextDisabled: await next.isDisabled(),
-      actionVisible: await page.getByRole("link", { name: "写下此刻" }).isVisible(),
+      actionVisible: await page.getByRole("link", { name: "打开想去的地方" }).isVisible(),
     };
   }
 

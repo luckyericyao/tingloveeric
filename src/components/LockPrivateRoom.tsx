@@ -27,7 +27,7 @@ export function LockPrivateRoom() {
         type="button"
         onClick={() => void lockRoom()}
         disabled={isLocking}
-        className="inline-flex items-center gap-2 border-b border-transparent py-1 transition hover:border-[var(--color-rose)] hover:text-[var(--color-rose)] disabled:cursor-wait disabled:opacity-50"
+        className="inline-flex min-h-11 items-center gap-2 border-b border-transparent px-1 transition hover:border-[var(--color-rose)] hover:text-[var(--color-rose)] disabled:cursor-wait disabled:opacity-50"
       >
         <LockKeyhole size={14} strokeWidth={1.6} />
         {isLocking ? "正在锁上..." : "锁上小世界"}

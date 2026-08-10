@@ -1,67 +1,63 @@
 import type { Metadata } from "next";
-import { ButterflyDecor } from "@/components/ButterflyDecor";
-import { FrictionCard } from "@/components/FrictionCard";
-import { SectionTitle } from "@/components/SectionTitle";
-import { TimelineCard } from "@/components/TimelineCard";
-import { RibbonLabel, Sticker } from "@/components/ScrapbookDecor";
-import { frictionRecords, timelineEvents } from "@/data/love";
+import Image from "next/image";
+import Link from "next/link";
+import { ArrowLeft, ArrowRight } from "lucide-react";
+import { timelineEvents } from "@/data/love";
 
 export const metadata: Metadata = {
-  title: "相遇以来 | 我俩",
-  description: "从第一次靠近，到每一次更懂彼此。",
+  title: "已核实的相遇记录 | Ting 与 Eric",
+  description: "只保留有照片、日期或原话支持的相遇与靠近。",
 };
 
 export default function StoryPage() {
   return (
-    <main>
-      <section className="page-band">
+    <main className="archive-page">
+      <section className="archive-page-hero">
         <div className="content-wrap">
-          <div className="relative">
-            <ButterflyDecor className="right-4 top-0" />
-            <SectionTitle kicker="故事书章节" title="相遇以来" align="center">
-              从第一次靠近，到每一次更懂彼此。照片、贴纸、心软和抱抱，都被夹进时间里。
-            </SectionTitle>
-          </div>
-          <div className="mx-auto mt-8 flex max-w-3xl flex-wrap justify-center gap-2">
-            <Sticker tone="rose">第一次靠近</Sticker>
-            <Sticker tone="lavender">每一次心动</Sticker>
-            <Sticker tone="gold">和好以后更喜欢你</Sticker>
-          </div>
-
-          <div className="sticker-album relative mt-14 p-4 md:p-6">
-            <div className="absolute bottom-0 left-4 top-0 w-px bg-[linear-gradient(var(--color-mist-rose),var(--color-lavender),var(--color-gold))] md:left-1/2" />
-            <div className="grid gap-8">
-              {timelineEvents.map((event, index) => (
-                <div key={event.id} className="relative pl-10 md:pl-0">
-                  <span className="absolute left-[0.72rem] top-6 z-10 size-3 rounded-full border border-[var(--color-gold)] bg-white md:left-[calc(50%-0.36rem)]" />
-                  <TimelineCard event={event} align={index % 2 === 0 ? "left" : "right"} />
-                </div>
-              ))}
-            </div>
-          </div>
+          <Link className="archive-back-link" href="/private">
+            <ArrowLeft size={16} />
+            回到四个房间
+          </Link>
+          <p className="archive-kicker">真实记录 · 有照片、有日期、有原话</p>
+          <h1>相遇与靠近</h1>
+          <p className="archive-lede">
+            这里不补写没有发生过的日期，也不替任何人解释感受。只有照片、日期和原话能支持的片段，才进入时间线。
+          </p>
         </div>
       </section>
 
-      <section className="page-band bg-[rgba(255,250,244,0.38)]">
-        <div className="content-wrap">
-          <SectionTitle
-            kicker="不是问题日志"
-            title="我们学会更爱彼此的地方"
-            align="center"
-          >
-            这些记录不是为了反复证明谁对谁错，而是为了记住：我们怎样一次次把误会变成更靠近，把难过变成更懂彼此。
-          </SectionTitle>
-          <div className="mx-auto mt-8 max-w-xl rounded-[1.6rem] border border-[rgba(201,169,104,0.22)] bg-white/58 p-5 text-center">
-            <RibbonLabel>爱会学习</RibbonLabel>
-            <p className="mt-4 text-sm leading-7 text-[var(--color-muted)]">
-              每一次说清楚、抱回来、再靠近，都是我俩把关系照顾得更好的证据。
-            </p>
-          </div>
-          <div className="mt-10 grid gap-4 lg:grid-cols-3">
-            {frictionRecords.map((record) => (
-              <FrictionCard key={record.id} record={record} />
-            ))}
-          </div>
+      <section className="archive-timeline-section">
+        <div className="content-wrap archive-timeline-list">
+          {timelineEvents.map((event, index) => (
+            <article className="archive-timeline-entry" key={event.id}>
+              <div className="archive-timeline-date">
+                <span>{String(index + 1).padStart(2, "0")}</span>
+                <time>{event.date}</time>
+              </div>
+              <div className="archive-timeline-media">
+                <Image src={event.image.src} alt={event.image.alt} fill sizes="(max-width: 767px) 92vw, 38vw" />
+              </div>
+              <div className="archive-timeline-copy">
+                <p className="archive-kicker">{event.type} · {event.source === "verified" ? "已核实" : "Eric 的感受"}</p>
+                <h2>{event.title}</h2>
+                <p>{event.description}</p>
+                <span>{event.image.caption}</span>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="archive-reflection-band">
+        <div className="content-wrap archive-reflection">
+          <p className="archive-kicker">后来 · Eric 的感受</p>
+          <h2>我不再试图购买一个结局。</h2>
+          <p>
+            钱已经归还，旧的金钱关系结束。后来我也重新照顾自己的身体、生活和掌控感。如果未来自然相遇，就作为两个自由的人重新判断；如果没有，也不虚构结局。
+          </p>
+          <Link className="archive-text-link" href="/him">
+            看 Eric 的记录 <ArrowRight size={16} />
+          </Link>
         </div>
       </section>
     </main>

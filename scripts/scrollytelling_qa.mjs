@@ -3,7 +3,7 @@ import { chromium } from "playwright-core";
 const executablePath = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 const baseURL = process.env.QA_URL || "http://127.0.0.1:3000";
 const storyURL = `${baseURL}/cinema`;
-const chapterCount = 7;
+const chapterCount = 6;
 
 async function enterStory(page) {
   await page.goto(storyURL, { waitUntil: "domcontentloaded" });
@@ -117,10 +117,10 @@ async function testWheelJourney(browser) {
   });
   await page.waitForTimeout(600);
   const inertiaState = await storyState(page);
-  await page.screenshot({ path: "/tmp/ting-story-wheel-transition-desktop.png" });
+  await page.screenshot({ path: "/tmp/ting-story-wheel-transition-desktop.png", timeout: 90000 });
   await waitForChapterEnd(page, 1);
   const firstSettled = await storyState(page);
-  await page.screenshot({ path: "/tmp/ting-story-wheel-settled-desktop.png" });
+  await page.screenshot({ path: "/tmp/ting-story-wheel-settled-desktop.png", timeout: 90000 });
 
   for (let chapter = 2; chapter < chapterCount; chapter += 1) {
     await wheelForward(page);
@@ -128,7 +128,7 @@ async function testWheelJourney(browser) {
     await waitForChapterEnd(page, chapter, chapter === chapterCount - 1);
   }
   const finale = await storyState(page);
-  await page.screenshot({ path: "/tmp/ting-story-wheel-finale-desktop.png" });
+  await page.screenshot({ path: "/tmp/ting-story-wheel-finale-desktop.png", timeout: 90000 });
 
   const chapterDots = page.locator("nav button[aria-label^='返回']");
   await chapterDots.first().click();
@@ -165,7 +165,7 @@ async function testClickJourney(browser) {
   }
 
   const finale = await storyState(page);
-  await page.screenshot({ path: "/tmp/ting-story-click-finale-desktop.png" });
+  await page.screenshot({ path: "/tmp/ting-story-click-finale-desktop.png", timeout: 90000 });
   await context.close();
   return { finale, errors, failedRequests };
 }
@@ -191,7 +191,7 @@ async function testTouchJourney(browser) {
   const lockedState = await storyState(page);
   await waitForChapterEnd(page, 1);
   const settled = await storyState(page);
-  await page.screenshot({ path: "/tmp/ting-story-touch-settled-mobile.png" });
+  await page.screenshot({ path: "/tmp/ting-story-touch-settled-mobile.png", timeout: 90000 });
 
   await context.close();
   return { lockedState, settled, errors, failedRequests };
@@ -213,9 +213,9 @@ try {
   if (!wheel.hint || !wheel.hintGone) failures.push("one-time gesture hint failed");
   if (!wheel.futureNotice || wheel.stateAfterFutureClick.chapter !== 0) failures.push("future chapter lock failed");
   if (wheel.inertiaState.chapter !== 1) failures.push("wheel inertia skipped a chapter");
-  if (wheel.finale.chapter !== 6 || wheel.finale.playback !== "completed") failures.push("wheel-only journey did not complete");
-  if (wheel.returned.chapter !== 0 || wheel.returned.maxViewed !== 6) failures.push("viewed chapter return failed");
-  if (click.finale.chapter !== 6 || click.finale.playback !== "completed") failures.push("click-only journey did not complete");
+  if (wheel.finale.chapter !== 5 || wheel.finale.playback !== "completed") failures.push("wheel-only journey did not complete");
+  if (wheel.returned.chapter !== 0 || wheel.returned.maxViewed !== 5) failures.push("viewed chapter return failed");
+  if (click.finale.chapter !== 5 || click.finale.playback !== "completed") failures.push("click-only journey did not complete");
   if (touch.lockedState.chapter !== 1 || touch.settled.chapter !== 1) failures.push("touch input double-triggered");
   if ([wheel, click, touch].some((item) => item.errors.length || item.failedRequests.length)) failures.push("browser errors detected");
   if ([wheel.finale, click.finale, touch.settled].some((item) => item.scrollY !== 0 || item.bodyOverflow > 0)) failures.push("page scroll penetration detected");
