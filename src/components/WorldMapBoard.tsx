@@ -692,15 +692,15 @@ export function WorldMapBoard({ seedPlaces }: WorldMapBoardProps) {
                     src={hoveredPlace.image.src}
                     alt={hoveredPlace.image.alt}
                     fill
-                    sizes="220px"
+                    sizes="(max-width: 700px) calc(100vw - 48px), 520px"
                     className={styles.cityHoverPhotoImage}
                   />
-                </div>
-                <div className={styles.cityHoverCopy}>
-                  <span>{hoveredPlace.country}</span>
-                  <strong>{hoveredPlace.cityZh || hoveredPlace.name}</strong>
-                  <p>{hoveredPlace.landmark || hoveredPlace.image.caption}</p>
-                  <small>点击查看这座城市的愿望</small>
+                  <div className={styles.cityHoverCopy}>
+                    <span>{hoveredPlace.country}</span>
+                    <strong>{hoveredPlace.cityZh || hoveredPlace.name}</strong>
+                    <p>{hoveredPlace.landmark || hoveredPlace.image.caption}</p>
+                    <small>点击查看这座城市的愿望</small>
+                  </div>
                 </div>
               </article>
             ) : null}
