@@ -110,10 +110,10 @@
 .mapShell {
   position: relative;
   overflow: hidden;
-  border: 1px solid rgba(33, 28, 29, 0.18);
-  border-radius: 4px;
-  background: #fbf8f1;
-  box-shadow: 0 30px 80px rgba(126, 99, 115, 0.12);
+  border: 0;
+  border-radius: 0;
+  background: #e9e5dd;
+  box-shadow: none;
 }
 
 .mapTopline {
@@ -123,6 +123,7 @@
   gap: 18px;
   padding: 16px 18px;
   border-bottom: 1px solid rgba(33, 28, 29, 0.12);
+  background: #e9e5dd;
   color: var(--color-muted);
 }
 
@@ -357,8 +358,8 @@
   grid-template-columns: 178px minmax(0, 1fr);
   width: min(440px, calc(100% - 32px));
   overflow: hidden;
-  border: 1px solid rgba(33, 28, 29, 0.14);
-  background: rgba(255, 250, 244, 0.96);
+  border: 0;
+  background: rgba(39, 34, 35, 0.96);
   box-shadow: 0 18px 42px rgba(33, 28, 29, 0.16);
   pointer-events: none;
 }
@@ -383,12 +384,12 @@
 
 .cityHoverCopy span,
 .cityHoverCopy small {
-  color: var(--color-muted);
+  color: rgba(255, 250, 244, 0.64);
   font-size: 9px;
 }
 
 .cityHoverCopy strong {
-  color: var(--color-ink);
+  color: #fffaf4;
   font-family: var(--font-serif-elegant);
   font-size: 29px;
   font-weight: 400;
@@ -396,15 +397,16 @@
 
 .cityHoverCopy p {
   margin: 0;
-  color: var(--color-rose);
+  color: #e0aab2;
   font-size: 12px;
   line-height: 1.5;
 }
 
 .detailPhoto {
   position: relative;
-  aspect-ratio: 1.75;
-  margin-top: 18px;
+  aspect-ratio: 1.35;
+  width: calc(100% + 44px);
+  margin: 18px -22px 0;
   overflow: hidden;
   background: #d5ded8;
 }
@@ -445,6 +447,10 @@
 
 .detailPanel {
   padding: 22px;
+  border: 0;
+  border-radius: 0;
+  background: #ebe6de;
+  box-shadow: none;
 }
 
 .detailLabel {
@@ -842,6 +848,12 @@
 
   .detailColumn {
     grid-template-columns: 1fr;
+  }
+
+  .detailPhoto {
+    width: calc(100% + 32px);
+    margin-right: -16px;
+    margin-left: -16px;
   }
 
   .placeListItems {

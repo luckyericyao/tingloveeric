@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { WorldMapBoard } from "@/components/WorldMapBoard";
+import { WorldCatCompanions } from "@/components/WorldCatCompanions";
 import { worldMapPlaces } from "@/data/love";
 import styles from "./WorldPage.module.css";
 
@@ -12,6 +13,7 @@ export default function WorldPage() {
   return (
     <main className={styles.page}>
       <section className={styles.hero}>
+        <WorldCatCompanions />
         <div className={styles.heroInner}>
           <div>
             <p className={styles.kicker}>一张留给愿望的地图</p>
