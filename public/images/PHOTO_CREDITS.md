@@ -23,3 +23,22 @@ The following local city images are Wikimedia Commons thumbnails used as landmar
 - `travel/cape-town.jpg`: Dietmar Rabich, “Cape Town (ZA), Table Mountain -- 2024 -- 2825.jpg”, CC BY-SA 4.0. Source: https://commons.wikimedia.org/wiki/File:Cape_Town_(ZA),_Table_Mountain_--_2024_--_2825.jpg
 - `travel/kyoto.jpg`: Martin Falbisoner, “Kiyomizu-dera, Kyoto, November 2016 -07.jpg”, CC BY-SA 4.0. Source: https://commons.wikimedia.org/wiki/File:Kiyomizu-dera,_Kyoto,_November_2016_-07.jpg
 - `travel/santorini.jpg`: Nemomagister, “Oia Santorini sunset.jpg”, CC BY-SA 4.0. Source: https://commons.wikimedia.org/wiki/File:Oia_Santorini_sunset.jpg
+- `travel/san-francisco.jpg`: Frank Schulenburg, “Golden Gate Bridge as seen from Marshall’s Beach, March 2018.jpg”, CC BY-SA 4.0. Source: https://commons.wikimedia.org/wiki/File:Golden_Gate_Bridge_as_seen_from_Marshall%E2%80%99s_Beach,_March_2018.jpg
+- `travel/starbase.jpg`: Alexander Hatley, “USA - Texas - Boca Chica - Starbase (51285305397).jpg”, CC BY 2.0. Source: https://commons.wikimedia.org/wiki/File:USA_-_Texas_-_Boca_Chica_-_Starbase_(51285305397).jpg
+- `travel/miami.jpg`: joiseyshowaa, “Miami Beach and Port of Miami Skyline (2720195951).jpg”, CC BY-SA 2.0. Source: https://commons.wikimedia.org/wiki/File:Miami_Beach_and_Port_of_Miami_Skyline_(2720195951).jpg
+- `travel/boston.jpg`: Beyond My Ken, “2017 Boston skyline from Boston Harbor 5 .jpg”, CC BY-SA 4.0. Source: https://commons.wikimedia.org/wiki/File:2017_Boston_skyline_from_Boston_Harbor_5_.jpg
+- `travel/san-diego.jpg`: Mickpb, “San Diego Skyline at Night.jpg”, CC BY-SA 3.0. Source: https://commons.wikimedia.org/wiki/File:San_Diego_Skyline_at_Night.jpg
+- `travel/yellowstone.jpg`: Carsten Steger, “Aerial image of Grand Prismatic Spring (view from the south).jpg”, CC BY-SA 4.0. Source: https://commons.wikimedia.org/wiki/File:Aerial_image_of_Grand_Prismatic_Spring_(view_from_the_south).jpg
+- `travel/chicago.jpg`: David Ohmer, “Chicago - Adler Planetarium Sundial & Skyline (983196683).jpg”, CC BY 2.0. Source: https://commons.wikimedia.org/wiki/File:Chicago_-_Adler_Planetarium_Sundial_%26_Skyline_(983196683).jpg
+- `travel/beijing.jpg`: Velatrix, “Great Wall of China July 2006.JPG”, CC0. Source: https://commons.wikimedia.org/wiki/File:Great_Wall_of_China_July_2006.JPG
+- `travel/xian.jpg`: xiquinhosilva, “51714-Terracota-Army.jpg”, CC BY 2.0. Source: https://commons.wikimedia.org/wiki/File:51714-Terracota-Army.jpg
+- `travel/chengdu.jpg`: Colegota, “Chengdu-pandas-d10.jpg”, CC BY-SA 2.5. Source: https://commons.wikimedia.org/wiki/File:Chengdu-pandas-d10.jpg
+- `travel/chongqing.jpg`: 源義信, “2023-06-24 Hongya Cave, Chongqing.jpg”, CC BY 4.0. Source: https://commons.wikimedia.org/wiki/File:2023-06-24_Hongya_Cave,_Chongqing.jpg
+- `travel/hangzhou.jpg`: Jakub Hałun, “20090524 Hangzhou West Lake 7531.jpg”, CC BY-SA 3.0. Source: https://commons.wikimedia.org/wiki/File:20090524_Hangzhou_West_Lake_7531.jpg
+- `travel/guangzhou.jpg`: Daniel Lu, “Canton Tower at night Guangzhou 2024 dllu.jpg”, CC BY-SA 4.0. Source: https://commons.wikimedia.org/wiki/File:Canton_Tower_at_night_Guangzhou_2024_dllu.jpg
+- `travel/shenzhen.jpg`: Sparktour, “Skyline of Shenzhen from Hong Kong.jpg”, CC BY-SA 4.0. Source: https://commons.wikimedia.org/wiki/File:Skyline_of_Shenzhen_from_Hong_Kong.jpg
+- `travel/xiamen.jpg`: Slyronit, “Gulangyu Island from Zhongshan Road, Xiamen.jpg”, CC BY-SA 4.0. Source: https://commons.wikimedia.org/wiki/File:Gulangyu_Island_from_Zhongshan_Road,_Xiamen.jpg
+- `travel/zhangjiajie.jpg`: Kuruman, “Zhangjiajie National Forest Park.jpg”, CC BY 2.0. Source: https://commons.wikimedia.org/wiki/File:Zhangjiajie_National_Forest_Park.jpg
+- `travel/lijiang.jpg`: chensiyuan, “1 lijiang old town night.jpg”, CC BY-SA 4.0. Source: https://commons.wikimedia.org/wiki/File:1_lijiang_old_town_night.jpg
+- `travel/harbin.jpg`: 闫恩铭 / Enming Yan, “Saint Sophia Cathedral, Harbin 10.jpg”, CC BY-SA 4.0. Source: https://commons.wikimedia.org/wiki/File:Saint_Sophia_Cathedral,_Harbin_10.jpg
+- `travel/sanya.jpg`: Huangdan2060, “Beaches in Sanya, Hainan, China2.jpg”, CC0. Source: https://commons.wikimedia.org/wiki/File:Beaches_in_Sanya,_Hainan,_China2.jpg
