@@ -70,11 +70,10 @@ const emptyForm: PlaceForm = {
 
 const fallbackImage: ImageAsset = {
   id: "custom-world-place",
-  src: "/images/memory-travel.svg",
-  alt: "旅行票根和行李箱插画",
-  caption: "新的地方，也会变成我俩的小小地图坐标",
-  category: "custom travel memory",
-  sticker: "旅行",
+  src: "/images/shanghai-night-walk.jpg",
+  alt: "夜里街灯下的城市道路",
+  caption: "还没出发的地方，先留在愿望里。",
+  category: "personal wish",
 };
 
 const placePresets = [
@@ -205,7 +204,7 @@ function hasWorldMapEntries(state: {
 }
 
 function formatStatus(status: WorldPlaceStatus) {
-  return status === "visited" ? "我们去过这里" : "这里以后一起去";
+  return status === "visited" ? "已经走过" : "想去看看";
 }
 
 function isUnitedStates(place: WorldMapPlace) {
@@ -243,6 +242,7 @@ export function WorldMapBoard({ seedPlaces }: WorldMapBoardProps) {
   const [selectedId, setSelectedId] = useState(seedPlaces[0]?.id || "");
   const [form, setForm] = useState<PlaceForm>(emptyForm);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [editorOpen, setEditorOpen] = useState(false);
   const [message, setMessage] = useState("");
 
   useEffect(() => {
@@ -348,11 +348,13 @@ export function WorldMapBoard({ seedPlaces }: WorldMapBoardProps) {
   function resetEditor() {
     setEditingId(null);
     setForm(emptyForm);
+    setEditorOpen(false);
     setMessage("");
   }
 
   function editPlace(place: WorldMapPlace) {
     setEditingId(place.id);
+    setEditorOpen(true);
     setForm({
       name: place.name,
       country: place.country,
@@ -416,8 +418,8 @@ export function WorldMapBoard({ seedPlaces }: WorldMapBoardProps) {
       country: form.country.trim(),
       status: form.status,
       date: form.date || undefined,
-      note: form.status === "visited" ? content : "还没一起去，但已经先把愿望点亮在这里。",
-      wish: form.status === "wishlist" ? content : "下次还想一起再去，把这份记忆补得更甜一点。",
+      note: form.status === "visited" ? content : "还没有走到这里，先把愿望留在地图上。",
+      wish: form.status === "wishlist" ? content : "以后若再来，可以把新的画面补在这里。",
       lat,
       lng,
       image: originalPlace?.image || seedPlaces[0]?.image || fallbackImage,
@@ -425,7 +427,7 @@ export function WorldMapBoard({ seedPlaces }: WorldMapBoardProps) {
 
     const successMessage = editingId
       ? `${nextPlace.name} 的记录已经更新。`
-      : "这个地方已经被我们点亮了。";
+      : "这处愿望已经放进地图。";
 
     if (editingId) {
       if (seedPlaces.some((place) => place.id === editingId)) {
@@ -440,6 +442,7 @@ export function WorldMapBoard({ seedPlaces }: WorldMapBoardProps) {
     setFilter("all");
     setEditingId(null);
     setForm(emptyForm);
+    setEditorOpen(false);
     setMessage(successMessage);
   }
 
@@ -473,23 +476,23 @@ export function WorldMapBoard({ seedPlaces }: WorldMapBoardProps) {
     <div className={styles.board}>
       <header className={styles.boardHeader}>
         <div>
-          <p className={styles.boardKicker}>TRAVEL ARCHIVE · 01</p>
-          <h2>带你看遍这个世界</h2>
+          <p className={styles.boardKicker}>一张留给愿望的地图</p>
+          <h2>先把想去的地方写下来</h2>
         </div>
         <div>
-          <p>已经一起走过的地方，和以后想一起去的地方，先在一张真实的地图上留下坐标。</p>
+          <p>还没有出发的城市，先留一盏小小的灯。它可以只是自己的愿望。</p>
           <div className={styles.stats} aria-label="旅行统计">
             <div className={styles.stat}>
               <strong>{visitedCount}</strong>
-              <span>一起去过</span>
+              <span>已经走过</span>
             </div>
             <div className={styles.stat}>
               <strong>{wishlistCount}</strong>
-              <span>以后想去</span>
+              <span>想去看看</span>
             </div>
             <div className={styles.stat}>
-              <strong>{nextStop ? nextStop.name : "待定"}</strong>
-              <span>下一站</span>
+              <strong>{nextStop ? nextStop.name : "留白"}</strong>
+              <span>先写下</span>
             </div>
           </div>
         </div>
@@ -499,15 +502,15 @@ export function WorldMapBoard({ seedPlaces }: WorldMapBoardProps) {
         <p role={syncError ? "alert" : "status"} aria-live="polite">
           <PawPrint />
           {!hasLoaded
-            ? "正在打开两个人的地图..."
+            ? "正在打开这张地图..."
             : syncing
-              ? "正在把这段地图收进档案..."
+              ? "正在收好这次修改..."
               : syncError ||
                 (persistenceMode === "redis"
-                  ? "这张地图已经同步到两个人的档案。"
+                  ? "这张地图已经收好。"
                   : persistenceMode === "memory"
-                    ? "当前是临时保存，配置 KV 后即可跨设备保留。"
-                    : "当前先保存在这台设备上。")}
+                    ? "这张地图已先放在当前页面。"
+                    : "这张地图已先收在这台设备上。")}
         </p>
         {syncError ? (
           <button
@@ -650,14 +653,14 @@ export function WorldMapBoard({ seedPlaces }: WorldMapBoardProps) {
 
             <div className={styles.mapBadge}>
               <strong>{mapMode === "world" ? "世界地图" : "美国地图"}</strong>
-              拖动地图，或用按钮和滚轮缩放。每一个点都是一段想一起走的路。
+              拖动地图，或用按钮和滚轮缩放。每一个点都是一处还没走过的愿望。
             </div>
             <div className={styles.mapLegend} aria-label="地点图例">
               <span>
-                <i className={styles.legendVisited} /> 我们去过这里
+                <i className={styles.legendVisited} /> 已经走过
               </span>
               <span>
-                <i className={styles.legendWishlist} /> 这里以后一起去
+                <i className={styles.legendWishlist} /> 想去看看
               </span>
             </div>
 
@@ -673,8 +676,8 @@ export function WorldMapBoard({ seedPlaces }: WorldMapBoardProps) {
             {(
               [
                 { value: "all", label: "全部地点" },
-                { value: "visited", label: "一起去过" },
-                { value: "wishlist", label: "以后想去" },
+                { value: "visited", label: "已经走过" },
+                { value: "wishlist", label: "想去看看" },
               ] as { value: FilterValue; label: string }[]
             ).map((item) => (
               <button
@@ -707,7 +710,7 @@ export function WorldMapBoard({ seedPlaces }: WorldMapBoardProps) {
               </div>
               <p className={styles.detailCopy}>{selectedPlace.note}</p>
               <div className={styles.wishBlock}>
-                <span>下一站的心愿</span>
+                <span>想象一下</span>
                 <p>{selectedPlace.wish}</p>
               </div>
               <p className={styles.fieldHint}>
@@ -744,16 +747,32 @@ export function WorldMapBoard({ seedPlaces }: WorldMapBoardProps) {
           ) : (
             <div className={styles.detailPanel}>
               <span className={styles.detailLabel}>先点亮一个坐标</span>
-              <h3 className={styles.detailHeadingEmpty}>把下一座城市放进我们的地图。</h3>
-              <p className={styles.detailCopy}>添加后，这里会显示它的故事和想一起完成的小心愿。</p>
+              <h3 className={styles.detailHeadingEmpty}>把下一座城市放进这张地图。</h3>
+              <p className={styles.detailCopy}>添加后，这里会显示你想记住的画面。</p>
             </div>
           )}
 
-          <form onSubmit={handleSavePlace} className={styles.editorPanel}>
+          {!editorOpen ? (
+            <button
+              type="button"
+              className={styles.editorTrigger}
+              onClick={() => {
+                setEditingId(null);
+                setForm(emptyForm);
+                setMessage("");
+                setEditorOpen(true);
+              }}
+            >
+              <Pencil size={14} />
+              写下一处想去的地方
+            </button>
+          ) : null}
+
+          {editorOpen ? <form onSubmit={handleSavePlace} className={styles.editorPanel}>
             <div className={styles.editorTopline}>
               <div>
-                <p className={styles.eyebrow}>{editingId ? "EDIT MEMORY" : "ADD A PLACE"}</p>
-                <h3>{editingId ? "把这段坐标改成现在想记住的样子" : "把一个旅行小心愿先偷偷点亮"}</h3>
+                <p className={styles.eyebrow}>{editingId ? "改一处愿望" : "写下一处愿望"}</p>
+                <h3>{editingId ? "把这段坐标改成现在想记住的样子" : "把一个地方先轻轻写下来"}</h3>
               </div>
               {editingId ? (
                 <button
@@ -839,7 +858,7 @@ export function WorldMapBoard({ seedPlaces }: WorldMapBoardProps) {
                   data-testid="world-message"
                   value={form.message}
                   onChange={(event) => updateForm("message", event.target.value)}
-                  placeholder="写一点记忆，或者写一句：等以后一起去"
+                  placeholder="写一点想记住的画面，或一句给自己的话"
                 />
               </label>
 
@@ -875,7 +894,7 @@ export function WorldMapBoard({ seedPlaces }: WorldMapBoardProps) {
                 </p>
               ) : null}
             </div>
-          </form>
+          </form> : null}
         </aside>
       </section>
 
@@ -895,7 +914,7 @@ export function WorldMapBoard({ seedPlaces }: WorldMapBoardProps) {
               >
                 <strong>{place.name}</strong>
                 <span>
-                  {place.country} · {place.status === "visited" ? "去过" : "想去"}
+                  {place.country} · {place.status === "visited" ? "已经走过" : "想去看看"}
                 </span>
               </button>
             ))}

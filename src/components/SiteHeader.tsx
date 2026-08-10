@@ -6,14 +6,7 @@ import { useState } from "react";
 
 const navItems = [
   { href: "/", label: "首页" },
-  { href: "/private", label: "私人房间" },
-  { href: "/her", label: "Ting" },
-  { href: "/him", label: "Eric" },
-  { href: "/story", label: "故事" },
-  { href: "/notes", label: "纸条" },
-  { href: "/world", label: "地点" },
-  { href: "/board", label: "留言" },
-  { href: "/achievements", label: "藏品" },
+  { href: "/private", label: "私人档案馆" },
 ];
 
 export function SiteHeader() {
@@ -26,7 +19,7 @@ export function SiteHeader() {
         <Link
           href="/"
           className="flex items-center gap-3"
-          aria-label="回到我俩首页"
+          aria-label="回到首页"
           onClick={() => setIsOpen(false)}
         >
           <span>
@@ -44,7 +37,7 @@ export function SiteHeader() {
             <Link
               key={item.href}
               href={item.href}
-              className={`inline-flex whitespace-nowrap border-b px-3 py-2 transition-colors hover:text-[#211c1d] ${
+              className={`inline-flex min-h-11 items-center whitespace-nowrap border-b px-3 py-2 transition-colors hover:text-[#211c1d] ${
                 pathname === item.href
                   ? "border-[#a66572] text-[#211c1d]"
                   : "border-transparent text-[#211c1d]/55"
@@ -60,7 +53,7 @@ export function SiteHeader() {
           aria-label="打开导航"
           aria-expanded={isOpen}
           onClick={() => setIsOpen((value) => !value)}
-          className="grid size-10 place-items-center border border-[#211c1d]/18 bg-transparent text-[#211c1d] md:hidden"
+          className="grid size-11 place-items-center border border-[#211c1d]/18 bg-transparent text-[#211c1d] md:hidden"
         >
           <span className="flex w-4 flex-col gap-1">
             <span className="h-0.5 rounded-full bg-current" />
@@ -74,7 +67,7 @@ export function SiteHeader() {
         <nav className="content-wrap pb-4 md:hidden">
           <div className="border border-[#211c1d]/15 bg-[#f7f3ec] p-4 shadow-[0_18px_46px_rgba(33,28,29,0.1)]">
             <p className="px-2 pb-3 text-xs leading-6 text-[var(--color-muted)]">
-              只对 Ting 与 Eric 开放的记录。
+              一间只收好真实细节的小房间。
             </p>
             <div className="grid gap-2">
             {navItems.map((item) => (
@@ -82,7 +75,7 @@ export function SiteHeader() {
                 key={item.href}
                 href={item.href}
                 onClick={() => setIsOpen(false)}
-                className={`flex items-center justify-between border-b border-[#211c1d]/10 px-4 py-3 text-sm transition-colors ${
+                className={`flex min-h-11 items-center justify-between border-b border-[#211c1d]/10 px-4 py-3 text-sm transition-colors ${
                   pathname === item.href
                     ? "text-[#a66572]"
                     : "text-[#211c1d]/60 hover:text-[#211c1d]"

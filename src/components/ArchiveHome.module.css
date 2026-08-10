@@ -9,6 +9,10 @@
   color: var(--home-ink);
 }
 
+.archiveBeat {
+  background: var(--home-paper);
+}
+
 .topbar {
   position: fixed;
   z-index: 40;
@@ -53,8 +57,10 @@
 
 .privateEntry {
   display: inline-flex;
+  min-height: 44px;
   align-items: center;
   gap: 7px;
+  padding: 0 4px;
   color: rgba(248, 241, 231, 0.62);
   font-size: 10px;
   transition: color 180ms ease;
@@ -112,8 +118,8 @@
 
 .iconButton {
   display: grid;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   place-items: center;
   border: 1px solid rgba(248, 241, 231, 0.24);
   border-radius: 2px;
@@ -253,7 +259,7 @@
   max-width: 650px;
   margin: 18px 0 0;
   font-family: var(--font-serif-elegant);
-  font-size: clamp(62px, 8vw, 118px);
+  font-size: clamp(48px, 64px, 80px);
   font-weight: 400;
   line-height: 1;
 }
@@ -262,7 +268,7 @@
   max-width: 580px;
   margin: 28px 0 0;
   font-family: var(--font-serif-elegant);
-  font-size: clamp(20px, 2.1vw, 30px);
+  font-size: clamp(20px, 26px, 30px);
   line-height: 1.65;
 }
 
@@ -357,7 +363,7 @@
 .closing h2 {
   margin: 22px 0 0;
   font-family: var(--font-serif-elegant);
-  font-size: clamp(44px, 6vw, 84px);
+  font-size: clamp(42px, 64px, 76px);
   font-weight: 400;
   line-height: 1.18;
 }
@@ -516,7 +522,7 @@
 .momentCopy h3 {
   margin: 20px 0 0;
   font-family: var(--font-serif-elegant);
-  font-size: clamp(38px, 4.5vw, 64px);
+  font-size: clamp(38px, 52px, 64px);
   font-weight: 400;
   line-height: 1.25;
 }
@@ -558,7 +564,7 @@
 }
 
 .tenderBand h2 {
-  font-size: clamp(40px, 5vw, 70px);
+  font-size: clamp(40px, 56px, 70px);
 }
 
 .tenderCopy > p {
@@ -583,7 +589,7 @@
 
 .tenderCopy blockquote span {
   font-family: var(--font-serif-elegant);
-  font-size: clamp(24px, 2.6vw, 36px);
+  font-size: clamp(24px, 31px, 36px);
 }
 
 .tenderCopy > .tenderNote {
@@ -635,7 +641,7 @@
 .tenderFragment h3 {
   margin: 25px 0 0;
   font-family: var(--font-serif-elegant);
-  font-size: clamp(24px, 2.5vw, 35px);
+  font-size: clamp(24px, 30px, 35px);
   font-weight: 400;
   line-height: 1.25;
 }
@@ -684,7 +690,7 @@
 
 .closing h2 {
   max-width: 900px;
-  font-size: clamp(44px, 6vw, 78px);
+  font-size: clamp(44px, 64px, 78px);
 }
 
 .closingInner > p:not(.eyebrow) {
@@ -731,6 +737,9 @@
 }
 
 .privateLinks a {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
   color: rgba(33, 28, 29, 0.56);
   font-size: 11px;
   text-decoration: underline;
@@ -819,8 +828,10 @@
   }
 
   .privateEntry {
-    width: 34px;
-    height: 38px;
+    width: 44px;
+    height: 44px;
+    min-height: 44px;
+    padding: 0;
     justify-content: center;
     border: 1px solid rgba(248, 241, 231, 0.22);
   }
@@ -853,8 +864,8 @@
   }
 
   .iconButton {
-    width: 38px;
-    height: 38px;
+    width: 44px;
+    height: 44px;
   }
 
   .hero {
@@ -911,7 +922,7 @@
   }
 
   .hero h1 {
-    font-size: 58px;
+    font-size: 48px;
   }
 
   .positioning {
@@ -1107,5 +1118,68 @@
 
   .timelineImage {
     transform: none !important;
+  }
+}
+
+/* Keep the homepage tender and editorial instead of poster-sized. */
+.hero h1 {
+  max-width: 8em;
+  font-size: clamp(48px, 64px, 80px);
+}
+
+.timelineIntro h2,
+.tenderBand h2,
+.closing h2 {
+  font-size: clamp(42px, 64px, 76px);
+}
+
+.heroKicker,
+.eyebrow {
+  letter-spacing: 0.04em;
+}
+
+.heroScrapbook {
+  width: min(330px, 28vw);
+  height: min(540px, 62svh);
+}
+
+.moment {
+  min-height: 82svh;
+  padding-top: 110px;
+  padding-bottom: 110px;
+}
+
+.tenderBand {
+  padding-top: 112px;
+  padding-bottom: 112px;
+}
+
+.closing {
+  min-height: 66svh;
+}
+
+@media (max-width: 767px) {
+  .hero h1 {
+    font-size: 48px;
+  }
+
+  .heroScrapbook {
+    width: 232px;
+    height: 320px;
+  }
+
+  .timelineIntro h2,
+  .tenderBand h2,
+  .closing h2 {
+    font-size: 48px;
+  }
+
+  .moment {
+    padding-top: 88px;
+    padding-bottom: 92px;
+  }
+
+  .closing {
+    min-height: 68svh;
   }
 }

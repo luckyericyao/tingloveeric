@@ -29,6 +29,7 @@
 
 .backLink {
   display: inline-flex;
+  min-height: 44px;
   align-items: center;
   gap: 11px;
   color: rgba(243, 237, 227, 0.84);
@@ -83,7 +84,7 @@
 .heroEnglish {
   color: rgba(196, 164, 107, 0.92);
   font-family: var(--font-serif-elegant);
-  font-size: clamp(18px, 2vw, 26px);
+  font-size: clamp(18px, 22px, 26px);
   line-height: 1.4;
 }
 
@@ -91,7 +92,7 @@
   max-width: 760px;
   margin: 24px 0 0;
   font-family: var(--font-serif-elegant);
-  font-size: clamp(50px, 7vw, 96px);
+  font-size: clamp(50px, 64px, 80px);
   font-weight: 400;
   line-height: 1.08;
 }
@@ -138,7 +139,7 @@
   max-width: 880px;
   margin: 34px 0 0;
   font-family: var(--font-serif-elegant);
-  font-size: clamp(28px, 4.2vw, 58px);
+  font-size: clamp(28px, 42px, 58px);
   line-height: 1.7;
 }
 
@@ -182,7 +183,7 @@
 .catsIntro h2 {
   margin: 20px 0 0;
   font-family: var(--font-serif-elegant);
-  font-size: clamp(36px, 4.3vw, 64px);
+  font-size: clamp(36px, 48px, 64px);
   font-weight: 400;
   line-height: 1.22;
 }
@@ -227,7 +228,7 @@
 .epilogueInner h2 {
   margin: 20px 0 0;
   font-family: var(--font-serif-elegant);
-  font-size: clamp(40px, 4.4vw, 64px);
+  font-size: clamp(40px, 50px, 64px);
   font-weight: 400;
   line-height: 1.18;
 }
@@ -266,7 +267,7 @@
 
 .tenderReplies span {
   font-family: var(--font-serif-elegant);
-  font-size: clamp(25px, 3vw, 39px);
+  font-size: clamp(25px, 30px, 39px);
   line-height: 1.4;
 }
 
@@ -495,7 +496,7 @@
   max-width: 980px;
   margin: 72px 0 0;
   font-family: var(--font-serif-elegant);
-  font-size: clamp(32px, 4.6vw, 58px);
+  font-size: clamp(32px, 44px, 58px);
   line-height: 1.6;
 }
 
@@ -655,8 +656,8 @@
   .scrollCue {
     right: 16px;
     bottom: 18px;
-    width: 42px;
-    height: 42px;
+    width: 44px;
+    height: 44px;
   }
 
   .prologueBand,

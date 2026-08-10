@@ -7,8 +7,6 @@ import { NoteComposer } from "./NoteComposer";
 
 const storageKey = "tingloveeric.notes";
 
-type PersistenceMode = "redis" | "memory" | "local";
-
 type NotesResponse = {
   notes?: unknown;
   persistence?: "redis" | "memory";
@@ -52,7 +50,6 @@ export function NotesBoard({
 }) {
   const [localNotes, setLocalNotes] = useState<LoveNote[]>([]);
   const [hasLoaded, setHasLoaded] = useState(false);
-  const [persistenceMode, setPersistenceMode] = useState<PersistenceMode>("local");
   const [syncMessage, setSyncMessage] = useState("");
 
   useEffect(() => {
@@ -70,7 +67,6 @@ export function NotesBoard({
 
         if (cancelled) return;
         setLocalNotes(nextNotes);
-        setPersistenceMode(payload.persistence || "memory");
         setSyncMessage("");
 
         if (!sharedNotes.length && browserNotes.length) {
@@ -86,7 +82,6 @@ export function NotesBoard({
       } catch {
         if (cancelled) return;
         setLocalNotes(browserNotes);
-        setPersistenceMode("local");
         setSyncMessage("纸条接口暂时没有打开成功，当前先保存在这台设备上。");
       } finally {
         if (!cancelled) setHasLoaded(true);
@@ -117,16 +112,14 @@ export function NotesBoard({
       const payload = (await response.json()) as NotesResponse;
       const savedNotes = readRemoteNotes(payload);
       setLocalNotes(savedNotes.length ? savedNotes : [note, ...localNotes]);
-      setPersistenceMode(payload.persistence || "memory");
       setSyncMessage(
         payload.persistence === "redis"
-          ? "这张纸条已经同步到两个人的小世界。"
-          : "这张纸条已经放进当前设备的小世界。",
+          ? "已收好。"
+          : "已先收在当前页面。",
       );
     } catch {
       setLocalNotes((current) => [note, ...current]);
-      setPersistenceMode("local");
-      setSyncMessage("这张纸条先保存在本机，网络恢复后可以再同步。 ");
+      setSyncMessage("已先收在这台设备上，之后可以再同步。 ");
     }
   }
 
@@ -137,22 +130,17 @@ export function NotesBoard({
       <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-[var(--color-muted)]" role="status" aria-live="polite">
         <span>
           {!hasLoaded
-            ? "正在打开纸条盒..."
-            : syncMessage ||
-              (persistenceMode === "redis"
-                ? "这面纸条墙会同步给两个人。"
-                : persistenceMode === "memory"
-                  ? "当前是临时保存，配置 KV 后即可跨设备保留。"
-                  : "当前先保存在这台设备上。")}
+            ? "纸张正在铺开..."
+            : syncMessage || "只写自己的话，慢慢收好。"}
         </span>
-        <span>{localNotes.length} 张新纸条</span>
+        <span>{localNotes.length ? `${localNotes.length} 张新纸条` : ""}</span>
       </div>
       <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
         <NoteComposer onAdd={handleAdd} moodOptions={moodOptions} />
         <div className="grid gap-4">
           {notes.length ? notes.map((note) => <NoteCard key={note.id} note={note} />) : (
-            <div className="paper-note p-6 text-sm leading-7 text-[var(--color-muted)]">
-              这里还空着，等第一张想你、贴贴或晚安的小纸条。
+            <div className="archive-empty-note">
+              这里还空着。下一句话，只写自己的真实感受。
             </div>
           )}
         </div>

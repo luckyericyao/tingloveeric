@@ -13,6 +13,7 @@ const homeMoments = [
     index: "01",
     kicker: "2025.01.27 · 初见",
     title: "那时候她叫 Hanni",
+    source: "真实记录",
     quote: "“小疯子”",
     body: "昏黄的灯光，一张被保存下来的自拍。那时候故事还没有开始，所有事情都仍然拥有无限可能。",
   },
@@ -21,6 +22,7 @@ const homeMoments = [
     index: "02",
     kicker: "2025.01.29 · 看见她的生活",
     title: "我先看见了她的小世界",
+    source: "真实记录",
     quote: "一只猫，一缸鱼，一盆发财树。",
     body: "在真正了解她以前，我先从这些普通的小东西里，看见了属于她的生活。最早留下来的，往往不是大事件。",
   },
@@ -28,7 +30,8 @@ const homeMoments = [
     memoryIndex: 2,
     index: "03",
     kicker: "靠近以后 · 甜蜜的回应",
-    title: "我们把彼此留进一天里",
+    title: "那些小小的回应",
+    source: "真实记录 · Eric 的感受",
     quote: "“明天听你分享。” “晚安～”",
     body: "写下名字、改简历、分享工作和日常。那些很小的回应不能定义整段关系，却真实发生过。",
   },
@@ -49,13 +52,6 @@ const heroPrints = [
     date: "2025.01.29",
     className: "heroPrintWorld",
   },
-  {
-    source: "/images/coordinates/cp-cottage.jpg",
-    alt: "被保存下来的线上关系记录画面",
-    label: "那时的记录",
-    date: "后来保存",
-    className: "heroPrintRelic",
-  },
 ] as const;
 
 function formatTime(value: number) {
@@ -73,11 +69,27 @@ export function ArchiveHome() {
   const [needsGesture, setNeedsGesture] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const fadeFrameRef = useRef<number | null>(null);
 
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
-    audio.volume = 0.38;
+    const savedMuted = window.localStorage.getItem("tingloveeric.muted") === "true";
+    audio.volume = savedMuted ? 0 : 0.26;
+    audio.muted = savedMuted;
+    setMuted(savedMuted);
+
+    const fadeIn = () => {
+      if (savedMuted) return;
+      const startedAt = performance.now();
+      const step = (now: number) => {
+        const progress = Math.min(1, (now - startedAt) / 1300);
+        audio.volume = 0.26 * progress;
+        if (progress < 1) fadeFrameRef.current = window.requestAnimationFrame(step);
+      };
+      if (fadeFrameRef.current !== null) window.cancelAnimationFrame(fadeFrameRef.current);
+      fadeFrameRef.current = window.requestAnimationFrame(step);
+    };
 
     let disposed = false;
     let removeUnlockListeners = () => {};
@@ -88,6 +100,7 @@ export function ArchiveHome() {
       try {
         await audio.play();
         if (disposed) return;
+        fadeIn();
         setNeedsGesture(false);
         removeUnlockListeners();
       } catch {
@@ -113,6 +126,7 @@ export function ArchiveHome() {
       disposed = true;
       removeUnlockListeners();
       window.clearTimeout(blockedTimer);
+      if (fadeFrameRef.current !== null) window.cancelAnimationFrame(fadeFrameRef.current);
       audio.pause();
     };
   }, []);
@@ -145,6 +159,7 @@ export function ArchiveHome() {
 
     try {
       await audio.play();
+      audio.volume = muted ? 0 : 0.26;
       setNeedsGesture(false);
     } catch {
       setNeedsGesture(true);
@@ -206,8 +221,11 @@ export function ArchiveHome() {
               onClick={() => {
                 const audio = audioRef.current;
                 if (!audio) return;
-                audio.muted = !muted;
-                setMuted((current) => !current);
+                const nextMuted = !muted;
+                audio.muted = nextMuted;
+                audio.volume = nextMuted ? 0 : 0.26;
+                window.localStorage.setItem("tingloveeric.muted", String(nextMuted));
+                setMuted(nextMuted);
               }}
               aria-label={muted ? "取消静音" : "静音"}
               title={muted ? "取消静音" : "静音"}
@@ -252,14 +270,14 @@ export function ArchiveHome() {
             </figure>
           ))}
         </div>
-        <div className={styles.heroCopy}>
-          <p className={styles.heroKicker}>2025.01 · 靠近以后</p>
+          <div className={styles.heroCopy}>
+          <p className={styles.heroKicker}>2025.01 · 三件小事</p>
           <h1>甜蜜的瞬间</h1>
           <p className={styles.positioning}>
-            有一段时间，我们会分享一天，<br />也会互相说晚安。
+            一张自拍、一只猫，<br />还有一句“晚安～”。
           </p>
           <p className={styles.heroBody}>
-            先是她的名字、她的小世界，<br />后来是日常里一点点互相回应。
+            先是她叫 Hanni，后来是生活里几句很小的回应。
           </p>
           <p className={styles.heroSweetLine}>
             “明天听你分享～”<br />“真棒。” · “晚安～”
@@ -276,13 +294,14 @@ export function ArchiveHome() {
         </a>
       </section>
 
-      <section id="archive-timeline" className={styles.timelineIntro}>
+      <section id="archive-timeline" className={styles.archiveBeat} aria-label="首页的三段甜蜜记录">
+        <div className={styles.timelineIntro}>
         <div className={styles.measure} data-home-reveal>
-          <p className={styles.eyebrow}>Archive 01 · The Original Coordinates</p>
+          <p className={styles.eyebrow}>2025.01 · 最早留下来的三件小事</p>
           <h2>从一张自拍开始</h2>
           <p>
-            我们是在 Soul 上认识的。先是她的一张自拍、一只猫、一缸鱼和一盆发财树，
-            后来才慢慢进入彼此的日常。
+            我是在 Soul 上看见她的。先是一张自拍、一只猫、一缸鱼和一盆发财树，
+            后来才慢慢记住那些很小的回应。
           </p>
           <div className={styles.timelineIndex} aria-label="时间线章节">
             {homeMoments.map((moment) => (
@@ -293,9 +312,9 @@ export function ArchiveHome() {
             ))}
           </div>
         </div>
-      </section>
+        </div>
 
-      <section className={styles.timeline} aria-label="原始坐标时间线">
+      <div className={styles.timeline} aria-label="原始坐标时间线">
         {homeMoments.map((moment, position) => {
           const memory = coordinateMemories[moment.memoryIndex];
           return (
@@ -316,7 +335,7 @@ export function ArchiveHome() {
                       style={{ objectPosition: memory.focalPoint }}
                     />
                   </div>
-                  <figcaption>{memory.date} · 被保存下来的真实画面</figcaption>
+                  <figcaption>{memory.date} · {moment.source}</figcaption>
                 </figure>
 
                 <div className={styles.momentCopy} data-home-reveal>
@@ -329,13 +348,13 @@ export function ArchiveHome() {
             </article>
           );
         })}
-      </section>
+      </div>
 
-      <section className={styles.tenderBand}>
-        <div className={styles.tenderInner} data-home-reveal>
+      <div className={styles.tenderBand}>
+          <div className={styles.tenderInner} data-home-reveal>
           <div>
             <p className={styles.eyebrow}>{originalCoordinates.tenderMoments.eyebrow}</p>
-            <h2>甜蜜不是一句话，<br />是很多很小的回应。</h2>
+            <h2>一句晚安，<br />也值得留下。</h2>
             <p className={styles.tenderLead}>{originalCoordinates.tenderMoments.lead}</p>
           </div>
           <div className={styles.tenderCopy}>
@@ -350,34 +369,21 @@ export function ArchiveHome() {
             <p className={styles.tenderNote}>{originalCoordinates.tenderMoments.closing}</p>
           </div>
         </div>
-        <div className={styles.tenderFragments} aria-label="甜蜜的记忆碎片">
-          {originalCoordinates.tenderMoments.fragments.map((fragment, index) => (
-            <article
-              key={fragment.title}
-              className={`${styles.tenderFragment} ${styles[`tenderFragment${fragment.tone}`]}`}
-              data-home-reveal
-            >
-              <span>{fragment.label}</span>
-              <h3>{fragment.title}</h3>
-              <p>{fragment.body}</p>
-              <i aria-hidden="true">{String(index + 1).padStart(2, "0")}</i>
-            </article>
-          ))}
-        </div>
+      </div>
       </section>
 
       <section className={styles.closing}>
         <div className={styles.closingInner} data-home-reveal>
-          <p className={styles.eyebrow}>故事没有被写成结局</p>
+          <p className={styles.eyebrow}>Eric 的感受 · 故事没有被写成结局</p>
           <h2>当时的温柔，不需要因为后来改变了，就被否定。</h2>
           <p>
-            这里保存真实发生过的相遇、靠近和变化。它不证明谁一定会回来，
+            这里保存真实发生过的相遇、靠近和变化。它不替任何人写下结局，
             只让那些曾经存在过的时刻，有一个安静的地方继续被看见。
           </p>
           <div className={styles.actions}>
-            <Link className={styles.primaryAction} href="/coordinates">
+            <Link className={styles.primaryAction} href="/private">
               <Archive size={17} />
-              <span>打开完整原始坐标</span>
+              <span>打开四个房间</span>
             </Link>
             <Link className={styles.secondaryAction} href="/cinema">
               <span>进入电影故事</span>
@@ -385,9 +391,10 @@ export function ArchiveHome() {
             </Link>
           </div>
           <div className={styles.privateLinks} aria-label="私人房间">
-            <Link href="/private">打开私人房间总览</Link>
-            <Link href="/world">编辑一起去过的地方</Link>
-            <Link href="/board">留下只给彼此的留言</Link>
+            <Link href="/coordinates">相遇与靠近</Link>
+            <Link href="/her">她与两只猫</Link>
+            <Link href="/world">打开想去的地方</Link>
+            <Link href="/notes">写一封未寄出的信</Link>
           </div>
         </div>
       </section>

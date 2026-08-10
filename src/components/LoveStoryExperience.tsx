@@ -65,7 +65,7 @@ export function LoveStoryExperience() {
   const [navNotice, setNavNotice] = useState("");
   const [isPlaying, setIsPlaying] = useState(false);
   const [muted, setMuted] = useState(false);
-  const [volume, setVolume] = useState(0.42);
+  const [volume, setVolume] = useState(0.3);
   const [audioError, setAudioError] = useState(false);
   const [activeTrackIndex, setActiveTrackIndex] = useState(0);
   const experienceRef = useRef<HTMLElement>(null);
@@ -569,7 +569,7 @@ export function LoveStoryExperience() {
               >
                 <Gauge size={18} />
               </button>
-              <Link className={styles.controlLink} href="/story" title="打开完整档案" aria-label="打开完整档案">
+              <Link className={styles.controlLink} href="/coordinates" title="打开相遇记录" aria-label="打开相遇记录">
                 <Archive size={18} />
               </Link>
             </div>
@@ -592,6 +592,7 @@ export function LoveStoryExperience() {
             <div className={styles.chapterMeta}>
               <span>{chapter.index}</span>
               <span>{chapter.label}</span>
+              <span>{chapter.source}</span>
               {chapter.date ? <span>{chapter.date}</span> : null}
               {chapter.place ? <span>{chapter.place}</span> : null}
             </div>

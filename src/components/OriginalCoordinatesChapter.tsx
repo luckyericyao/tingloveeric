@@ -138,7 +138,7 @@ export function OriginalCoordinatesChapter() {
           <ArrowLeft size={17} strokeWidth={1.5} />
           <span>Ting & Eric</span>
         </Link>
-        <span className={styles.headerIndex}>Chapter 01 · 2025.01</span>
+        <span className={styles.headerIndex}>01 · 2025.01</span>
       </header>
 
       <section className={styles.hero}>
@@ -152,7 +152,7 @@ export function OriginalCoordinatesChapter() {
         />
         <div className={styles.heroVeil} aria-hidden="true" />
         <div className={styles.heroCopy}>
-          <p className={styles.heroEnglish}>{originalCoordinates.englishTitle}</p>
+          <p className={styles.heroEnglish}>原始坐标 · 2025.01</p>
           <h1>{originalCoordinates.title}</h1>
           <p className={styles.heroOpening}>{originalCoordinates.opening}</p>
         </div>
@@ -163,7 +163,7 @@ export function OriginalCoordinatesChapter() {
 
       <section id="chapter-start" className={styles.prologueBand}>
         <div className={styles.measure} data-reveal>
-          <p className={styles.eyebrow}>原始坐标 · 第一帧</p>
+          <p className={styles.eyebrow}>Eric 的感受 · 原始坐标第一帧</p>
           <p className={styles.prologueText}>
             那时候她在 Soul 上叫 Hanni。
             <br />
@@ -182,7 +182,7 @@ export function OriginalCoordinatesChapter() {
             />
           </div>
           <div className={`${styles.reveal} ${styles.memoryCopy}`} data-reveal>
-            <p className={styles.eyebrow}>{coordinateMemories[0].date}</p>
+            <p className={styles.eyebrow}>{coordinateMemories[0].date} · {coordinateMemories[0].sourceLabel}</p>
             <h2>{coordinateMemories[0].title}</h2>
             <p>{coordinateMemories[0].caption}</p>
           </div>
@@ -192,7 +192,7 @@ export function OriginalCoordinatesChapter() {
       <section className={`${styles.memoryBand} ${styles.memoryBandMuted}`}>
         <div className={`${styles.memoryGrid} ${styles.memoryGridReverse}`}>
           <div className={`${styles.reveal} ${styles.memoryCopy}`} data-reveal>
-            <p className={styles.eyebrow}>{coordinateMemories[1].date}</p>
+            <p className={styles.eyebrow}>{coordinateMemories[1].date} · {coordinateMemories[1].sourceLabel}</p>
             <h2>{coordinateMemories[1].title}</h2>
             <p>{coordinateMemories[1].caption}</p>
             <p className={styles.smallNote}>照片里的猫在当时尚未确认身份，因此没有被擅自命名。</p>
@@ -232,7 +232,7 @@ export function OriginalCoordinatesChapter() {
       <section className={styles.relicBand}>
         <div className={styles.relicInner}>
           <div className={`${styles.reveal} ${styles.relicCopy}`} data-reveal>
-            <p className={styles.eyebrow}>后来 · 数字遗迹</p>
+            <p className={styles.eyebrow}>{coordinateMemories[2].sourceLabel} · 后来数字遗迹</p>
             <h2>{coordinateMemories[2].title}</h2>
             <p>{coordinateMemories[2].caption}</p>
           </div>
@@ -249,7 +249,7 @@ export function OriginalCoordinatesChapter() {
 
       <section className={styles.catsBand}>
         <div className={styles.catsIntro} data-reveal>
-          <p className={styles.eyebrow}>她的小世界</p>
+          <p className={styles.eyebrow}>{coordinateMemories[3].sourceLabel} · 她的小世界</p>
           <h2>诺诺与小伊</h2>
           <p>两只猫不只是照片墙里的素材。它们是最早让我看见她生活质地的两个角色。</p>
         </div>

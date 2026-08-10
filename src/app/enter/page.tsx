@@ -54,21 +54,21 @@ function EnterContent() {
       <div className={styles.entryVeil} aria-hidden="true" />
       <div className={styles.entryStage}>
         <div className={styles.entryContext}>
-          <p className={styles.entryOverline}>Private archive · Ting & Eric</p>
-          <h1>有些记忆，<br />只留给两个人。</h1>
+          <p className={styles.entryOverline}>私人档案馆 · 仅限受邀查看</p>
+          <h1>有些记忆，<br />只在这里安静保存。</h1>
           <p>
             从一张自拍、一只猫和一句晚安开始。这里保存的是曾经真实发生过的靠近，
-            也是我们各自继续生活以后，仍然愿意认真对待的片段。
+            也保留每个人继续生活以后的空间。
           </p>
         </div>
 
         <section className={styles.entryGate} aria-labelledby="entry-title">
           <div className={styles.gateTopline}>
-            <span className={styles.entryKicker}>只对两个人开放</span>
+            <span className={styles.entryKicker}>私人入口</span>
             <LockKeyhole size={18} strokeWidth={1.5} aria-hidden="true" />
           </div>
-          <h2 id="entry-title">进入我俩的小世界</h2>
-          <p className={styles.gateIntro}>输入那句只属于我们的暗号，继续看完剩下的故事。</p>
+          <h2 id="entry-title">进入档案馆</h2>
+          <p className={styles.gateIntro}>输入暗号，继续看完剩下的故事。</p>
 
           <form onSubmit={handleSubmit} className={styles.entryForm}>
             <label className={styles.entryLabel}>
@@ -105,7 +105,7 @@ function EnterContent() {
           </Link>
         </section>
       </div>
-      <p className={styles.entryCaption}>那时候，我们还只是两个陌生人。</p>
+      <p className={styles.entryCaption}>那时候，还只是两个陌生人。</p>
     </main>
   );
 }
