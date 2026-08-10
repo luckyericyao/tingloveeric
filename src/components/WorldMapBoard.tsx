@@ -108,8 +108,8 @@ const mapModes: Record<
   },
   us: {
     label: "美国",
-    title: "美国 · 下一段路线",
-    description: "州界细节已收进站点 · 继续放大看每一个坐标",
+    title: "美国 · 我的主场",
+    description: "旧金山、Starbase、迈阿密……先看主场的下一段路线",
     projection: "geoAlbersUsa",
     scale: 1000,
     center: [-98, 38],

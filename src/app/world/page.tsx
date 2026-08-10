@@ -25,7 +25,7 @@ export default function WorldPage() {
             </p>
           </div>
           <div className={styles.heroAside}>
-            <span>17 座城市名片</span>
+            <span>{worldMapPlaces.filter((place) => place.featured).length} 座城市名片</span>
             <strong>从一张照片开始</strong>
             <p>地图上的每个点，都先替未来保留一个具体的画面。</p>
           </div>
