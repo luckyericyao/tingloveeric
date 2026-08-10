@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { FormEvent, KeyboardEvent, useEffect, useMemo, useState } from "react";
 import {
   LocateFixed,
@@ -99,8 +100,8 @@ const mapModes: Record<
 > = {
   world: {
     label: "世界",
-    title: "把世界放在一张纸上",
-    description: "本地矢量地理边界 · 可拖拽、滚轮或触控板缩放",
+    title: "世界主要旅游城市",
+    description: "悬停点位查看代表性地标 · 可拖拽或缩放",
     projection: "geoEqualEarth",
     scale: 155,
     center: [0, 15],
@@ -240,6 +241,7 @@ export function WorldMapBoard({ seedPlaces }: WorldMapBoardProps) {
     zoom: 1,
   });
   const [selectedId, setSelectedId] = useState(seedPlaces[0]?.id || "");
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [form, setForm] = useState<PlaceForm>(emptyForm);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editorOpen, setEditorOpen] = useState(false);
@@ -337,6 +339,8 @@ export function WorldMapBoard({ seedPlaces }: WorldMapBoardProps) {
 
   const selectedPlace =
     visiblePlaces.find((place) => place.id === selectedId) || visiblePlaces[0] || null;
+  const hoveredPlace = visiblePlaces.find((place) => place.id === hoveredId) || null;
+  const featuredCityCount = visiblePlaces.filter((place) => place.featured).length;
   const visitedCount = places.filter((place) => place.status === "visited").length;
   const wishlistCount = places.filter((place) => place.status === "wishlist").length;
   const nextStop = places.find((place) => place.status === "wishlist");
@@ -422,6 +426,10 @@ export function WorldMapBoard({ seedPlaces }: WorldMapBoardProps) {
       wish: form.status === "wishlist" ? content : "以后若再来，可以把新的画面补在这里。",
       lat,
       lng,
+      cityZh: originalPlace?.cityZh,
+      landmark: originalPlace?.landmark,
+      featured: originalPlace?.featured,
+      markerOffset: originalPlace?.markerOffset,
       image: originalPlace?.image || seedPlaces[0]?.image || fallbackImage,
     };
 
@@ -448,6 +456,7 @@ export function WorldMapBoard({ seedPlaces }: WorldMapBoardProps) {
 
   function changeMapMode(nextMode: MapMode) {
     setMapMode(nextMode);
+    setHoveredId(null);
     setMapPosition({ coordinates: mapModes[nextMode].center, zoom: 1 });
     const nextPlace = places.find(
       (place) =>
@@ -476,11 +485,11 @@ export function WorldMapBoard({ seedPlaces }: WorldMapBoardProps) {
     <div className={styles.board}>
       <header className={styles.boardHeader}>
         <div>
-          <p className={styles.boardKicker}>一张留给愿望的地图</p>
-          <h2>先把想去的地方写下来</h2>
+          <p className={styles.boardKicker}>世界城市名片</p>
+          <h2>先看看想去的城市</h2>
         </div>
         <div>
-          <p>还没有出发的城市，先留一盏小小的灯。它可以只是自己的愿望。</p>
+          <p>把主要旅游城市点亮，悬停时先看一眼它最容易被记住的画面。个人愿望，仍然可以自己写。</p>
           <div className={styles.stats} aria-label="旅行统计">
             <div className={styles.stat}>
               <strong>{visitedCount}</strong>
@@ -491,7 +500,7 @@ export function WorldMapBoard({ seedPlaces }: WorldMapBoardProps) {
               <span>想去看看</span>
             </div>
             <div className={styles.stat}>
-              <strong>{nextStop ? nextStop.name : "留白"}</strong>
+              <strong>{nextStop ? nextStop.cityZh || nextStop.name : "留白"}</strong>
               <span>先写下</span>
             </div>
           </div>
@@ -534,7 +543,9 @@ export function WorldMapBoard({ seedPlaces }: WorldMapBoardProps) {
           <div className={styles.mapTopline}>
             <div>
               <strong>{mapModes[mapMode].title}</strong>
-              <span>{mapModes[mapMode].description}</span>
+              <span>
+                {mapModes[mapMode].description} · {featuredCityCount} 座城市名片
+              </span>
             </div>
             <div className={styles.mapModeTabs} role="tablist" aria-label="地图范围">
               {(Object.keys(mapModes) as MapMode[]).map((mode) => (
@@ -625,24 +636,43 @@ export function WorldMapBoard({ seedPlaces }: WorldMapBoardProps) {
                     const color = markerColor(place.status);
                     return (
                       <Marker key={place.id} coordinates={[place.lng, place.lat]}>
-                        <g
-                          role="button"
-                          tabIndex={0}
-                          aria-label={`${place.name} · ${formatStatus(place.status)}`}
-                          onClick={() => setSelectedId(place.id)}
-                          onKeyDown={(event) => handleMarkerKeyDown(event, place.id)}
-                          style={{ cursor: "pointer" }}
-                        >
-                          {isSelected ? (
-                            <circle r={14} fill={color} opacity={0.14} />
+                        <g transform={place.markerOffset ? `translate(${place.markerOffset.join(" ")})` : undefined}>
+                          <g
+                            role="button"
+                            tabIndex={0}
+                            aria-label={`${place.cityZh || place.name} · ${place.name} · ${place.landmark || "城市名片"} · ${formatStatus(place.status)}`}
+                            onClick={() => setSelectedId(place.id)}
+                            onKeyDown={(event) => handleMarkerKeyDown(event, place.id)}
+                            onMouseEnter={() => setHoveredId(place.id)}
+                            onMouseLeave={() => setHoveredId(null)}
+                            onFocus={() => setHoveredId(place.id)}
+                            onBlur={() => setHoveredId(null)}
+                            style={{ cursor: "pointer" }}
+                          >
+                            {place.featured ? (
+                              <circle
+                                r={isSelected || hoveredId === place.id ? 18 : 11}
+                                fill={color}
+                                opacity={isSelected || hoveredId === place.id ? 0.2 : 0.12}
+                              />
+                            ) : null}
+                            {isSelected ? <circle r={14} fill={color} opacity={0.14} /> : null}
+                            <circle
+                              r={isSelected || hoveredId === place.id ? 8 : place.featured ? 6 : 5}
+                              fill={color}
+                              stroke="#fff8ef"
+                              strokeWidth={isSelected || hoveredId === place.id ? 2.6 : 2}
+                            />
+                            <circle
+                              r={isSelected || hoveredId === place.id ? 2.8 : 2}
+                              fill="#fff8ef"
+                            />
+                          </g>
+                          {place.featured && (mapPosition.zoom >= 1.1 || isSelected || hoveredId === place.id) ? (
+                            <text x={12} y={4} className={styles.cityMarkerLabel}>
+                              {place.cityZh || place.name}
+                            </text>
                           ) : null}
-                          <circle
-                            r={isSelected ? 8 : 6}
-                            fill={color}
-                            stroke="#fff8ef"
-                            strokeWidth={isSelected ? 2.6 : 2}
-                          />
-                          <circle r={isSelected ? 2.8 : 2} fill="#fff8ef" />
                         </g>
                       </Marker>
                     );
@@ -651,9 +681,33 @@ export function WorldMapBoard({ seedPlaces }: WorldMapBoardProps) {
               </ComposableMap>
             </div>
 
+            {hoveredPlace ? (
+              <article
+                className={styles.cityHoverCard}
+                aria-label={`${hoveredPlace.cityZh || hoveredPlace.name} 的地标照片`}
+                aria-live="polite"
+              >
+                <div className={styles.cityHoverPhoto}>
+                  <Image
+                    src={hoveredPlace.image.src}
+                    alt={hoveredPlace.image.alt}
+                    fill
+                    sizes="220px"
+                    className={styles.cityHoverPhotoImage}
+                  />
+                </div>
+                <div className={styles.cityHoverCopy}>
+                  <span>{hoveredPlace.country}</span>
+                  <strong>{hoveredPlace.cityZh || hoveredPlace.name}</strong>
+                  <p>{hoveredPlace.landmark || hoveredPlace.image.caption}</p>
+                  <small>点击查看这座城市的愿望</small>
+                </div>
+              </article>
+            ) : null}
+
             <div className={styles.mapBadge}>
               <strong>{mapMode === "world" ? "世界地图" : "美国地图"}</strong>
-              拖动地图，或用按钮和滚轮缩放。每一个点都是一处还没走过的愿望。
+              悬停一座城市，先看它的代表性画面；点击后，再读这一处留给自己的愿望。
             </div>
             <div className={styles.mapLegend} aria-label="地点图例">
               <span>
@@ -703,10 +757,22 @@ export function WorldMapBoard({ seedPlaces }: WorldMapBoardProps) {
               </span>
               <div className={styles.detailHeading}>
                 <div>
-                  <h3>{selectedPlace.name}</h3>
-                  <p>{selectedPlace.country}</p>
+                  <h3>{selectedPlace.cityZh || selectedPlace.name}</h3>
+                  <p>
+                    {selectedPlace.name} · {selectedPlace.country}
+                  </p>
                 </div>
                 <span className={styles.detailDate}>{selectedPlace.date || "未来某天"}</span>
+              </div>
+              <div className={styles.detailPhoto}>
+                <Image
+                  src={selectedPlace.image.src}
+                  alt={selectedPlace.image.alt}
+                  fill
+                  sizes="(max-width: 980px) 100vw, 360px"
+                  className={styles.detailPhotoImage}
+                />
+                <span>{selectedPlace.landmark || selectedPlace.image.caption}</span>
               </div>
               <p className={styles.detailCopy}>{selectedPlace.note}</p>
               <div className={styles.wishBlock}>
@@ -912,9 +978,9 @@ export function WorldMapBoard({ seedPlaces }: WorldMapBoardProps) {
                 onClick={() => setSelectedId(place.id)}
                 className={`${styles.placeListItem} ${selectedPlace?.id === place.id ? styles.placeListItemActive : ""}`}
               >
-                <strong>{place.name}</strong>
+                <strong>{place.cityZh || place.name}</strong>
                 <span>
-                  {place.country} · {place.status === "visited" ? "已经走过" : "想去看看"}
+                  {place.landmark || place.country} · {place.status === "visited" ? "已经走过" : "想去看看"}
                 </span>
               </button>
             ))}

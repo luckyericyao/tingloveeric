@@ -21,13 +21,13 @@ export default function WorldPage() {
               地方
             </h1>
             <p className={styles.heroCopy}>
-              还没有出发的城市，先被轻轻放进地图。是否抵达，留给以后和现实。
+              巴黎、东京、上海……先把那些想亲眼看见的城市点亮。悬停地图上的点位，会出现一张地标照片。
             </p>
           </div>
           <div className={styles.heroAside}>
-            <span>给未来留一点空白</span>
-            <strong>Shanghai · 先从这里写起</strong>
-            <p>一张可以放大、拖动、继续写下去的世界地图。</p>
+            <span>17 座城市名片</span>
+            <strong>从一张照片开始</strong>
+            <p>地图上的每个点，都先替未来保留一个具体的画面。</p>
           </div>
         </div>
       </section>

@@ -6,7 +6,7 @@
 .hero {
   position: relative;
   overflow: hidden;
-  padding: clamp(78px, 12vw, 150px) 24px clamp(88px, 12vw, 138px);
+  padding: clamp(70px, 8vw, 108px) 24px clamp(68px, 8vw, 96px);
   background: #e8ddd3;
 }
 
@@ -39,7 +39,7 @@
 }
 
 .heroCopy {
-  max-width: 440px;
+  max-width: 470px;
   margin: 28px 0 0;
   color: var(--color-muted);
   font-size: 14px;
@@ -80,7 +80,7 @@
 .boardWrap {
   width: min(1240px, calc(100% - 48px));
   margin: 0 auto;
-  padding-top: clamp(42px, 6vw, 78px);
+  padding-top: clamp(38px, 5vw, 64px);
   padding-bottom: 110px;
   position: relative;
   z-index: 2;
@@ -88,7 +88,7 @@
 
 @media (max-width: 700px) {
   .hero {
-    padding: 74px 20px 82px;
+    padding: 68px 20px 70px;
   }
 
   .heroInner {
@@ -107,7 +107,7 @@
   .boardWrap {
     width: min(100% - 24px, 620px);
     margin-top: 0;
-    padding-top: 38px;
+    padding-top: 32px;
     padding-bottom: 72px;
   }
 }
