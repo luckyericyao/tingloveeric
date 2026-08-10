@@ -101,7 +101,7 @@ const mapModes: Record<
   world: {
     label: "世界",
     title: "世界主要旅游城市",
-    description: "悬停点位查看代表性地标 · 可拖拽或缩放",
+    description: "悬停点位查看代表性地标 · 重要地点保持稀疏",
     projection: "geoEqualEarth",
     scale: 155,
     center: [0, 15],
@@ -489,7 +489,7 @@ export function WorldMapBoard({ seedPlaces }: WorldMapBoardProps) {
           <h2>先看看想去的城市</h2>
         </div>
         <div>
-          <p>把主要旅游城市点亮，悬停时先看一眼它最容易被记住的画面。个人愿望，仍然可以自己写。</p>
+          <p>把重要城市和地标点亮，悬停时先看一眼它最容易被记住的画面。个人愿望，仍然可以自己写。</p>
           <div className={styles.stats} aria-label="旅行统计">
             <div className={styles.stat}>
               <strong>{visitedCount}</strong>
@@ -544,7 +544,7 @@ export function WorldMapBoard({ seedPlaces }: WorldMapBoardProps) {
             <div>
               <strong>{mapModes[mapMode].title}</strong>
               <span>
-                {mapModes[mapMode].description} · {featuredCityCount} 座城市名片
+                {mapModes[mapMode].description} · {featuredCityCount} 处名片
               </span>
             </div>
             <div className={styles.mapModeTabs} role="tablist" aria-label="地图范围">
@@ -640,7 +640,7 @@ export function WorldMapBoard({ seedPlaces }: WorldMapBoardProps) {
                           <g
                             role="button"
                             tabIndex={0}
-                            aria-label={`${place.cityZh || place.name} · ${place.name} · ${place.landmark || "城市名片"} · ${formatStatus(place.status)}`}
+                            aria-label={`${place.cityZh || place.name} · ${place.name} · ${place.landmark || "地点名片"} · ${formatStatus(place.status)}`}
                             onClick={() => setSelectedId(place.id)}
                             onKeyDown={(event) => handleMarkerKeyDown(event, place.id)}
                             onMouseEnter={() => setHoveredId(place.id)}
