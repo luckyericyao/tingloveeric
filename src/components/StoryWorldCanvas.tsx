@@ -19,8 +19,7 @@ type StoryWorldCanvasProps = {
   reducedMotion: boolean;
   playbackState: StoryPlaybackState;
   playbackDirection: StoryPlaybackDirection;
-  onRequestAdvance: () => boolean;
-  onSceneInteraction: () => void;
+  onCatInteraction: () => void;
   onReady: () => void;
 };
 
@@ -40,8 +39,7 @@ export function StoryWorldCanvas({
   reducedMotion,
   playbackState,
   playbackDirection,
-  onRequestAdvance,
-  onSceneInteraction,
+  onCatInteraction,
   onReady,
 }: StoryWorldCanvasProps) {
   return (
@@ -60,7 +58,6 @@ export function StoryWorldCanvas({
         alpha: false,
         powerPreference: quality === "cinematic" ? "high-performance" : "low-power",
       }}
-      onPointerMissed={() => onRequestAdvance()}
       onCreated={({ gl }) => {
         gl.toneMapping = THREE.ACESFilmicToneMapping;
         gl.toneMappingExposure = 0.94;
@@ -76,7 +73,7 @@ export function StoryWorldCanvas({
           reducedMotion={reducedMotion}
           playbackState={playbackState}
           playbackDirection={playbackDirection}
-          onSceneInteraction={onSceneInteraction}
+          onCatInteraction={onCatInteraction}
         />
         <SceneReady onReady={onReady} />
       </Suspense>

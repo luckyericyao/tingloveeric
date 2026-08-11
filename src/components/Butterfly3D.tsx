@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useTexture } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
@@ -10,7 +10,6 @@ type Butterfly3DProps = {
   activeChapter: number;
   reducedMotion: boolean;
   quiet: boolean;
-  onInteract: () => void;
 };
 
 const WING_TEXTURE = "/assets/butterfly/pearl-wing.webp";
@@ -44,13 +43,12 @@ function createAntennaGeometry(side: -1 | 1) {
   return new THREE.TubeGeometry(curve, 12, 0.0045, 5, false);
 }
 
-export function Butterfly3D({ activeChapter, reducedMotion, quiet, onInteract }: Butterfly3DProps) {
+export function Butterfly3D({ activeChapter, reducedMotion, quiet }: Butterfly3DProps) {
   const anchor = useRef<THREE.Group>(null);
   const butterfly = useRef<THREE.Group>(null);
   const leftWing = useRef<THREE.Group>(null);
   const rightWing = useRef<THREE.Group>(null);
   const wingMaterials = useRef<Array<THREE.MeshBasicMaterial | null>>([]);
-  const [hovered, setHovered] = useState(false);
   const loadedTexture = useTexture(WING_TEXTURE);
   const { gl } = useThree();
   const texture = useMemo(() => {
@@ -90,7 +88,6 @@ export function Butterfly3D({ activeChapter, reducedMotion, quiet, onInteract }:
   const progress = useRef(0.08);
   const flapPhase = useRef(0);
   const reveal = useRef(0);
-  const interactionBoost = useRef(0);
 
   useEffect(
     () => () => {
@@ -107,12 +104,9 @@ export function Butterfly3D({ activeChapter, reducedMotion, quiet, onInteract }:
     const chapter = storyWorld.chapters[activeChapter];
     target.set(chapter.position[0], 0, chapter.position[2]);
     anchor.current.position.lerp(target, 1 - Math.exp(-delta * 2.25));
-    interactionBoost.current = Math.max(0, interactionBoost.current - delta * 1.15);
-
     if (!reducedMotion) {
       const speed = (quiet ? 0.026 : 0.032)
-        * (1 + Math.sin(state.clock.elapsedTime * 0.41) * 0.16)
-        * (1 + interactionBoost.current * 1.5);
+        * (1 + Math.sin(state.clock.elapsedTime * 0.41) * 0.16);
       progress.current = (progress.current + delta * speed) % 1;
     }
 
@@ -151,7 +145,7 @@ export function Butterfly3D({ activeChapter, reducedMotion, quiet, onInteract }:
       if (!material) return;
       material.opacity = reveal.current * (index < 2 ? (quiet ? 0.75 : 0.82) : 0.1);
     });
-    const targetScale = (hovered ? 0.84 : quiet ? 0.7 : 0.76) + interactionBoost.current * 0.08;
+    const targetScale = quiet ? 0.7 : 0.76;
     targetScaleVector.set(targetScale, targetScale, targetScale);
     butterfly.current.scale.lerp(
       targetScaleVector,
@@ -200,21 +194,6 @@ export function Butterfly3D({ activeChapter, reducedMotion, quiet, onInteract }:
         ref={butterfly}
         name="pearl-butterfly-3d"
         userData={{ treatment: "textured-wing-3d" }}
-        onPointerOver={(event) => {
-          event.stopPropagation();
-          setHovered(true);
-          document.body.style.cursor = "pointer";
-        }}
-        onPointerOut={(event) => {
-          event.stopPropagation();
-          setHovered(false);
-          document.body.style.cursor = "default";
-        }}
-        onClick={(event) => {
-          event.stopPropagation();
-          onInteract();
-          interactionBoost.current = 1;
-        }}
       >
         {wing(false, 0)}
         {wing(true, 1)}
@@ -228,7 +207,6 @@ export function Butterfly3D({ activeChapter, reducedMotion, quiet, onInteract }:
         <mesh geometry={rightAntenna}>
           <meshStandardMaterial color="#6f6254" roughness={0.88} />
         </mesh>
-        {hovered ? <pointLight position={[0, 0.05, 0.18]} color="#ead8b7" intensity={0.45} distance={1.2} /> : null}
       </group>
     </group>
   );

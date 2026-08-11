@@ -4,6 +4,8 @@ import { PNG } from "pngjs";
 const executablePath = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 const baseURL = process.env.QA_URL || "http://127.0.0.1:3000";
 const storyURL = `${baseURL}/cinema`;
+const musicDuration = 254.4;
+const chapterCues = [0, 0.14, 0.3, 0.47, 0.65, 0.82];
 const generatedSceneAssets = [
   "/assets/cats/nono-front.webp",
   "/assets/cats/nono-left.webp",
@@ -57,22 +59,23 @@ async function waitForIntro(page) {
   });
 }
 
-async function waitForChapterEnd(page, chapter) {
+async function seekFilmToChapter(page, chapter) {
+  const targetTime = Math.max(0.05, musicDuration * chapterCues[chapter] + 0.05);
+  await page.locator("audio").evaluate((audio, time) => {
+    audio.currentTime = time;
+    audio.dispatchEvent(new Event("timeupdate", { bubbles: true }));
+  }, targetTime);
   await page.waitForFunction(
-    (target) => {
-      const main = document.querySelector("main");
-      const state = main?.getAttribute("data-playback");
-      return Number(main?.getAttribute("data-chapter")) === target
-        && (state === "settled" || state === "completed");
-    },
+    (target) => Number(document.querySelector("main")?.getAttribute("data-chapter")) === target
+      && document.querySelector("main")?.getAttribute("data-playback") === "playing",
     chapter,
-    { timeout: 15000 },
+    { timeout: 5000 },
   );
 }
 
-async function advanceWithButton(page, chapter) {
-  await page.getByRole("button", { name: "下一幕" }).click();
-  await waitForChapterEnd(page, chapter);
+async function finishFilm(page) {
+  await page.locator("audio").evaluate((audio) => audio.dispatchEvent(new Event("ended", { bubbles: true })));
+  await page.waitForFunction(() => document.querySelector("main")?.getAttribute("data-playback") === "completed", null, { timeout: 5000 });
 }
 
 async function runViewport(browser, options) {
@@ -105,7 +108,9 @@ async function runViewport(browser, options) {
   await page.screenshot({ path: options.introPath });
   await page.getByRole("button", { name: "进入故事" }).click();
   await page.locator("article h2").waitFor({ state: "visible", timeout: 20000 });
-  await page.waitForTimeout(options.reducedMotion === "reduce" ? 120 : 1000);
+  await page.waitForFunction(() => document.querySelector("section")?.className.includes("introHidden"), null, { timeout: 10000 });
+  await page.waitForFunction(() => document.querySelector("main")?.getAttribute("data-playback") === "playing", null, { timeout: 10000 });
+  await page.waitForTimeout(options.reducedMotion === "reduce" ? 120 : 700);
 
   const canvas = page.locator("canvas");
   await canvas.waitFor({ state: "visible" });
@@ -113,35 +118,27 @@ async function runViewport(browser, options) {
   const canvasPixels = analyzePng(canvasBuffer);
   await page.screenshot({ path: options.storyPath });
 
-  const interactionChecks = {};
-  if (options.panelClosedPath) {
-    await page.getByRole("button", { name: "收起旁白" }).click();
-    await page.waitForTimeout(options.reducedMotion === "reduce" ? 80 : 520);
-    interactionChecks.reopenPanelVisible = await page.getByRole("button", { name: "私人档案馆", exact: true }).isVisible();
-    await page.screenshot({ path: options.panelClosedPath });
-  }
-
-  if (options.checkControls) {
-    const muteButton = page.getByRole("button", { name: "静音" });
-    interactionChecks.musicAvailable = await muteButton.count() > 0;
-    if (interactionChecks.musicAvailable) {
-      await muteButton.click();
-      interactionChecks.mutedVolume = await page.locator("audio").evaluate((audio) => audio.volume);
-      await page.getByRole("button", { name: "取消静音" }).click();
-
-      const slider = page.getByRole("slider", { name: "音乐音量" });
-      await slider.fill("0.28");
-      interactionChecks.adjustedVolume = await page.locator("audio").evaluate((audio) => audio.volume);
-    }
-
-    await page.getByRole("button", { name: "切换到简化模式" }).click();
-    interactionChecks.quietMode = await page.locator("main").getAttribute("data-quality");
-    await page.getByRole("button", { name: "切换到电影模式" }).click();
-    interactionChecks.cinematicMode = await page.locator("main").getAttribute("data-quality");
-  }
+  const interactionChecks = {
+    visibleControlsBeforeFinish: await page.locator("main button:visible").count(),
+  };
+  const beforeGesture = await page.locator("main").evaluate((main) => ({
+    chapter: Number(main.getAttribute("data-chapter")),
+    playback: main.getAttribute("data-playback"),
+  }));
+  await page.mouse.move(720, 420);
+  await page.mouse.wheel(0, 160);
+  await page.mouse.click(720, 150);
+  await page.keyboard.press("ArrowDown");
+  await page.waitForTimeout(420);
+  const afterGesture = await page.locator("main").evaluate((main) => ({
+    chapter: Number(main.getAttribute("data-chapter")),
+    playback: main.getAttribute("data-playback"),
+  }));
+  interactionChecks.gesturesLocked = beforeGesture.chapter === afterGesture.chapter
+    && beforeGesture.playback === afterGesture.playback;
 
   if (options.advanceToShanghai) {
-    for (let chapter = 1; chapter <= 4; chapter += 1) await advanceWithButton(page, chapter);
+    for (let chapter = 1; chapter <= 4; chapter += 1) await seekFilmToChapter(page, chapter);
     await page.screenshot({ path: options.shanghaiPath });
   }
 
@@ -157,23 +154,18 @@ async function runViewport(browser, options) {
     });
     await session.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
     await session.detach();
-    await waitForChapterEnd(page, 1);
-    interactionChecks.swipeTitle = await page.locator("article h2").textContent();
+    interactionChecks.swipeLocked = await page.locator("main").getAttribute("data-chapter") === "0";
   }
 
   let finale = null;
   if (options.advanceToFinale) {
-    const next = page.getByRole("button", { name: "下一幕" });
-    let currentChapter = Number(await page.locator("main").getAttribute("data-chapter"));
-    while (currentChapter < 5) {
-      currentChapter += 1;
-      await advanceWithButton(page, currentChapter);
-    }
+    const currentChapter = Number(await page.locator("main").getAttribute("data-chapter"));
+    for (let chapter = currentChapter + 1; chapter < 6; chapter += 1) await seekFilmToChapter(page, chapter);
+    await finishFilm(page);
     await page.screenshot({ path: options.finalePath });
     finale = {
       title: await page.locator("article h2").textContent(),
-      nextDisabled: await next.isDisabled(),
-      actionVisible: await page.getByRole("link", { name: "打开想去的地方" }).isVisible(),
+      actionVisible: await page.getByRole("link", { name: "去世界地图" }).isVisible(),
     };
   }
 

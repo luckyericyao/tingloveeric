@@ -4,81 +4,8 @@ const executablePath = "/Applications/Google Chrome.app/Contents/MacOS/Google Ch
 const baseURL = process.env.QA_URL || "http://127.0.0.1:3000";
 const storyURL = `${baseURL}/cinema`;
 const chapterCount = 6;
-
-async function enterStory(page) {
-  await page.goto(storyURL, { waitUntil: "domcontentloaded" });
-  const enter = page.getByRole("button", { name: "进入故事" });
-  await enter.waitFor({ state: "visible" });
-  await page.waitForFunction(() => {
-    const button = Array.from(document.querySelectorAll("button")).find((item) => item.textContent?.includes("进入故事"));
-    return button && !button.disabled;
-  });
-  await enter.click();
-  await page.locator("canvas").waitFor({ state: "visible", timeout: 20000 });
-  await page.locator("article h2").waitFor({ state: "visible", timeout: 30000 });
-  await page.locator("main[data-playback='idle']").waitFor({ state: "visible", timeout: 20000 });
-}
-
-async function storyState(page) {
-  return page.locator("main").evaluate((main) => ({
-    chapter: Number(main.dataset.chapter),
-    maxViewed: Number(main.dataset.maxViewed),
-    playback: main.dataset.playback,
-    scrollY: window.scrollY,
-    bodyOverflow: document.body.scrollHeight - window.innerHeight,
-  }));
-}
-
-async function waitForChapterStart(page, chapter) {
-  await page.waitForFunction(
-    (target) => {
-      const main = document.querySelector("main");
-      return Number(main?.getAttribute("data-chapter")) === target
-        && ["transitioning", "playing", "settled", "completed"].includes(main?.getAttribute("data-playback") || "");
-    },
-    chapter,
-    { timeout: 2500 },
-  );
-}
-
-async function waitForChapterEnd(page, chapter, terminal = false) {
-  await page.waitForFunction(
-    ({ target, finalState }) => {
-      const main = document.querySelector("main");
-      return Number(main?.getAttribute("data-chapter")) === target
-        && main?.getAttribute("data-playback") === finalState
-        && Number(main?.getAttribute("data-max-viewed")) >= target;
-    },
-    { target: chapter, finalState: terminal ? "completed" : "settled" },
-    { timeout: 15000 },
-  );
-}
-
-async function wheelForward(page) {
-  await page.mouse.move(720, 420);
-  await page.mouse.wheel(0, 34);
-}
-
-async function clickBlankScene(page, width) {
-  await page.mouse.click(Math.round(width * 0.5), 150);
-}
-
-async function swipeUp(page, x = 195, startY = 520) {
-  const session = await page.context().newCDPSession(page);
-  await session.send("Input.dispatchTouchEvent", {
-    type: "touchStart",
-    touchPoints: [{ x, y: startY }],
-  });
-  await session.send("Input.dispatchTouchEvent", {
-    type: "touchMove",
-    touchPoints: [{ x, y: startY - 32 }],
-  });
-  await session.send("Input.dispatchTouchEvent", {
-    type: "touchEnd",
-    touchPoints: [],
-  });
-  await session.detach();
-}
+const musicDuration = 254.4;
+const chapterCues = [0, 0.14, 0.3, 0.47, 0.65, 0.82];
 
 function captureFailures(page, errors, failedRequests) {
   page.on("console", (message) => {
@@ -93,108 +20,116 @@ function captureFailures(page, errors, failedRequests) {
   });
 }
 
-async function testWheelJourney(browser) {
-  const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1 });
-  const page = await context.newPage();
-  const errors = [];
-  const failedRequests = [];
-  captureFailures(page, errors, failedRequests);
-  await enterStory(page);
+async function enterStory(page) {
+  await page.goto(storyURL, { waitUntil: "domcontentloaded" });
+  const enter = page.getByRole("button", { name: "进入故事" });
+  await enter.waitFor({ state: "visible" });
+  await page.waitForFunction(() => {
+    const button = Array.from(document.querySelectorAll("button")).find((item) => item.textContent?.includes("进入故事"));
+    return button && !button.disabled;
+  }, null, { timeout: 10000 });
+  await enter.click();
+  await page.locator("canvas").waitFor({ state: "visible", timeout: 20000 });
+  await page.locator("article h2").waitFor({ state: "visible", timeout: 30000 });
+  await page.waitForFunction(() => document.querySelector("section")?.className.includes("introHidden"), null, { timeout: 10000 });
+  await page.waitForFunction(() => document.querySelector("main")?.dataset.playback === "playing", null, { timeout: 10000 });
+  await page.waitForTimeout(500);
+}
 
-  const hint = await page.getByText("轻轻滑动，故事会自己向前。").isVisible();
-  const futureDot = page.locator("nav button").nth(4);
-  await futureDot.dispatchEvent("click");
-  const futureNotice = await page.getByText("故事会带你走到那里").isVisible();
-  const stateAfterFutureClick = await storyState(page);
+async function storyState(page) {
+  return page.locator("main").evaluate((main) => ({
+    chapter: Number(main.dataset.chapter),
+    maxViewed: Number(main.dataset.maxViewed),
+    playback: main.dataset.playback,
+    scrollY: window.scrollY,
+    bodyOverflow: document.body.scrollHeight - window.innerHeight,
+  }));
+}
 
-  await wheelForward(page);
-  await waitForChapterStart(page, 1);
-  const hintGone = !(await page.getByText("轻轻滑动，故事会自己向前。").isVisible());
-  await page.locator("main").evaluate((main) => {
-    for (let index = 0; index < 8; index += 1) {
-      main.dispatchEvent(new WheelEvent("wheel", { deltaY: 42, bubbles: true, cancelable: true }));
-    }
-  });
-  await page.waitForTimeout(600);
-  const inertiaState = await storyState(page);
-  await page.screenshot({ path: "/tmp/ting-story-wheel-transition-desktop.png", timeout: 90000 });
-  await waitForChapterEnd(page, 1);
-  const firstSettled = await storyState(page);
-  await page.screenshot({ path: "/tmp/ting-story-wheel-settled-desktop.png", timeout: 90000 });
+async function seekFilmToChapter(page, chapter) {
+  const targetTime = Math.max(0.05, musicDuration * chapterCues[chapter] + 0.05);
+  await page.locator("audio").evaluate((audio, time) => {
+    audio.currentTime = time;
+    audio.dispatchEvent(new Event("timeupdate", { bubbles: true }));
+  }, targetTime);
+  await page.waitForFunction(
+    (target) => Number(document.querySelector("main")?.dataset.chapter) === target
+      && document.querySelector("main")?.dataset.playback === "playing",
+    chapter,
+    { timeout: 5000 },
+  );
+}
 
-  for (let chapter = 2; chapter < chapterCount; chapter += 1) {
-    await wheelForward(page);
-    await waitForChapterStart(page, chapter);
-    await waitForChapterEnd(page, chapter, chapter === chapterCount - 1);
-  }
-  const finale = await storyState(page);
-  await page.screenshot({ path: "/tmp/ting-story-wheel-finale-desktop.png", timeout: 90000 });
+async function finishFilm(page) {
+  await page.locator("audio").evaluate((audio) => audio.dispatchEvent(new Event("ended", { bubbles: true })));
+  await page.waitForFunction(() => document.querySelector("main")?.dataset.playback === "completed", null, { timeout: 5000 });
+}
 
-  const chapterDots = page.locator("nav button[aria-label^='返回']");
-  await chapterDots.first().click();
-  await page.locator("main[data-chapter='0'][data-playback='settled']").waitFor({ timeout: 2500 });
-  const returned = await storyState(page);
-
-  await context.close();
+async function assertGesturesDoNotAdvance(page) {
+  const before = await storyState(page);
+  await page.mouse.move(720, 420);
+  await page.mouse.wheel(0, 160);
+  await page.mouse.click(720, 150);
+  await page.keyboard.press("ArrowDown");
+  await page.waitForTimeout(450);
+  const after = await storyState(page);
   return {
-    hint,
-    hintGone,
-    futureNotice,
-    stateAfterFutureClick,
-    inertiaState,
-    firstSettled,
-    finale,
-    returned,
-    errors,
-    failedRequests,
+    unchanged: before.chapter === after.chapter && before.playback === after.playback,
+    before,
+    after,
   };
 }
 
-async function testClickJourney(browser) {
-  const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1 });
+async function runJourney(browser, viewport, touch = false) {
+  const context = await browser.newContext({ viewport, deviceScaleFactor: 1, hasTouch: touch, isMobile: touch });
   const page = await context.newPage();
   const errors = [];
   const failedRequests = [];
   captureFailures(page, errors, failedRequests);
   await enterStory(page);
 
-  for (let chapter = 1; chapter < chapterCount; chapter += 1) {
-    await clickBlankScene(page, 1440);
-    await waitForChapterStart(page, chapter);
-    await waitForChapterEnd(page, chapter, chapter === chapterCount - 1);
-  }
+  const audioSource = await page.locator("audio").evaluate((audio) => audio.currentSrc);
+  const visibleButtonsBeforeFinish = await page.locator("main").evaluate((main) => Array.from(main.querySelectorAll("button")).filter((button) => {
+    const styles = getComputedStyle(button);
+    const rect = button.getBoundingClientRect();
+    return styles.display !== "none"
+      && styles.visibility !== "hidden"
+      && Number(styles.opacity) > 0
+      && styles.pointerEvents !== "none"
+      && rect.width > 0
+      && rect.height > 0;
+  }).length);
+  const gestures = await assertGesturesDoNotAdvance(page);
+  await page.screenshot({ path: touch ? "/tmp/ting-story-controlled-mobile.png" : "/tmp/ting-story-controlled-desktop.png", timeout: 90000 });
 
+  for (let chapter = 1; chapter < chapterCount; chapter += 1) await seekFilmToChapter(page, chapter);
+  await finishFilm(page);
   const finale = await storyState(page);
-  await page.screenshot({ path: "/tmp/ting-story-click-finale-desktop.png", timeout: 90000 });
+  const worldLink = await page.getByRole("link", { name: "去世界地图" }).isVisible();
+  await page.screenshot({ path: touch ? "/tmp/ting-story-controlled-finale-mobile.png" : "/tmp/ting-story-controlled-finale-desktop.png", timeout: 90000 });
+
+  const result = { audioSource, visibleButtonsBeforeFinish, gestures, finale, worldLink, errors, failedRequests };
   await context.close();
-  return { finale, errors, failedRequests };
+  return result;
 }
 
-async function testTouchJourney(browser) {
-  const context = await browser.newContext({
-    viewport: { width: 390, height: 844 },
-    deviceScaleFactor: 1,
-    hasTouch: true,
-    isMobile: true,
-  });
+async function runTouchOnly(browser) {
+  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1, hasTouch: true, isMobile: true });
   const page = await context.newPage();
   const errors = [];
   const failedRequests = [];
   captureFailures(page, errors, failedRequests);
   await enterStory(page);
-
-  await swipeUp(page);
-  await waitForChapterStart(page, 1);
-  await swipeUp(page);
-  await swipeUp(page);
-  await page.waitForTimeout(600);
-  const lockedState = await storyState(page);
-  await waitForChapterEnd(page, 1);
-  const settled = await storyState(page);
-  await page.screenshot({ path: "/tmp/ting-story-touch-settled-mobile.png", timeout: 90000 });
-
+  const before = await storyState(page);
+  const session = await context.newCDPSession(page);
+  await session.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ x: 195, y: 520 }] });
+  await session.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [{ x: 195, y: 450 }] });
+  await session.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+  await session.detach();
+  await page.waitForTimeout(450);
+  const after = await storyState(page);
   await context.close();
-  return { lockedState, settled, errors, failedRequests };
+  return { unchanged: before.chapter === after.chapter, before, after, errors, failedRequests };
 }
 
 const browser = await chromium.launch({
@@ -204,21 +139,22 @@ const browser = await chromium.launch({
 });
 
 try {
-  const wheel = await testWheelJourney(browser);
-  const click = await testClickJourney(browser);
-  const touch = await testTouchJourney(browser);
-  const result = { wheel, click, touch };
-
+  const desktop = await runJourney(browser, { width: 1440, height: 900 });
+  const mobile = await runJourney(browser, { width: 390, height: 844 }, true);
+  const touch = await runTouchOnly(browser);
+  const result = { desktop, mobile, touch };
   const failures = [];
-  if (!wheel.hint || !wheel.hintGone) failures.push("one-time gesture hint failed");
-  if (!wheel.futureNotice || wheel.stateAfterFutureClick.chapter !== 0) failures.push("future chapter lock failed");
-  if (wheel.inertiaState.chapter !== 1) failures.push("wheel inertia skipped a chapter");
-  if (wheel.finale.chapter !== 5 || wheel.finale.playback !== "completed") failures.push("wheel-only journey did not complete");
-  if (wheel.returned.chapter !== 0 || wheel.returned.maxViewed !== 5) failures.push("viewed chapter return failed");
-  if (click.finale.chapter !== 5 || click.finale.playback !== "completed") failures.push("click-only journey did not complete");
-  if (touch.lockedState.chapter !== 1 || touch.settled.chapter !== 1) failures.push("touch input double-triggered");
-  if ([wheel, click, touch].some((item) => item.errors.length || item.failedRequests.length)) failures.push("browser errors detected");
-  if ([wheel.finale, click.finale, touch.settled].some((item) => item.scrollY !== 0 || item.bodyOverflow > 0)) failures.push("page scroll penetration detected");
+
+  for (const [label, item] of [["desktop", desktop], ["mobile", mobile]]) {
+    if (item.audioSource && !item.audioSource.includes("wo-shi-yi-zhi-yu")) failures.push(`${label} did not start the story theme song`);
+    if (item.visibleButtonsBeforeFinish !== 0) failures.push(`${label} exposed non-cat controls during film`);
+    if (!item.gestures.unchanged) failures.push(`${label} gesture changed the controlled film`);
+    if (item.finale.chapter !== chapterCount - 1 || item.finale.playback !== "completed") failures.push(`${label} film did not finish at final chapter`);
+    if (!item.worldLink) failures.push(`${label} world map exit did not unlock at the end`);
+    if (item.errors.length || item.failedRequests.length) failures.push(`${label} browser errors detected`);
+    if (item.finale.scrollY !== 0 || item.finale.bodyOverflow > 0) failures.push(`${label} page scroll penetration detected`);
+  }
+  if (!touch.unchanged || touch.errors.length || touch.failedRequests.length) failures.push("touch changed or errored during the film");
 
   console.log(JSON.stringify({ ...result, failures }, null, 2));
   if (failures.length > 0) process.exitCode = 1;

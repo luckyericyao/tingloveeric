@@ -3,20 +3,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import {
-  Archive,
-  ArrowLeft,
-  ArrowRight,
-  Gauge,
-  Pause,
-  Play,
-  SkipForward,
-  Sparkles,
-  Volume2,
-  VolumeX,
-  X,
-} from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { ArrowRight } from "lucide-react";
+import { useCallback, useEffect, useRef, useState, type SyntheticEvent } from "react";
 import { storyWorld } from "@/data/storyWorld";
 import type {
   RenderQuality,
@@ -30,11 +18,9 @@ const StoryWorldCanvas = dynamic(
   { ssr: false },
 );
 
-const WHEEL_THRESHOLD = 28;
-const TOUCH_THRESHOLD = 26;
 const FORWARD_TRANSITION_MS = 1700;
-const CHAPTER_PLAY_MS = 4300;
-const RETURN_TRANSITION_MS = 900;
+const DEFAULT_MUSIC_DURATION_SECONDS = 254.4;
+const FILM_CHAPTER_CUE_RATIOS = [0, 0.14, 0.3, 0.47, 0.65, 0.82] as const;
 
 function detectWebGL() {
   try {
@@ -43,10 +29,6 @@ function detectWebGL() {
   } catch {
     return false;
   }
-}
-
-function isPlaybackLocked(state: StoryPlaybackState) {
-  return state === "transitioning" || state === "playing";
 }
 
 export function LoveStoryExperience() {
@@ -61,31 +43,22 @@ export function LoveStoryExperience() {
   const [playbackState, setPlaybackState] = useState<StoryPlaybackState>("idle");
   const [playbackDirection, setPlaybackDirection] = useState<StoryPlaybackDirection>("forward");
   const [timelineRun, setTimelineRun] = useState(0);
-  const [hasAdvanced, setHasAdvanced] = useState(false);
-  const [navNotice, setNavNotice] = useState("");
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [muted, setMuted] = useState(false);
-  const [volume, setVolume] = useState(0.3);
   const [audioError, setAudioError] = useState(false);
   const [activeTrackIndex, setActiveTrackIndex] = useState(0);
   const experienceRef = useRef<HTMLElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
-  const isPlayingRef = useRef(false);
   const activeChapterRef = useRef(0);
   const maxViewedChapterRef = useRef(0);
   const playbackStateRef = useRef<StoryPlaybackState>("idle");
   const timelineTimers = useRef<number[]>([]);
-  const wheelAccumulator = useRef(0);
-  const wheelResetTimer = useRef<number | null>(null);
-  const noticeTimer = useRef<number | null>(null);
-  const suppressSceneClickUntil = useRef(0);
+  const filmStartedRef = useRef(false);
+  const musicDurationRef = useRef(DEFAULT_MUSIC_DURATION_SECONDS);
   const chapter = storyWorld.chapters[activeChapter];
   const availableTracks = storyWorld.music.tracks.filter((track) => track.available);
   const activeTrack = availableTracks[activeTrackIndex] ?? null;
   const storyTrackIndex = availableTracks.findIndex((track) => track.id === "wo-shi-yi-zhi-yu");
   const musicAvailable = activeTrack !== null;
   const lastChapter = storyWorld.chapters.length - 1;
-  const controlsUnlocked = playbackState === "idle" || playbackState === "settled";
 
   const setPlayback = useCallback((state: StoryPlaybackState) => {
     playbackStateRef.current = state;
@@ -105,94 +78,25 @@ export function LoveStoryExperience() {
     timelineTimers.current.push(timer);
   }, []);
 
-  const finishAtChapter = useCallback((index: number) => {
-    const viewed = Math.max(maxViewedChapterRef.current, index);
-    maxViewedChapterRef.current = viewed;
-    setMaxViewedChapter(viewed);
-    setPlayback(index === lastChapter ? "completed" : "settled");
-  }, [lastChapter, setPlayback]);
-
-  const moveToViewedChapter = useCallback((index: number, direction: StoryPlaybackDirection) => {
+  const queueFilmChapter = useCallback((index: number) => {
+    if (index <= activeChapterRef.current || index > lastChapter) return;
     clearTimeline();
-    wheelAccumulator.current = 0;
-    setPlayback("transitioning");
-    setPlaybackDirection(direction);
-    setPanelOpen(false);
-    activeChapterRef.current = index;
-    setActiveChapter(index);
-    setTimelineRun((current) => current + 1);
-
-    const transitionDuration = reducedMotion ? 80 : RETURN_TRANSITION_MS;
-    scheduleTimeline(() => {
-      setPanelOpen(true);
-      setPlayback(index === lastChapter ? "completed" : "settled");
-    }, transitionDuration);
-  }, [clearTimeline, lastChapter, reducedMotion, scheduleTimeline, setPlayback]);
-
-  const playNewChapter = useCallback((index: number) => {
-    clearTimeline();
-    wheelAccumulator.current = 0;
     setPlayback("transitioning");
     setPlaybackDirection("forward");
     setPanelOpen(false);
     activeChapterRef.current = index;
+    const viewedChapter = Math.max(maxViewedChapterRef.current, index);
+    maxViewedChapterRef.current = viewedChapter;
     setActiveChapter(index);
+    setMaxViewedChapter(viewedChapter);
     setTimelineRun((current) => current + 1);
 
     const transitionDuration = reducedMotion ? 80 : FORWARD_TRANSITION_MS;
-    const readingDuration = reducedMotion ? 2400 : CHAPTER_PLAY_MS;
     scheduleTimeline(() => {
       setPanelOpen(true);
       setPlayback("playing");
     }, transitionDuration);
-    scheduleTimeline(() => finishAtChapter(index), transitionDuration + readingDuration);
-  }, [clearTimeline, finishAtChapter, reducedMotion, scheduleTimeline, setPlayback]);
-
-  const requestAdvance = useCallback(() => {
-    if (!started || !sceneReady) return false;
-    const state = playbackStateRef.current;
-    if (state !== "idle" && state !== "settled") {
-      wheelAccumulator.current = 0;
-      return false;
-    }
-
-    const current = activeChapterRef.current;
-    if (current >= lastChapter) {
-      setPlayback("completed");
-      return false;
-    }
-
-    const next = current + 1;
-    setHasAdvanced(true);
-    if (next <= maxViewedChapterRef.current) moveToViewedChapter(next, "forward");
-    else playNewChapter(next);
-    return true;
-  }, [lastChapter, moveToViewedChapter, playNewChapter, sceneReady, setPlayback, started]);
-
-  const requestPrevious = useCallback(() => {
-    if (!started || !sceneReady) return false;
-    const state = playbackStateRef.current;
-    if (state !== "settled" && state !== "completed") return false;
-    const current = activeChapterRef.current;
-    if (current <= 0) return false;
-    moveToViewedChapter(current - 1, "backward");
-    return true;
-  }, [moveToViewedChapter, sceneReady, started]);
-
-  const showFutureNotice = useCallback(() => {
-    setNavNotice("故事会带你走到那里");
-    if (noticeTimer.current !== null) window.clearTimeout(noticeTimer.current);
-    noticeTimer.current = window.setTimeout(() => setNavNotice(""), 1800);
-  }, []);
-
-  const selectViewedChapter = useCallback((index: number) => {
-    if (index > maxViewedChapterRef.current) {
-      showFutureNotice();
-      return;
-    }
-    if (isPlaybackLocked(playbackStateRef.current) || index === activeChapterRef.current) return;
-    moveToViewedChapter(index, index < activeChapterRef.current ? "backward" : "forward");
-  }, [moveToViewedChapter, showFutureNotice]);
+  }, [clearTimeline, lastChapter, reducedMotion, scheduleTimeline, setPlayback]);
 
   useEffect(() => {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -215,149 +119,30 @@ export function LoveStoryExperience() {
 
   useEffect(() => {
     const audio = audioRef.current;
-    if (!audio) return;
-    audio.volume = muted ? 0 : volume;
-  }, [muted, volume]);
-
-  useEffect(() => {
-    isPlayingRef.current = isPlaying;
-  }, [isPlaying]);
-
-  useEffect(() => {
-    const audio = audioRef.current;
     if (!audio || !activeTrack) return;
-    audio.load();
     if (!started) {
+      audio.load();
       void audio.play().then(() => {
-        isPlayingRef.current = true;
-        setIsPlaying(true);
         setAudioError(false);
       }).catch(() => {
-        if (!audio.paused) return;
-        isPlayingRef.current = false;
-        setIsPlaying(false);
+        if (!started || !audio.paused) return;
         setAudioError(true);
       });
-      return;
     }
-    if (!isPlayingRef.current) return;
-    void audio.play().catch(() => {
-      if (!audio.paused) return;
-      isPlayingRef.current = false;
-      setAudioError(true);
-      setIsPlaying(false);
-    });
   }, [activeTrack, started]);
 
   useEffect(() => {
-    const handleKey = (event: KeyboardEvent) => {
-      if (!started) return;
-      if (["ArrowDown", "ArrowRight", " "].includes(event.key)) {
-        event.preventDefault();
-        requestAdvance();
-      } else if (["ArrowUp", "ArrowLeft"].includes(event.key)) {
-        event.preventDefault();
-        requestPrevious();
-      } else if (event.key === "Escape") {
-        setPanelOpen((current) => !current);
-      }
-    };
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
-  }, [requestAdvance, requestPrevious, started]);
-
-  useEffect(() => {
-    if (!started) return;
-
-    let touchStartY: number | null = null;
-    let touchLastY: number | null = null;
-
-    const resetWheelSoon = () => {
-      if (wheelResetTimer.current !== null) window.clearTimeout(wheelResetTimer.current);
-      wheelResetTimer.current = window.setTimeout(() => {
-        wheelAccumulator.current = 0;
-      }, 160);
-    };
-
-    const handleWheel = (event: WheelEvent) => {
-      event.preventDefault();
-      if (isPlaybackLocked(playbackStateRef.current)) {
-        wheelAccumulator.current = 0;
-        return;
-      }
-
-      const normalized = event.deltaMode === WheelEvent.DOM_DELTA_LINE ? event.deltaY * 16 : event.deltaY;
-      if (normalized === 0) return;
-      if (Math.sign(normalized) !== Math.sign(wheelAccumulator.current)) wheelAccumulator.current = 0;
-      wheelAccumulator.current += normalized;
-      resetWheelSoon();
-
-      if (wheelAccumulator.current >= WHEEL_THRESHOLD) {
-        wheelAccumulator.current = 0;
-        requestAdvance();
-      } else if (wheelAccumulator.current <= -WHEEL_THRESHOLD) {
-        wheelAccumulator.current = 0;
-        requestPrevious();
-      }
-    };
-
-    const handleTouchStart = (event: TouchEvent) => {
-      if (event.touches.length !== 1) return;
-      touchStartY = event.touches[0].clientY;
-      touchLastY = touchStartY;
-    };
-
-    const handleTouchMove = (event: TouchEvent) => {
-      event.preventDefault();
-      if (touchStartY === null || event.touches.length !== 1) return;
-      touchLastY = event.touches[0].clientY;
-    };
-
-    const handleTouchEnd = (event: TouchEvent) => {
-      event.preventDefault();
-      if (touchStartY === null || touchLastY === null) return;
-      const distance = touchLastY - touchStartY;
-      touchStartY = null;
-      touchLastY = null;
-      if (distance <= -TOUCH_THRESHOLD) requestAdvance();
-      else if (distance >= TOUCH_THRESHOLD) requestPrevious();
-    };
-
-    const handleTouchCancel = () => {
-      touchStartY = null;
-      touchLastY = null;
-    };
-
-    const handleBlankClick = (event: MouseEvent) => {
-      const target = event.target as HTMLElement;
-      if (target.closest("button, a, input, article, header, nav")) return;
-      window.setTimeout(() => {
-        if (performance.now() < suppressSceneClickUntil.current) return;
-        requestAdvance();
-      }, 0);
-    };
-
-    window.addEventListener("wheel", handleWheel, { passive: false, capture: true });
-    window.addEventListener("touchstart", handleTouchStart, { passive: true, capture: true });
-    window.addEventListener("touchmove", handleTouchMove, { passive: false, capture: true });
-    window.addEventListener("touchend", handleTouchEnd, { passive: false, capture: true });
-    window.addEventListener("touchcancel", handleTouchCancel, { capture: true });
-    window.addEventListener("click", handleBlankClick, true);
-
-    return () => {
-      window.removeEventListener("wheel", handleWheel, true);
-      window.removeEventListener("touchstart", handleTouchStart, true);
-      window.removeEventListener("touchmove", handleTouchMove, true);
-      window.removeEventListener("touchend", handleTouchEnd, true);
-      window.removeEventListener("touchcancel", handleTouchCancel, true);
-      window.removeEventListener("click", handleBlankClick, true);
-      if (wheelResetTimer.current !== null) window.clearTimeout(wheelResetTimer.current);
-    };
-  }, [requestAdvance, requestPrevious, started]);
+    if (!started || !sceneReady || filmStartedRef.current) return;
+    filmStartedRef.current = true;
+    activeChapterRef.current = 0;
+    setPlaybackDirection("forward");
+    setPanelOpen(true);
+    setPlayback("playing");
+  }, [sceneReady, setPlayback, started]);
 
   useEffect(() => () => {
     clearTimeline();
-    if (noticeTimer.current !== null) window.clearTimeout(noticeTimer.current);
+    filmStartedRef.current = false;
   }, [clearTimeline]);
 
   const startStory = async () => {
@@ -366,13 +151,11 @@ export function LoveStoryExperience() {
     maxViewedChapterRef.current = 0;
     setActiveChapter(0);
     setMaxViewedChapter(0);
-    setHasAdvanced(false);
     setPlayback("idle");
     setStarted(true);
     setPanelOpen(true);
-    isPlayingRef.current = true;
-    setIsPlaying(true);
     setAudioError(false);
+    filmStartedRef.current = false;
     const nextTrackIndex = storyTrackIndex >= 0 ? storyTrackIndex : 0;
     const nextTrack = availableTracks[nextTrackIndex] ?? null;
     setActiveTrackIndex(nextTrackIndex);
@@ -381,61 +164,60 @@ export function LoveStoryExperience() {
     if (!audio || !nextTrack) return;
     audio.src = nextTrack.src;
     audio.load();
-    audio.volume = muted ? 0 : volume;
+    audio.volume = 0.3;
     try {
       await audio.play();
-      isPlayingRef.current = true;
-      setIsPlaying(true);
       setAudioError(false);
     } catch {
       if (!audio.paused) {
         setAudioError(false);
         return;
       }
-      isPlayingRef.current = false;
-      setIsPlaying(false);
       setAudioError(true);
     }
   };
-
-  const toggleMusic = async () => {
-    const audio = audioRef.current;
-    if (!audio || !activeTrack) return;
-    if (isPlaying) {
-      audio.pause();
-      setIsPlaying(false);
-      return;
-    }
-    try {
-      setMuted(false);
-      await audio.play();
-      setIsPlaying(true);
-      setAudioError(false);
-    } catch {
-      setAudioError(true);
-    }
-  };
-
-  const toggleMute = () => setMuted((current) => !current);
-
-  const playNextTrack = useCallback(() => {
-    if (availableTracks.length === 0) return;
-    setActiveTrackIndex((current) => (current + 1) % availableTracks.length);
-  }, [availableTracks.length]);
 
   const handleSceneInteraction = useCallback(() => {
-    suppressSceneClickUntil.current = performance.now() + 300;
+    // CatSprite3D owns the only intentional interaction inside the film.
   }, []);
 
-  const statusText = !hasAdvanced
-    ? "轻轻滑动，故事会自己向前。"
-    : playbackState === "transitioning"
-      ? "镜头正在前往下一幕"
-      : playbackState === "playing"
-        ? "这一幕正在展开"
-        : playbackState === "completed"
-          ? "故事还在继续"
-          : `第 ${activeChapter + 1} 幕已经抵达`;
+  const handleAudioTimeUpdate = (event: SyntheticEvent<HTMLAudioElement>) => {
+    if (!started || !sceneReady || !filmStartedRef.current) return;
+    if (playbackStateRef.current === "transitioning" || playbackStateRef.current === "completed") return;
+
+    const audio = event.currentTarget;
+    const duration = Number.isFinite(audio.duration) && audio.duration > 0
+      ? audio.duration
+      : musicDurationRef.current;
+    musicDurationRef.current = duration;
+    const progress = audio.currentTime / duration;
+    const nextChapter = Math.min(
+      lastChapter,
+      FILM_CHAPTER_CUE_RATIOS.reduce<number>((current, cue, index) => (progress >= cue ? index : current), 0),
+    );
+
+    if (nextChapter > activeChapterRef.current) {
+      queueFilmChapter(activeChapterRef.current + 1);
+    }
+  };
+
+  const handleAudioEnded = () => {
+    if (!started) return;
+    activeChapterRef.current = lastChapter;
+    maxViewedChapterRef.current = lastChapter;
+    setActiveChapter(lastChapter);
+    setMaxViewedChapter(lastChapter);
+    setPanelOpen(true);
+    setPlayback("completed");
+  };
+
+  const statusText = playbackState === "transitioning"
+    ? "镜头转场中"
+    : playbackState === "playing"
+      ? "正在放映"
+      : playbackState === "completed"
+        ? "放映结束 · 下一站是世界地图"
+        : "正在准备放映";
 
   return (
     <main
@@ -450,18 +232,18 @@ export function LoveStoryExperience() {
         ref={audioRef}
         src={activeTrack?.src}
         autoPlay
-        preload="metadata"
-        loop={availableTracks.length === 1}
-        onPlay={() => {
-          isPlayingRef.current = true;
-          setIsPlaying(true);
-          setAudioError(false);
+        preload="auto"
+        onPlay={() => setAudioError(false)}
+        onError={() => {
+          if (started) setAudioError(true);
         }}
-        onPause={() => {
-          isPlayingRef.current = false;
-          setIsPlaying(false);
+        onLoadedMetadata={(event) => {
+          if (Number.isFinite(event.currentTarget.duration) && event.currentTarget.duration > 0) {
+            musicDurationRef.current = event.currentTarget.duration;
+          }
         }}
-        onEnded={playNextTrack}
+        onTimeUpdate={handleAudioTimeUpdate}
+        onEnded={handleAudioEnded}
       />
 
       {webglSupported && started ? (
@@ -472,12 +254,11 @@ export function LoveStoryExperience() {
           reducedMotion={reducedMotion}
           playbackState={playbackState}
           playbackDirection={playbackDirection}
-          onRequestAdvance={requestAdvance}
-          onSceneInteraction={handleSceneInteraction}
+          onCatInteraction={handleSceneInteraction}
           onReady={() => setSceneReady(true)}
         />
       ) : webglSupported === false ? (
-        <div className={styles.fallbackVisual} onClick={requestAdvance} aria-hidden="true">
+        <div className={styles.fallbackVisual} aria-hidden="true">
           <Image src="/images/shanghai-night-walk.jpg" alt="上海夜里的两个人" fill priority sizes="100vw" />
           <div className={styles.fallbackVeil} />
         </div>
@@ -511,7 +292,7 @@ export function LoveStoryExperience() {
             <span>{started ? "正在进入" : "进入故事"}</span>
             <ArrowRight size={16} strokeWidth={1.5} />
           </button>
-          {musicAvailable ? <p className={styles.audioNote}>《就是爱你》先陪你等在这里。</p> : null}
+          {musicAvailable ? <p className={styles.audioNote}>进入后，《我是一只鱼》会陪你走完这段放映。</p> : null}
         </div>
       </section>
 
@@ -526,69 +307,22 @@ export function LoveStoryExperience() {
               </span>
             </div>
 
-            <div className={styles.topControls}>
-              {musicAvailable ? (
-                <div className={styles.volumeControl}>
-                  <span className={styles.nowPlaying} aria-live="polite">
-                    <strong>{activeTrack.title}</strong>
-                    <span>{activeTrack.artist}</span>
-                  </span>
-                  <button className={styles.iconButton} type="button" onClick={toggleMusic} title={isPlaying ? "暂停音乐" : "播放音乐"} aria-label={isPlaying ? "暂停音乐" : "播放音乐"}>
-                    {isPlaying ? <Pause size={17} /> : <Play size={17} />}
-                  </button>
-                  {availableTracks.length > 1 ? (
-                    <button className={styles.iconButton} type="button" onClick={playNextTrack} title="下一首" aria-label="下一首">
-                      <SkipForward size={17} />
-                    </button>
-                  ) : null}
-                  <button className={styles.iconButton} type="button" onClick={toggleMute} title={muted ? "取消静音" : "静音"} aria-label={muted ? "取消静音" : "静音"}>
-                    {muted ? <VolumeX size={18} /> : <Volume2 size={18} />}
-                  </button>
-                  <input
-                    className={styles.volumeSlider}
-                    type="range"
-                    min="0"
-                    max="1"
-                    step="0.02"
-                    value={volume}
-                    onChange={(event) => {
-                      setVolume(Number(event.target.value));
-                      setMuted(false);
-                    }}
-                    aria-label="音乐音量"
-                    title="音乐音量"
-                  />
-                </div>
-              ) : null}
-              <button
-                className={`${styles.iconButton} ${quality === "quiet" ? styles.qualityActive : ""}`}
-                type="button"
-                onClick={() => setQuality((current) => (current === "cinematic" ? "quiet" : "cinematic"))}
-                title={quality === "cinematic" ? "切换到简化模式" : "切换到电影模式"}
-                aria-label={quality === "cinematic" ? "切换到简化模式" : "切换到电影模式"}
-              >
-                <Gauge size={18} />
-              </button>
-              <Link className={styles.controlLink} href="/coordinates" title="打开相遇记录" aria-label="打开相遇记录">
-                <Archive size={18} />
-              </Link>
+            <div className={styles.nowPlaying} aria-live="polite">
+              <strong>{activeTrack?.title ?? "私人放映"}</strong>
+              <span>{activeTrack?.artist ?? "Ting & Eric"}</span>
             </div>
           </header>
 
-          <p className={`${styles.chapterStatus} ${!hasAdvanced ? styles.firstHint : ""}`} aria-live="polite">
+          <p className={styles.chapterStatus} aria-live="polite">
             {statusText}
           </p>
-          {navNotice ? <p className={styles.navNotice} role="status">{navNotice}</p> : null}
-          {audioError ? <p className={styles.errorNote}>音乐未能自动开始，请点播放键。</p> : null}
+          {audioError ? <p className={styles.errorNote}>音乐没有自动播放，放映仍会继续。</p> : null}
 
           <article
             key={`${chapter.id}-${timelineRun}`}
             className={`${styles.chapterPanel} ${panelOpen ? "" : styles.chapterPanelHidden} ${playbackState === "playing" ? styles.chapterPanelPlaying : ""}`}
             aria-live="polite"
           >
-            <button className={styles.panelClose} type="button" onClick={() => setPanelOpen(false)} title="收起旁白" aria-label="收起旁白">
-              <X size={16} />
-            </button>
             <div className={styles.chapterMeta}>
               <span>{chapter.index}</span>
               <span>{chapter.label}</span>
@@ -601,62 +335,14 @@ export function LoveStoryExperience() {
             <p className={styles.chapterBody}>{chapter.body}</p>
             <footer className={styles.chapterFooter}>
               <span className={styles.chapterPrompt}>{chapter.prompt}</span>
-              {chapter.action ? (
+              {playbackState === "completed" && activeChapter === lastChapter && chapter.action ? (
                 <Link className={styles.chapterAction} href={chapter.action.href}>
                   {chapter.action.label}
+                  <ArrowRight size={15} strokeWidth={1.6} />
                 </Link>
               ) : null}
             </footer>
           </article>
-
-          {!panelOpen && playbackState !== "transitioning" ? (
-            <button className={styles.reopenPanel} type="button" onClick={() => setPanelOpen(true)}>
-              <Sparkles size={15} />
-              <span>{chapter.label}</span>
-            </button>
-          ) : null}
-
-          <nav className={styles.chapterNav} aria-label="故事章节">
-            <button
-              className={styles.navArrow}
-              type="button"
-              onClick={requestPrevious}
-              disabled={(playbackState !== "settled" && playbackState !== "completed") || activeChapter === 0}
-              title="上一幕"
-              aria-label="上一幕"
-            >
-              <ArrowLeft size={17} />
-            </button>
-            <div className={styles.chapterTrack}>
-              {storyWorld.chapters.map((item, index) => {
-                const viewed = index <= maxViewedChapter;
-                return (
-                  <button
-                    key={item.id}
-                    className={`${styles.chapterDot} ${index === activeChapter ? styles.chapterDotActive : ""} ${viewed ? styles.chapterDotViewed : styles.chapterDotFuture}`}
-                    type="button"
-                    onClick={() => selectViewedChapter(index)}
-                    title={viewed ? `${item.index} ${item.label}` : "故事会带你走到那里"}
-                    aria-label={viewed ? `返回${item.label}` : `${item.label}尚未观看`}
-                    aria-current={index === activeChapter ? "step" : undefined}
-                    aria-disabled={!viewed || isPlaybackLocked(playbackState)}
-                  >
-                    <span />
-                  </button>
-                );
-              })}
-            </div>
-            <button
-              className={`${styles.navArrow} ${styles.nextControl}`}
-              type="button"
-              onClick={requestAdvance}
-              disabled={!controlsUnlocked || activeChapter === lastChapter}
-              title="下一幕"
-              aria-label="下一幕"
-            >
-              <ArrowRight size={17} />
-            </button>
-          </nav>
         </>
       ) : null}
     </main>

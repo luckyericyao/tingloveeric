@@ -177,7 +177,7 @@ export const storyWorld = {
       camera: [11.1, 3, 5.4],
       lookAt: [9.7, 1.2, -2.7],
       action: {
-        label: "打开想去的地方",
+        label: "去世界地图",
         href: "/world",
       },
     },

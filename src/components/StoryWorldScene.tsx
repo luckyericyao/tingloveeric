@@ -1,8 +1,8 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { ContactShadows, Html, RoundedBox, useTexture } from "@react-three/drei";
-import { useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import { Bloom, EffectComposer, Vignette } from "@react-three/postprocessing";
 import * as THREE from "three";
 import { Butterfly3D } from "@/components/Butterfly3D";
@@ -21,7 +21,7 @@ type SceneProps = {
   reducedMotion: boolean;
   playbackState: StoryPlaybackState;
   playbackDirection: StoryPlaybackDirection;
-  onSceneInteraction: () => void;
+  onCatInteraction: () => void;
 };
 
 const rose = "#9f5968";
@@ -181,22 +181,17 @@ function MemoryBeacon({
   chapterIndex,
   active,
   reducedMotion,
-  onSceneInteraction,
 }: {
   chapterIndex: number;
   active: boolean;
   reducedMotion: boolean;
-  onSceneInteraction: () => void;
 }) {
   const chapter = storyWorld.chapters[chapterIndex];
   const group = useRef<THREE.Group>(null);
-  const [hovered, setHovered] = useState(false);
-  const interactionPulse = useRef(0);
 
   useFrame((state, delta) => {
     if (!group.current) return;
-    interactionPulse.current = Math.max(0, interactionPulse.current - delta * 1.8);
-    const targetScale = (active || hovered ? 1.08 : 0.9) + interactionPulse.current * 0.12;
+    const targetScale = active ? 1.08 : 0.9;
     group.current.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 1 - Math.exp(-delta * 7));
     if (!reducedMotion) {
       group.current.position.y = Math.sin(state.clock.elapsedTime * 0.8 + chapterIndex) * 0.045;
@@ -204,24 +199,8 @@ function MemoryBeacon({
     }
   });
 
-  const handlePointer = (event: ThreeEvent<PointerEvent>) => {
-    event.stopPropagation();
-    setHovered(event.type === "pointerover");
-    document.body.style.cursor = event.type === "pointerover" ? "pointer" : "default";
-  };
-
   return (
-    <group
-      ref={group}
-      position={chapter.position}
-      onPointerOver={handlePointer}
-      onPointerOut={handlePointer}
-      onClick={(event) => {
-        event.stopPropagation();
-        onSceneInteraction();
-        interactionPulse.current = 1;
-      }}
-    >
+    <group ref={group} position={chapter.position}>
       <mesh position={[0, 0.08, -0.12]} rotation={[-Math.PI / 2, 0, 0]}>
         <circleGeometry args={[active ? 0.78 : 0.58, 48]} />
         <meshBasicMaterial color={active ? rose : lavender} transparent opacity={active ? 0.12 : 0.045} />
@@ -292,7 +271,7 @@ export function StoryWorldScene({
   reducedMotion,
   playbackState,
   playbackDirection,
-  onSceneInteraction,
+  onCatInteraction,
 }: SceneProps) {
   const quiet = quality === "quiet";
 
@@ -332,7 +311,6 @@ export function StoryWorldScene({
               chapterIndex={chapterIndex}
               active={activeChapter === chapterIndex}
               reducedMotion={reducedMotion}
-              onSceneInteraction={onSceneInteraction}
             />
           );
         })}
@@ -341,13 +319,12 @@ export function StoryWorldScene({
           activeChapter={activeChapter}
           reducedMotion={reducedMotion}
           quiet={quiet}
-          onInteract={onSceneInteraction}
         />
         <CatCompanions
           activeChapter={activeChapter}
           panelOpen={panelOpen}
           reducedMotion={reducedMotion}
-          onInteract={onSceneInteraction}
+          onInteract={onCatInteraction}
         />
       </WorldParallax>
 
