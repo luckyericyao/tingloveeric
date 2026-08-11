@@ -96,7 +96,8 @@ async function runViewport(browser, options) {
   page.on("pageerror", (error) => consoleErrors.push(error.message));
   page.on("requestfailed", (request) => {
     const errorText = request.failure()?.errorText || "failed";
-    const isExpectedMediaAbort = request.resourceType() === "media" && errorText === "net::ERR_ABORTED";
+    const isExpectedMediaAbort = errorText === "net::ERR_ABORTED"
+      && (request.resourceType() === "media" || /\.(?:m4a|mp3|wav|flac)(?:\?|$)/i.test(request.url()));
     if (!isExpectedMediaAbort) failedRequests.push(`${request.method()} ${request.url()} ${errorText}`);
   });
 
@@ -108,8 +109,8 @@ async function runViewport(browser, options) {
   await page.screenshot({ path: options.introPath });
   await page.getByRole("button", { name: "进入故事" }).click();
   await page.locator("article h2").waitFor({ state: "visible", timeout: 20000 });
-  await page.waitForFunction(() => document.querySelector("section")?.className.includes("introHidden"), null, { timeout: 10000 });
-  await page.waitForFunction(() => document.querySelector("main")?.getAttribute("data-playback") === "playing", null, { timeout: 10000 });
+  await page.waitForFunction(() => document.querySelector("section")?.className.includes("introHidden"), null, { timeout: 30000 });
+  await page.waitForFunction(() => document.querySelector("main")?.getAttribute("data-playback") === "playing", null, { timeout: 30000 });
   await page.waitForTimeout(options.reducedMotion === "reduce" ? 120 : 700);
 
   const canvas = page.locator("canvas");

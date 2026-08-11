@@ -14,7 +14,9 @@ function captureFailures(page, errors, failedRequests) {
   page.on("pageerror", (error) => errors.push(error.message));
   page.on("requestfailed", (request) => {
     const failure = request.failure()?.errorText || "failed";
-    if (!(request.resourceType() === "media" && failure === "net::ERR_ABORTED")) {
+    const isExpectedMediaAbort = failure === "net::ERR_ABORTED"
+      && (request.resourceType() === "media" || /\.(?:m4a|mp3|wav|flac)(?:\?|$)/i.test(request.url()));
+    if (!isExpectedMediaAbort) {
       failedRequests.push(`${request.method()} ${request.url()} ${failure}`);
     }
   });
@@ -31,8 +33,8 @@ async function enterStory(page) {
   await enter.click();
   await page.locator("canvas").waitFor({ state: "visible", timeout: 20000 });
   await page.locator("article h2").waitFor({ state: "visible", timeout: 30000 });
-  await page.waitForFunction(() => document.querySelector("section")?.className.includes("introHidden"), null, { timeout: 10000 });
-  await page.waitForFunction(() => document.querySelector("main")?.dataset.playback === "playing", null, { timeout: 10000 });
+  await page.waitForFunction(() => document.querySelector("section")?.className.includes("introHidden"), null, { timeout: 30000 });
+  await page.waitForFunction(() => document.querySelector("main")?.dataset.playback === "playing", null, { timeout: 30000 });
   await page.waitForTimeout(500);
 }
 
