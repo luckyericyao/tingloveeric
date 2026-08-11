@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { WorldMapBoard } from "@/components/WorldMapBoard";
 import { WorldCatCompanions } from "@/components/WorldCatCompanions";
 import { worldMapPlaces } from "@/data/love";
@@ -10,6 +11,8 @@ export const metadata: Metadata = {
 };
 
 export default function WorldPage() {
+  const featuredPlace = worldMapPlaces.find((place) => place.id === "shanghai") ?? worldMapPlaces[0];
+
   return (
     <main className={styles.page}>
       <section className={styles.hero}>
@@ -30,6 +33,18 @@ export default function WorldPage() {
             <span>{worldMapPlaces.filter((place) => place.featured).length} 处世界名片</span>
             <strong>从一张照片开始</strong>
             <p>地图上的每个点，都先替未来保留一个具体的画面。</p>
+            {featuredPlace ? (
+              <figure className={styles.heroPhoto}>
+                <Image
+                  src={featuredPlace.image.src}
+                  alt={featuredPlace.image.alt}
+                  fill
+                  priority
+                  sizes="(max-width: 700px) 100vw, 270px"
+                />
+                <figcaption>{featuredPlace.cityZh} · {featuredPlace.landmark}</figcaption>
+              </figure>
+            ) : null}
           </div>
         </div>
       </section>

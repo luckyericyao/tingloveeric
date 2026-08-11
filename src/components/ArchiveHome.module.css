@@ -1183,3 +1183,331 @@
     min-height: 68svh;
   }
 }
+
+/* Warm private cinema: the homepage keeps one clear visual beat at a time. */
+.home {
+  background: var(--archive-paper);
+  color: var(--archive-ink);
+}
+
+.topbar {
+  min-height: 72px;
+  padding: 12px clamp(18px, 4vw, 52px);
+  border-bottom-color: rgba(255, 250, 246, 0.16);
+  background: rgba(38, 27, 32, 0.58);
+  backdrop-filter: blur(18px);
+}
+
+.brand strong {
+  font-size: 18px;
+}
+
+.brand span {
+  color: rgba(248, 241, 231, 0.62);
+  font-size: 12px;
+}
+
+.privateEntry,
+.iconButton {
+  min-height: 44px;
+  border-color: rgba(248, 241, 231, 0.26);
+  border-radius: var(--archive-radius);
+  background: rgba(38, 27, 32, 0.3);
+}
+
+.privateEntry:hover,
+.iconButton:hover {
+  border-color: var(--archive-rose-soft);
+  background: rgba(173, 104, 116, 0.18);
+}
+
+.hero {
+  min-height: 100svh;
+  background: var(--archive-night);
+}
+
+.heroImage {
+  filter: saturate(0.72) brightness(0.82) contrast(1.04);
+}
+
+.heroVeil {
+  background:
+    linear-gradient(90deg, rgba(33, 22, 28, 0.88), rgba(33, 22, 28, 0.34) 48%, rgba(33, 22, 28, 0.16)),
+    linear-gradient(180deg, rgba(31, 21, 27, 0.18), transparent 45%, rgba(31, 21, 27, 0.68));
+}
+
+.heroScrapbook {
+  top: 14vh;
+  right: clamp(24px, 7vw, 110px);
+  width: min(280px, 22vw);
+  height: min(430px, 58svh);
+}
+
+.heroPrint {
+  padding: 9px 9px 12px;
+  border: 1px solid rgba(255, 250, 246, 0.26);
+  border-radius: var(--archive-radius);
+  background: #fffaf5;
+  box-shadow: var(--archive-shadow-deep);
+}
+
+.heroPrintWorld {
+  top: 16%;
+  right: 0;
+  width: 82%;
+  transform: rotate(3deg);
+}
+
+.heroPrint figcaption {
+  padding-top: 10px;
+  color: var(--archive-ink);
+}
+
+.heroPrint figcaption strong {
+  font-size: 14px;
+}
+
+.heroPrint figcaption span {
+  color: var(--archive-muted);
+  font-size: 11px;
+}
+
+.heroCopy {
+  width: min(570px, 48vw);
+  max-width: 570px;
+}
+
+.heroKicker,
+.eyebrow {
+  color: var(--archive-rose-soft);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+}
+
+.hero h1 {
+  max-width: 8em;
+  margin-top: 1rem;
+  color: #fffaf4;
+  font-size: clamp(3.8rem, 6vw, 5.8rem);
+  line-height: 1.02;
+}
+
+.positioning {
+  margin-top: 1.5rem;
+  color: #fffaf4;
+  font-size: clamp(1.45rem, 2vw, 2rem);
+  line-height: 1.55;
+}
+
+.heroBody {
+  max-width: 430px;
+  margin-top: 1.5rem;
+  color: rgba(255, 250, 244, 0.72);
+  font-size: 15px;
+  line-height: 1.9;
+}
+
+.heroSweetLine {
+  margin-top: 1.25rem;
+  color: #f0cfd1;
+  font-family: var(--font-serif-elegant);
+  font-size: 17px;
+  line-height: 1.8;
+}
+
+.heroTimeline span,
+.scrollHint {
+  color: rgba(255, 250, 244, 0.62);
+  font-size: 12px;
+}
+
+.scrollCue {
+  border-color: rgba(255, 250, 244, 0.3);
+  border-radius: var(--archive-radius);
+  background: rgba(38, 27, 32, 0.24);
+}
+
+.archiveBeat {
+  background: var(--archive-paper);
+}
+
+.timelineIntro {
+  padding-top: clamp(7rem, 12vw, 11rem);
+  padding-bottom: clamp(6rem, 10vw, 9rem);
+  background: linear-gradient(180deg, var(--archive-paper), #f5e9e2);
+}
+
+.timelineIntro h2,
+.tenderBand h2,
+.closing h2 {
+  font-size: clamp(3rem, 5vw, 5.1rem);
+  line-height: 1.12;
+}
+
+.timelineIntro .measure > p:last-child,
+.momentCopy > p:last-child,
+.tenderCopy > p,
+.closingInner > p:not(.eyebrow) {
+  font-size: 16px;
+  line-height: 1.95;
+}
+
+.timelineIndex em,
+.photoWrap figcaption,
+.tenderFragment span,
+.tenderFragment p {
+  font-size: 12px;
+}
+
+.timeline {
+  background: #f8eee8;
+}
+
+.moment:nth-child(even) {
+  background: #f2e6df;
+}
+
+.moment {
+  min-height: 82svh;
+  border-bottom-color: rgba(173, 104, 116, 0.16);
+}
+
+.timelineMarker {
+  border-color: rgba(173, 104, 116, 0.45);
+  background: #f8eee8;
+  color: var(--archive-rose);
+}
+
+.moment:nth-child(even) .timelineMarker {
+  background: #f2e6df;
+}
+
+.photoFrame {
+  border: 8px solid #fffaf5;
+  border-radius: var(--archive-radius);
+  box-shadow: var(--archive-shadow);
+}
+
+.timelineImage {
+  filter: saturate(0.9) contrast(1.02);
+}
+
+.momentCopy h3 {
+  font-size: clamp(2.6rem, 4.4vw, 4.2rem);
+  line-height: 1.18;
+}
+
+.momentCopy blockquote {
+  color: var(--archive-rose);
+  font-size: 22px;
+}
+
+.tenderBand {
+  background: var(--archive-night);
+}
+
+.tenderBand .eyebrow {
+  color: #e5bac0;
+}
+
+.tenderCopy > p,
+.tenderLead {
+  color: rgba(255, 250, 244, 0.72);
+}
+
+.tenderFragment {
+  border: 1px solid rgba(42, 32, 34, 0.12);
+  border-radius: var(--archive-radius);
+  box-shadow: 0 18px 42px rgba(20, 12, 17, 0.18);
+}
+
+.closing {
+  min-height: 70svh;
+  background: linear-gradient(135deg, #ead5d4, #f6ebe4 66%, #e4dfec);
+}
+
+.primaryAction,
+.secondaryAction {
+  min-height: 48px;
+  border-radius: var(--archive-radius);
+  font-size: 14px;
+}
+
+.primaryAction {
+  background: var(--archive-ink);
+}
+
+.secondaryAction {
+  border-color: rgba(42, 32, 34, 0.32);
+}
+
+@media (max-width: 767px) {
+  .topbar {
+    min-height: 64px;
+    padding: 8px 14px;
+  }
+
+  .brand strong {
+    font-size: 15px;
+  }
+
+  .brand span {
+    font-size: 10px;
+  }
+
+  .heroCopy {
+    width: calc(100% - 20px);
+  }
+
+  .hero h1 {
+    max-width: 100%;
+    font-size: 3rem;
+  }
+
+  .positioning {
+    font-size: 1.35rem;
+  }
+
+  .heroBody {
+    font-size: 14px;
+  }
+
+  .heroSweetLine {
+    font-size: 16px;
+  }
+
+  .heroScrapbook {
+    top: 104px;
+    right: -12px;
+    width: 212px;
+    height: 286px;
+  }
+
+  .heroPrintWorld {
+    width: 88%;
+  }
+
+  .timelineIntro h2,
+  .tenderBand h2,
+  .closing h2 {
+    font-size: 3rem;
+  }
+
+  .timelineIntro .measure > p:last-child,
+  .momentCopy > p:last-child,
+  .tenderCopy > p,
+  .closingInner > p:not(.eyebrow) {
+    font-size: 15px;
+  }
+
+  .timelineIndex em,
+  .photoWrap figcaption,
+  .tenderFragment span,
+  .tenderFragment p {
+    font-size: 12px;
+  }
+
+  .momentCopy h3 {
+    font-size: 2.55rem;
+  }
+}

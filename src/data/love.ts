@@ -101,23 +101,23 @@ export const importantDates = {
 
 const hanniArchive: ImageAsset = {
   id: "hanni-archive",
-  src: "/images/coordinates/hanni-2025-01-27.jpg",
-  alt: "2025 年 1 月 27 日暖色灯光中的旧自拍动态",
+  src: "/images/edited/hanni-portrait.jpg",
+  alt: "2025 年 1 月 27 日暖色灯光中的自拍画面",
   caption: "那时候她叫 Hanni。",
   category: "verified Soul archive",
 };
 
 const herWorldArchive: ImageAsset = {
   id: "her-world-archive",
-  src: "/images/coordinates/her-world-2025-01-29.jpg",
-  alt: "2025 年 1 月 29 日猫、鱼缸和发财树组成的旧动态",
+  src: "/images/edited/her-world.jpg",
+  alt: "2025 年 1 月 29 日猫、鱼缸和发财树组成的生活画面",
   caption: "一只猫，一缸鱼，一盆发财树。",
   category: "verified Soul archive",
 };
 
 const cpCottageArchive: ImageAsset = {
   id: "cp-cottage-archive",
-  src: "/images/coordinates/cp-cottage.jpg",
+  src: "/images/edited/cp-cottage-relic.jpg",
   alt: "后来保存下来的线上关系记录截图",
   caption: "一张历史截图，不是现在的关系状态。",
   category: "verified relationship record",
@@ -125,16 +125,16 @@ const cpCottageArchive: ImageAsset = {
 
 const nonoArchive: ImageAsset = {
   id: "nono-archive",
-  src: "/images/coordinates/nono-nine-grid.jpg",
-  alt: "灰白重点色猫咪诺诺的九宫格照片",
+  src: "/assets/cats/nono-front.webp",
+  alt: "灰白重点色猫咪诺诺的正面肖像",
   caption: "诺诺 · Nono，脸部和耳朵带明显灰色重点色。",
   category: "verified cat reference",
 };
 
 const xiaoyiArchive: ImageAsset = {
   id: "xiaoyi-archive",
-  src: "/images/coordinates/xiaoyi-nine-grid.jpg",
-  alt: "银白色猫咪小伊的九宫格照片",
+  src: "/assets/cats/xiaoyi-front.webp",
+  alt: "银白色猫咪小伊的正面肖像",
   caption: "小伊 · Xiaoyi，整体偏纯白与银白。",
   category: "verified cat reference",
 };
@@ -267,8 +267,8 @@ export const timelineEvents: TimelineEvent[] = [
       "一张写着“小疯子”的自拍。那时故事还没有开始，所有事情都仍然拥有无限可能。",
     image: {
       id: "hanni-portrait",
-      src: "/images/coordinates/hanni-2025-01-27.jpg",
-      alt: "2025 年 1 月 27 日暖色灯光中的旧自拍动态",
+      src: "/images/edited/hanni-portrait.jpg",
+      alt: "2025 年 1 月 27 日暖色灯光中的自拍画面",
       caption: "那时候她叫 Hanni。",
       category: "verified Soul archive",
     },
@@ -283,8 +283,8 @@ export const timelineEvents: TimelineEvent[] = [
       "一只猫，一缸鱼，一盆发财树。这是我最早看见的、属于她的生活。照片里的猫当时尚未确认身份，因此不擅自命名。",
     image: {
       id: "her-world",
-      src: "/images/coordinates/her-world-2025-01-29.jpg",
-      alt: "2025 年 1 月 29 日猫、鱼缸和发财树组成的旧动态",
+      src: "/images/edited/her-world.jpg",
+      alt: "2025 年 1 月 29 日猫、鱼缸和发财树组成的生活画面",
       caption: "一只猫，一缸鱼，一盆发财树。",
       category: "verified Soul archive",
     },
@@ -299,7 +299,7 @@ export const timelineEvents: TimelineEvent[] = [
       "我在纸上写她的名字，认真帮她修改简历，也把工作、吃饭和一天里的小事讲给她听。一次短通话、一个“真棒”、一句“晚安～”，让陌生慢慢有了温度。",
     image: {
       id: "tender-replies",
-      src: "/images/coordinates/cp-cottage.jpg",
+      src: "/images/edited/cp-cottage-relic.jpg",
       alt: "被保存下来的线上关系记录截图",
       caption: "这些小小的回应不能定义整段关系，但它们真实发生过。",
       category: "verified relationship record",

@@ -130,3 +130,75 @@
     animation: none;
   }
 }
+
+.companions {
+  opacity: 0.98;
+}
+
+.cat {
+  width: min(22vw, 300px);
+}
+
+.xiaoye {
+  width: min(23vw, 316px);
+}
+
+.catImage {
+  filter: drop-shadow(0 22px 18px rgba(75, 54, 55, 0.16));
+}
+
+.cat figcaption {
+  right: 7px;
+  bottom: 20px;
+}
+
+.cat figcaption strong {
+  color: var(--archive-ink, #2a2022);
+  font-size: 20px;
+}
+
+.cat figcaption span {
+  color: var(--archive-muted, #75686a);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+}
+
+@media (max-width: 1100px) and (min-width: 701px) {
+  .cat {
+    width: 208px;
+  }
+
+  .xiaoye {
+    width: 224px;
+  }
+}
+
+@media (max-width: 700px) {
+  .companions {
+    height: 176px;
+    margin-top: 0;
+  }
+
+  .cat {
+    width: 43vw;
+    max-width: 182px;
+  }
+
+  .xiaoye {
+    width: 44vw;
+    max-width: 190px;
+  }
+
+  .cat figcaption {
+    right: 5px;
+    bottom: 8px;
+  }
+
+  .cat figcaption strong {
+    font-size: 16px;
+  }
+
+  .cat figcaption span {
+    font-size: 10px;
+  }
+}

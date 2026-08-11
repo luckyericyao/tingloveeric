@@ -68,7 +68,7 @@ function CinematicRig({
 }
 
 function CoordinatesArtifact() {
-  const texture = useTexture("/images/coordinates/cp-cottage.jpg");
+  const texture = useTexture("/images/edited/cp-cottage-relic.jpg");
 
   return (
     <group position={[0, 1.08, 0]} rotation={[0.02, -0.16, -0.035]}>
@@ -108,18 +108,18 @@ function BookArtifact() {
 }
 
 function CatsArtifact() {
-  const nono = useTexture("/images/coordinates/nono-nine-grid.jpg");
-  const xiaoyi = useTexture("/images/coordinates/xiaoyi-nine-grid.jpg");
+  const nono = useTexture("/assets/cats/nono-front.webp");
+  const xiaoyi = useTexture("/assets/cats/xiaoyi-front.webp");
 
   return (
     <group position={[0, 1.02, 0]} rotation={[0.02, -0.1, 0]}>
       <mesh position={[-0.44, 0, 0]}>
-        <planeGeometry args={[0.72, 0.92]} />
-        <meshBasicMaterial map={nono} toneMapped={false} />
+        <planeGeometry args={[0.68, 1.02]} />
+        <meshBasicMaterial map={nono} transparent alphaTest={0.035} depthWrite={false} toneMapped={false} />
       </mesh>
       <mesh position={[0.44, 0.04, 0.03]} rotation={[0.01, 0.04, 0]}>
-        <planeGeometry args={[0.72, 0.92]} />
-        <meshBasicMaterial map={xiaoyi} toneMapped={false} />
+        <planeGeometry args={[0.72, 0.89]} />
+        <meshBasicMaterial map={xiaoyi} transparent alphaTest={0.035} depthWrite={false} toneMapped={false} />
       </mesh>
       <mesh position={[0, -0.53, -0.02]}>
         <boxGeometry args={[1.72, 0.08, 0.16]} />
@@ -257,15 +257,15 @@ function RoomBackdrop({ quiet }: { quiet: boolean }) {
     <group>
       <mesh receiveShadow rotation={[-Math.PI / 2, 0, 0]} position={[4, -0.05, -2.7]}>
         <planeGeometry args={[34, 13]} />
-        <meshStandardMaterial color="#28202a" roughness={0.98} metalness={0.02} />
+        <meshStandardMaterial color="#3a2831" roughness={0.98} metalness={0.02} />
       </mesh>
       <mesh position={[4, 4, -9.4]}>
         <planeGeometry args={[34, 12]} />
-        <meshStandardMaterial color="#3a2931" roughness={1} metalness={0} />
+        <meshStandardMaterial color="#4a303b" roughness={1} metalness={0} />
       </mesh>
       <mesh position={[4.8, 3.8, -9.15]}>
         <planeGeometry args={[7.2, 4.6]} />
-        <meshBasicMaterial color="#8e626e" transparent opacity={quiet ? 0.12 : 0.19} />
+        <meshBasicMaterial color="#b77984" transparent opacity={quiet ? 0.1 : 0.15} />
       </mesh>
       <mesh position={[1.2, 2.1, -9.08]}>
         <boxGeometry args={[0.045, 4.4, 0.08]} />
@@ -279,7 +279,7 @@ function RoomBackdrop({ quiet }: { quiet: boolean }) {
         <boxGeometry args={[7.2, 0.045, 0.08]} />
         <meshStandardMaterial color="#b28a79" roughness={0.72} />
       </mesh>
-      <pointLight position={[4.8, 3.7, -7.6]} color="#c9948e" intensity={quiet ? 0.55 : 0.9} distance={9} />
+      <pointLight position={[4.8, 3.7, -7.6]} color="#e0a6a5" intensity={quiet ? 0.42 : 0.68} distance={9} />
     </group>
   );
 }
@@ -298,8 +298,8 @@ export function StoryWorldScene({
 
   return (
     <>
-      <color attach="background" args={["#171319"]} />
-      <fog attach="fog" args={["#171319", 8, quiet ? 27 : 38]} />
+      <color attach="background" args={["#2a1e26"]} />
+      <fog attach="fog" args={["#2a1e26", 9, quiet ? 27 : 38]} />
       <CinematicRig
         activeChapter={activeChapter}
         started={started}
@@ -308,18 +308,18 @@ export function StoryWorldScene({
         playbackDirection={playbackDirection}
       />
 
-      <ambientLight intensity={0.58} color="#c4aeb0" />
+      <ambientLight intensity={0.72} color="#e0c0bd" />
       <directionalLight
         castShadow={!quiet}
         position={[3, 8, 6]}
-        intensity={1.06}
-        color="#f5dcc8"
+        intensity={1.12}
+        color="#f7d6c1"
         shadow-mapSize-width={quiet ? 512 : 1024}
         shadow-mapSize-height={quiet ? 512 : 1024}
       />
-      <directionalLight position={[-4, 3.2, -6]} intensity={0.34} color="#b5bfd3" />
-      <pointLight position={[-5, 4, 1]} color="#d5b7c0" intensity={1.3} distance={15} />
-      <pointLight position={[7, 3, 0]} color="#b999a6" intensity={1.15} distance={13} />
+      <directionalLight position={[-4, 3.2, -6]} intensity={0.22} color="#c6c5db" />
+      <pointLight position={[-5, 4, 1]} color="#e0a6b0" intensity={0.82} distance={15} />
+      <pointLight position={[7, 3, 0]} color="#bd9caf" intensity={0.72} distance={13} />
 
       <WorldParallax reducedMotion={reducedMotion}>
         <RoomBackdrop quiet={quiet} />
@@ -354,17 +354,17 @@ export function StoryWorldScene({
       <ContactShadows
         position={[4, 0, -2.5]}
         scale={32}
-        opacity={quiet ? 0.16 : 0.24}
-        blur={quiet ? 2.6 : 2.05}
+        opacity={quiet ? 0.18 : 0.32}
+        blur={quiet ? 2.8 : 2.25}
         far={9}
         resolution={quiet ? 256 : 512}
-        color="#020307"
+        color="#1b1118"
       />
 
       {!quiet ? (
         <EffectComposer multisampling={2}>
-          <Bloom mipmapBlur intensity={0.16} luminanceThreshold={0.94} luminanceSmoothing={0.32} />
-          <Vignette eskil={false} offset={0.24} darkness={0.48} />
+          <Bloom mipmapBlur intensity={0.08} luminanceThreshold={0.97} luminanceSmoothing={0.36} />
+          <Vignette eskil={false} offset={0.28} darkness={0.32} />
         </EffectComposer>
       ) : null}
     </>

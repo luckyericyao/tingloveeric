@@ -62,18 +62,18 @@ const VIEW_ORDER = ["front", "left", "right", "blink"] as const;
 
 const CAT_STAGE_LAYOUT = {
   desktop: {
-    depth: 3.55,
-    openY: -0.24,
-    closedY: -0.34,
-    xiaoyi: { xOpen: -2.7, xClosed: -2.45, y: 1.4, z: 0.12, scaleOpen: 2.25, scaleClosed: 2.25, yaw: THREE.MathUtils.degToRad(10) },
-    nono: { xOpen: 2.62, xClosed: 2.62, y: -1, z: 0, scaleOpen: 4.6, scaleClosed: 4.6, yaw: THREE.MathUtils.degToRad(-9) },
+    depth: 3.05,
+    openY: -0.12,
+    closedY: -0.22,
+    xiaoyi: { xOpen: -2.22, xClosed: -2.08, y: 0.18, z: 0.12, scaleOpen: 1.94, scaleClosed: 2.02, yaw: THREE.MathUtils.degToRad(9) },
+    nono: { xOpen: 2.14, xClosed: 2.08, y: 0.12, z: 0.18, scaleOpen: 2.42, scaleClosed: 2.5, yaw: THREE.MathUtils.degToRad(-9) },
   },
   mobile: {
-    depth: 2.2,
-    openY: 0.76,
-    closedY: -0.7,
-    xiaoyi: { xOpen: -0.75, xClosed: -0.9, y: 0.1, z: 0.08, scaleOpen: 2.5, scaleClosed: 3.2, yaw: THREE.MathUtils.degToRad(9) },
-    nono: { xOpen: 0.7, xClosed: 0.9, y: -0.35, z: 0, scaleOpen: 2.65, scaleClosed: 3.65, yaw: THREE.MathUtils.degToRad(-10) },
+    depth: 1.95,
+    openY: 0.22,
+    closedY: 0.04,
+    xiaoyi: { xOpen: -0.92, xClosed: -0.98, y: 0.48, z: 0.08, scaleOpen: 1.48, scaleClosed: 1.54, yaw: THREE.MathUtils.degToRad(9) },
+    nono: { xOpen: 0.92, xClosed: 0.98, y: 0.38, z: 0.06, scaleOpen: 1.62, scaleClosed: 1.68, yaw: THREE.MathUtils.degToRad(-10) },
   },
 } as const;
 
@@ -295,7 +295,7 @@ export function CatSprite3D({
     }
 
     if (shadowMaterial.current) {
-      shadowMaterial.current.opacity = (identity === "nono" ? 0.48 : 0.43) * reveal.current;
+      shadowMaterial.current.opacity = (identity === "nono" ? 0.58 : 0.52) * reveal.current;
     }
 
     const breathing = reducedMotion ? 0 : Math.sin(now * 1.22 + seed) * 0.5 + 0.5;
@@ -354,7 +354,7 @@ export function CatSprite3D({
             interactionRequested.current = true;
           }}
         >
-          <planeGeometry args={[layout.width * 0.58, layout.height * 0.78]} />
+        <planeGeometry args={[layout.width * 0.78, layout.height * 0.9]} />
           <meshBasicMaterial transparent opacity={0} depthWrite={false} colorWrite={false} />
         </mesh>
         {textures.map((texture, index) => (
@@ -368,7 +368,7 @@ export function CatSprite3D({
                 color={identity === "nono" ? "#8c8790" : "#9c958f"}
                 transparent
                 opacity={0}
-                alphaTest={0.012}
+                alphaTest={0.035}
                 depthWrite={false}
                 side={THREE.DoubleSide}
               />
@@ -382,7 +382,7 @@ export function CatSprite3D({
                 color={layout.tint}
                 transparent
                 opacity={0}
-                alphaTest={0.018}
+                alphaTest={0.035}
                 depthWrite={false}
                 side={THREE.DoubleSide}
               />

@@ -39,15 +39,8 @@ const homeMoments = [
 
 const heroPrints = [
   {
-    source: "/images/coordinates/hanni-2025-01-27.jpg",
-    alt: "旧动态里的暖色自拍画面",
-    label: "小疯子",
-    date: "2025.01.27",
-    className: "heroPrintPortrait",
-  },
-  {
-    source: "/images/coordinates/her-world-2025-01-29.jpg",
-    alt: "猫、鱼缸和发财树组成的旧动态画面",
+    source: "/images/edited/her-world.jpg",
+    alt: "猫、鱼缸和发财树组成的生活画面",
     label: "她的小世界",
     date: "2025.01.29",
     className: "heroPrintWorld",
