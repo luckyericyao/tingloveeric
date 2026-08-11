@@ -26,6 +26,7 @@ async function enterStory(page) {
   await page.goto(storyURL, { waitUntil: "domcontentloaded" });
   const enter = page.getByRole("button", { name: "进入故事" });
   await enter.waitFor({ state: "visible" });
+  const openingAudioSource = await page.locator("audio").evaluate((audio) => audio.currentSrc);
   await page.waitForFunction(() => {
     const button = Array.from(document.querySelectorAll("button")).find((item) => item.textContent?.includes("进入故事"));
     return button && !button.disabled;
@@ -33,9 +34,10 @@ async function enterStory(page) {
   await enter.click();
   await page.locator("canvas").waitFor({ state: "visible", timeout: 20000 });
   await page.locator("article h2").waitFor({ state: "visible", timeout: 30000 });
-  await page.waitForFunction(() => document.querySelector("section")?.className.includes("introHidden"), null, { timeout: 30000 });
+  await page.waitForFunction(() => document.querySelector("[aria-label='甜蜜的序幕']")?.className.includes("preludeHidden"), null, { timeout: 30000 });
   await page.waitForFunction(() => document.querySelector("main")?.dataset.playback === "playing", null, { timeout: 30000 });
   await page.waitForTimeout(500);
+  return openingAudioSource;
 }
 
 async function storyState(page) {
@@ -88,7 +90,7 @@ async function runJourney(browser, viewport, touch = false) {
   const errors = [];
   const failedRequests = [];
   captureFailures(page, errors, failedRequests);
-  await enterStory(page);
+  const openingAudioSource = await enterStory(page);
 
   const audioSource = await page.locator("audio").evaluate((audio) => audio.currentSrc);
   const visibleButtonsBeforeFinish = await page.locator("main").evaluate((main) => Array.from(main.querySelectorAll("button")).filter((button) => {
@@ -110,7 +112,7 @@ async function runJourney(browser, viewport, touch = false) {
   const worldLink = await page.getByRole("link", { name: "去世界地图" }).isVisible();
   await page.screenshot({ path: touch ? "/tmp/ting-story-controlled-finale-mobile.png" : "/tmp/ting-story-controlled-finale-desktop.png", timeout: 90000 });
 
-  const result = { audioSource, visibleButtonsBeforeFinish, gestures, finale, worldLink, errors, failedRequests };
+  const result = { openingAudioSource, audioSource, visibleButtonsBeforeFinish, gestures, finale, worldLink, errors, failedRequests };
   await context.close();
   return result;
 }
@@ -148,6 +150,7 @@ try {
   const failures = [];
 
   for (const [label, item] of [["desktop", desktop], ["mobile", mobile]]) {
+    if (item.openingAudioSource && !item.openingAudioSource.includes("jiu-shi-ai-ni")) failures.push(`${label} did not start with the opening theme song`);
     if (item.audioSource && !item.audioSource.includes("wo-shi-yi-zhi-yu")) failures.push(`${label} did not start the story theme song`);
     if (item.visibleButtonsBeforeFinish !== 0) failures.push(`${label} exposed non-cat controls during film`);
     if (!item.gestures.unchanged) failures.push(`${label} gesture changed the controlled film`);

@@ -103,13 +103,14 @@ async function runViewport(browser, options) {
 
   await waitForIntro(page);
   const audioBeforeEntry = await page.locator("audio").evaluate((audio) => ({
+    src: audio.currentSrc,
     paused: audio.paused,
     currentTime: audio.currentTime,
   }));
   await page.screenshot({ path: options.introPath });
   await page.getByRole("button", { name: "进入故事" }).click();
   await page.locator("article h2").waitFor({ state: "visible", timeout: 20000 });
-  await page.waitForFunction(() => document.querySelector("section")?.className.includes("introHidden"), null, { timeout: 30000 });
+  await page.waitForFunction(() => document.querySelector("[aria-label='甜蜜的序幕']")?.className.includes("preludeHidden"), null, { timeout: 30000 });
   await page.waitForFunction(() => document.querySelector("main")?.getAttribute("data-playback") === "playing", null, { timeout: 30000 });
   await page.waitForTimeout(options.reducedMotion === "reduce" ? 120 : 700);
 

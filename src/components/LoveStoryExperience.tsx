@@ -6,6 +6,7 @@ import dynamic from "next/dynamic";
 import { ArrowRight } from "lucide-react";
 import { useCallback, useEffect, useRef, useState, type SyntheticEvent } from "react";
 import { storyWorld } from "@/data/storyWorld";
+import { CinemaPrelude } from "@/components/CinemaPrelude";
 import type {
   RenderQuality,
   StoryPlaybackDirection,
@@ -21,6 +22,8 @@ const StoryWorldCanvas = dynamic(
 const FORWARD_TRANSITION_MS = 1700;
 const DEFAULT_MUSIC_DURATION_SECONDS = 254.4;
 const FILM_CHAPTER_CUE_RATIOS = [0, 0.14, 0.3, 0.47, 0.65, 0.82] as const;
+const PRELUDE_DURATION_SECONDS = 60;
+const PRELUDE_ENTRY_SECONDS = 54;
 
 function detectWebGL() {
   try {
@@ -44,6 +47,8 @@ export function LoveStoryExperience() {
   const [playbackDirection, setPlaybackDirection] = useState<StoryPlaybackDirection>("forward");
   const [timelineRun, setTimelineRun] = useState(0);
   const [audioError, setAudioError] = useState(false);
+  const [openingAudioBlocked, setOpeningAudioBlocked] = useState(false);
+  const [preludeSeconds, setPreludeSeconds] = useState(0);
   const [activeTrackIndex, setActiveTrackIndex] = useState(0);
   const experienceRef = useRef<HTMLElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -57,7 +62,6 @@ export function LoveStoryExperience() {
   const availableTracks = storyWorld.music.tracks.filter((track) => track.available);
   const activeTrack = availableTracks[activeTrackIndex] ?? null;
   const storyTrackIndex = availableTracks.findIndex((track) => track.id === "wo-shi-yi-zhi-yu");
-  const musicAvailable = activeTrack !== null;
   const lastChapter = storyWorld.chapters.length - 1;
 
   const setPlayback = useCallback((state: StoryPlaybackState) => {
@@ -118,15 +122,31 @@ export function LoveStoryExperience() {
   }, []);
 
   useEffect(() => {
+    if (started) return;
+    const startedAt = performance.now();
+    const timer = window.setInterval(() => {
+      const elapsed = Math.min(
+        PRELUDE_DURATION_SECONDS,
+        Math.floor((performance.now() - startedAt) / 1000),
+      );
+      setPreludeSeconds(elapsed);
+      if (elapsed >= PRELUDE_DURATION_SECONDS) window.clearInterval(timer);
+    }, 250);
+
+    return () => window.clearInterval(timer);
+  }, [started]);
+
+  useEffect(() => {
     const audio = audioRef.current;
     if (!audio || !activeTrack) return;
     if (!started) {
       audio.load();
       void audio.play().then(() => {
+        setOpeningAudioBlocked(false);
         setAudioError(false);
       }).catch(() => {
-        if (!started || !audio.paused) return;
-        setAudioError(true);
+        if (started || !audio.paused) return;
+        setOpeningAudioBlocked(true);
       });
     }
   }, [activeTrack, started]);
@@ -155,6 +175,7 @@ export function LoveStoryExperience() {
     setStarted(true);
     setPanelOpen(true);
     setAudioError(false);
+    setOpeningAudioBlocked(false);
     filmStartedRef.current = false;
     const nextTrackIndex = storyTrackIndex >= 0 ? storyTrackIndex : 0;
     const nextTrack = availableTracks[nextTrackIndex] ?? null;
@@ -174,6 +195,18 @@ export function LoveStoryExperience() {
         return;
       }
       setAudioError(true);
+    }
+  };
+
+  const playOpeningAudio = async () => {
+    const audio = audioRef.current;
+    if (!audio || started) return;
+    try {
+      audio.volume = 0.26;
+      await audio.play();
+      setOpeningAudioBlocked(false);
+    } catch {
+      setOpeningAudioBlocked(true);
     }
   };
 
@@ -233,9 +266,13 @@ export function LoveStoryExperience() {
         src={activeTrack?.src}
         autoPlay
         preload="auto"
-        onPlay={() => setAudioError(false)}
+        onPlay={() => {
+          setAudioError(false);
+          if (!started) setOpeningAudioBlocked(false);
+        }}
         onError={() => {
           if (started) setAudioError(true);
+          else setOpeningAudioBlocked(true);
         }}
         onLoadedMetadata={(event) => {
           if (Number.isFinite(event.currentTarget.duration) && event.currentTarget.duration > 0) {
@@ -266,35 +303,16 @@ export function LoveStoryExperience() {
 
       <div className={styles.sceneVeil} aria-hidden="true" />
 
-      <section
-        className={`${styles.intro} ${started && sceneReady ? styles.introHidden : ""}`}
-        aria-hidden={started && sceneReady}
-      >
-        <div className={styles.introContent}>
-          <div className={styles.introLine} aria-hidden="true" />
-          <p className={styles.introEyebrow}>私人放映 · 第一幕</p>
-          <h1>{storyWorld.title}</h1>
-          <p className={styles.introSubtitle}>{storyWorld.subtitle}</p>
-          <div className={styles.loadingTrack} aria-hidden="true">
-            <div
-              className={`${styles.loadingFill} ${sceneReady || (!started && webglSupported !== null) ? styles.loadingReady : ""}`}
-            />
-          </div>
-          <p className={styles.loadingText}>
-            {sceneReady || (!started && webglSupported !== null) ? "夜色已经准备好" : "正在点亮记忆"}
-          </p>
-          <button
-            className={styles.enterButton}
-            type="button"
-            onClick={startStory}
-            disabled={webglSupported === null || started}
-          >
-            <span>{started ? "正在进入" : "进入故事"}</span>
-            <ArrowRight size={16} strokeWidth={1.5} />
-          </button>
-          {musicAvailable ? <p className={styles.audioNote}>进入后，《我是一只鱼》会陪你走完这段放映。</p> : null}
-        </div>
-      </section>
+      <CinemaPrelude
+        progress={preludeSeconds / PRELUDE_DURATION_SECONDS}
+        ready={preludeSeconds >= PRELUDE_ENTRY_SECONDS}
+        started={started}
+        entryAvailable={webglSupported !== null}
+        openingAudioBlocked={openingAudioBlocked}
+        ariaHidden={started && sceneReady}
+        onPlayOpeningAudio={playOpeningAudio}
+        onEnter={startStory}
+      />
 
       {started && sceneReady ? (
         <>
