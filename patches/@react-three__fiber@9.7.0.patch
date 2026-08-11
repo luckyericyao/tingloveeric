@@ -1,0 +1,177 @@
+diff --git a/dist/events-156d8d12.esm.js b/dist/events-156d8d12.esm.js
+index 9681d0c62238d67f2d5ad389307dfd45ee8ba7ba..e9f9806d84546e2f03017fa1fa76db5968c955a2 100644
+--- a/dist/events-156d8d12.esm.js
++++ b/dist/events-156d8d12.esm.js
+@@ -7,6 +7,45 @@ import Tb, { unstable_getCurrentPriorityLevel, unstable_IdlePriority, unstable_L
+ import { jsx, Fragment } from 'react/jsx-runtime';
+ import { useFiber, useContextBridge, traverseFiber } from 'its-fine';
+ 
++// Three r183 deprecated Clock, while R3F still expects its legacy clock shape.
++// Keep the R3F-compatible API without emitting a deprecation warning.
++class TimerClock {
++  constructor(autoStart = true) {
++    this.autoStart = autoStart;
++    this.startTime = 0;
++    this.oldTime = 0;
++    this.elapsedTime = 0;
++    this.running = false;
++  }
++  start() {
++    this.startTime = performance.now();
++    this.oldTime = this.startTime;
++    this.elapsedTime = 0;
++    this.running = true;
++  }
++  stop() {
++    this.getElapsedTime();
++    this.running = false;
++    this.autoStart = false;
++  }
++  getElapsedTime() {
++    this.getDelta();
++    return this.elapsedTime;
++  }
++  getDelta() {
++    if (this.autoStart && !this.running) {
++      this.start();
++      return 0;
++    }
++    if (!this.running) return 0;
++    const now = performance.now();
++    const delta = (now - this.oldTime) / 1000;
++    this.oldTime = now;
++    this.elapsedTime += delta;
++    return delta;
++  }
++}
++
+ var threeTypes = /*#__PURE__*/Object.freeze({
+   __proto__: null
+ });
+@@ -1013,7 +1052,7 @@ const createStore = (invalidate, advance) => {
+       linear: false,
+       flat: false,
+       controls: null,
+-      clock: new THREE.Clock(),
++      clock: new TimerClock(),
+       pointer,
+       mouse: pointer,
+       frameloop: 'always',
+diff --git a/dist/events-4c71f21f.cjs.prod.js b/dist/events-4c71f21f.cjs.prod.js
+index 65e702ef67d954387307b168529752690a586fd0..c17e7aac2d30cf2a07fbe5574674e7cd93a15346 100644
+--- a/dist/events-4c71f21f.cjs.prod.js
++++ b/dist/events-4c71f21f.cjs.prod.js
+@@ -8,6 +8,45 @@ var Tb = require('scheduler');
+ var jsxRuntime = require('react/jsx-runtime');
+ var itsFine = require('its-fine');
+ 
++// Three r183 deprecated Clock, while R3F still expects its legacy clock shape.
++// Keep the R3F-compatible API without emitting a deprecation warning.
++class TimerClock {
++  constructor(autoStart = true) {
++    this.autoStart = autoStart;
++    this.startTime = 0;
++    this.oldTime = 0;
++    this.elapsedTime = 0;
++    this.running = false;
++  }
++  start() {
++    this.startTime = performance.now();
++    this.oldTime = this.startTime;
++    this.elapsedTime = 0;
++    this.running = true;
++  }
++  stop() {
++    this.getElapsedTime();
++    this.running = false;
++    this.autoStart = false;
++  }
++  getElapsedTime() {
++    this.getDelta();
++    return this.elapsedTime;
++  }
++  getDelta() {
++    if (this.autoStart && !this.running) {
++      this.start();
++      return 0;
++    }
++    if (!this.running) return 0;
++    const now = performance.now();
++    const delta = (now - this.oldTime) / 1000;
++    this.oldTime = now;
++    this.elapsedTime += delta;
++    return delta;
++  }
++}
++
+ function _interopDefault (e) { return e && e.__esModule ? e : { 'default': e }; }
+ 
+ function _interopNamespace(e) {
+@@ -1038,7 +1077,7 @@ const createStore = (invalidate, advance) => {
+       linear: false,
+       flat: false,
+       controls: null,
+-      clock: new THREE__namespace.Clock(),
++      clock: new TimerClock(),
+       pointer,
+       mouse: pointer,
+       frameloop: 'always',
+diff --git a/dist/events-b1bdeb1a.cjs.dev.js b/dist/events-b1bdeb1a.cjs.dev.js
+index 7785529f79299cdefe706c0df1d5c756817ca274..54d56be8c276f8bde18ad6d760b392441ff1e4b7 100644
+--- a/dist/events-b1bdeb1a.cjs.dev.js
++++ b/dist/events-b1bdeb1a.cjs.dev.js
+@@ -8,6 +8,45 @@ var Tb = require('scheduler');
+ var jsxRuntime = require('react/jsx-runtime');
+ var itsFine = require('its-fine');
+ 
++// Three r183 deprecated Clock, while R3F still expects its legacy clock shape.
++// Keep the R3F-compatible API without emitting a deprecation warning.
++class TimerClock {
++  constructor(autoStart = true) {
++    this.autoStart = autoStart;
++    this.startTime = 0;
++    this.oldTime = 0;
++    this.elapsedTime = 0;
++    this.running = false;
++  }
++  start() {
++    this.startTime = performance.now();
++    this.oldTime = this.startTime;
++    this.elapsedTime = 0;
++    this.running = true;
++  }
++  stop() {
++    this.getElapsedTime();
++    this.running = false;
++    this.autoStart = false;
++  }
++  getElapsedTime() {
++    this.getDelta();
++    return this.elapsedTime;
++  }
++  getDelta() {
++    if (this.autoStart && !this.running) {
++      this.start();
++      return 0;
++    }
++    if (!this.running) return 0;
++    const now = performance.now();
++    const delta = (now - this.oldTime) / 1000;
++    this.oldTime = now;
++    this.elapsedTime += delta;
++    return delta;
++  }
++}
++
+ function _interopDefault (e) { return e && e.__esModule ? e : { 'default': e }; }
+ 
+ function _interopNamespace(e) {
+@@ -1038,7 +1077,7 @@ const createStore = (invalidate, advance) => {
+       linear: false,
+       flat: false,
+       controls: null,
+-      clock: new THREE__namespace.Clock(),
++      clock: new TimerClock(),
+       pointer,
+       mouse: pointer,
+       frameloop: 'always',

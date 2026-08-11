@@ -109,7 +109,7 @@ function BookArtifact() {
 
 function CatsArtifact() {
   const nono = useTexture("/assets/cats/nono-front.webp");
-  const xiaoyi = useTexture("/assets/cats/xiaoyi-front.webp");
+  const xiaoye = useTexture("/assets/cats/xiaoye-front.webp");
 
   return (
     <group position={[0, 1.02, 0]} rotation={[0.02, -0.1, 0]}>
@@ -119,7 +119,7 @@ function CatsArtifact() {
       </mesh>
       <mesh position={[0.44, 0.04, 0.03]} rotation={[0.01, 0.04, 0]}>
         <planeGeometry args={[0.72, 0.89]} />
-        <meshBasicMaterial map={xiaoyi} transparent alphaTest={0.035} depthWrite={false} toneMapped={false} />
+        <meshBasicMaterial map={xiaoye} transparent alphaTest={0.035} depthWrite={false} toneMapped={false} />
       </mesh>
       <mesh position={[0, -0.53, -0.02]}>
         <boxGeometry args={[1.72, 0.08, 0.16]} />
@@ -188,11 +188,13 @@ function MemoryBeacon({
 }) {
   const chapter = storyWorld.chapters[chapterIndex];
   const group = useRef<THREE.Group>(null);
+  const targetScale = useRef(new THREE.Vector3());
 
   useFrame((state, delta) => {
     if (!group.current) return;
-    const targetScale = active ? 1.08 : 0.9;
-    group.current.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 1 - Math.exp(-delta * 7));
+    const scale = active ? 1.08 : 0.9;
+    targetScale.current.setScalar(scale);
+    group.current.scale.lerp(targetScale.current, 1 - Math.exp(-delta * 7));
     if (!reducedMotion) {
       group.current.position.y = Math.sin(state.clock.elapsedTime * 0.8 + chapterIndex) * 0.045;
       group.current.rotation.y += delta * (active ? 0.055 : 0.018);
@@ -205,7 +207,7 @@ function MemoryBeacon({
         <circleGeometry args={[active ? 0.78 : 0.58, 48]} />
         <meshBasicMaterial color={active ? rose : lavender} transparent opacity={active ? 0.12 : 0.045} />
       </mesh>
-      <Artifact artifact={chapter.artifact} />
+      {active ? <Artifact artifact={chapter.artifact} /> : null}
       {active ? (
         <Html center position={[0, 2.12, 0]} distanceFactor={4.5} transform sprite>
           <div className="story-world-label">
@@ -236,27 +238,15 @@ function RoomBackdrop({ quiet }: { quiet: boolean }) {
     <group>
       <mesh receiveShadow rotation={[-Math.PI / 2, 0, 0]} position={[4, -0.05, -2.7]}>
         <planeGeometry args={[34, 13]} />
-        <meshStandardMaterial color="#3a2831" roughness={0.98} metalness={0.02} />
+        <meshStandardMaterial color="#47333d" roughness={0.98} metalness={0.02} />
       </mesh>
       <mesh position={[4, 4, -9.4]}>
         <planeGeometry args={[34, 12]} />
-        <meshStandardMaterial color="#4a303b" roughness={1} metalness={0} />
+        <meshStandardMaterial color="#58404b" roughness={1} metalness={0} />
       </mesh>
       <mesh position={[4.8, 3.8, -9.15]}>
         <planeGeometry args={[7.2, 4.6]} />
-        <meshBasicMaterial color="#b77984" transparent opacity={quiet ? 0.1 : 0.15} />
-      </mesh>
-      <mesh position={[1.2, 2.1, -9.08]}>
-        <boxGeometry args={[0.045, 4.4, 0.08]} />
-        <meshStandardMaterial color="#b28a79" roughness={0.72} />
-      </mesh>
-      <mesh position={[8.4, 2.1, -9.08]}>
-        <boxGeometry args={[0.045, 4.4, 0.08]} />
-        <meshStandardMaterial color="#b28a79" roughness={0.72} />
-      </mesh>
-      <mesh position={[4.8, 6.1, -9.08]}>
-        <boxGeometry args={[7.2, 0.045, 0.08]} />
-        <meshStandardMaterial color="#b28a79" roughness={0.72} />
+        <meshBasicMaterial color="#c48d98" transparent opacity={quiet ? 0.08 : 0.12} />
       </mesh>
       <pointLight position={[4.8, 3.7, -7.6]} color="#e0a6a5" intensity={quiet ? 0.42 : 0.68} distance={9} />
     </group>
@@ -277,8 +267,8 @@ export function StoryWorldScene({
 
   return (
     <>
-      <color attach="background" args={["#2a1e26"]} />
-      <fog attach="fog" args={["#2a1e26", 9, quiet ? 27 : 38]} />
+      <color attach="background" args={["#34252e"]} />
+      <fog attach="fog" args={["#34252e", 9, quiet ? 27 : 38]} />
       <CinematicRig
         activeChapter={activeChapter}
         started={started}
@@ -331,7 +321,7 @@ export function StoryWorldScene({
       <ContactShadows
         position={[4, 0, -2.5]}
         scale={32}
-        opacity={quiet ? 0.18 : 0.32}
+        opacity={quiet ? 0.24 : 0.42}
         blur={quiet ? 2.8 : 2.25}
         far={9}
         resolution={quiet ? 256 : 512}
@@ -340,7 +330,7 @@ export function StoryWorldScene({
 
       {!quiet ? (
         <EffectComposer multisampling={2}>
-          <Bloom mipmapBlur intensity={0.08} luminanceThreshold={0.97} luminanceSmoothing={0.36} />
+          <Bloom mipmapBlur intensity={0.045} luminanceThreshold={0.98} luminanceSmoothing={0.36} />
           <Vignette eskil={false} offset={0.28} darkness={0.32} />
         </EffectComposer>
       ) : null}

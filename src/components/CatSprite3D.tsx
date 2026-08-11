@@ -6,7 +6,7 @@ import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { storyWorld } from "@/data/storyWorld";
 
-export type CatIdentity = "nono" | "xiaoyi";
+export type CatIdentity = "nono" | "xiaoye";
 
 type CatSprite3DProps = {
   identity: CatIdentity;
@@ -35,11 +35,11 @@ const CAT_TEXTURES = {
     right: "/assets/cats/nono-right.webp",
     blink: "/assets/cats/nono-blink.webp",
   },
-  xiaoyi: {
-    front: "/assets/cats/xiaoyi-front.webp",
-    left: "/assets/cats/xiaoyi-left.webp",
-    right: "/assets/cats/xiaoyi-right.webp",
-    blink: "/assets/cats/xiaoyi-blink.webp",
+  xiaoye: {
+    front: "/assets/cats/xiaoye-front.webp",
+    left: "/assets/cats/xiaoye-left.webp",
+    right: "/assets/cats/xiaoye-right.webp",
+    blink: "/assets/cats/xiaoye-blink.webp",
   },
 } as const;
 
@@ -50,7 +50,7 @@ const CAT_LAYOUT = {
     centerY: 0.745,
     tint: "#ded8d0",
   },
-  xiaoyi: {
+  xiaoye: {
     width: 1.56,
     height: 1.93,
     centerY: 0.725,
@@ -62,18 +62,18 @@ const VIEW_ORDER = ["front", "left", "right", "blink"] as const;
 
 const CAT_STAGE_LAYOUT = {
   desktop: {
-    depth: 3.05,
-    openY: -0.12,
-    closedY: -0.22,
-    xiaoyi: { xOpen: -2.22, xClosed: -2.08, y: 0.18, z: 0.12, scaleOpen: 1.94, scaleClosed: 2.02, yaw: THREE.MathUtils.degToRad(9) },
-    nono: { xOpen: 2.14, xClosed: 2.08, y: 0.12, z: 0.18, scaleOpen: 2.42, scaleClosed: 2.5, yaw: THREE.MathUtils.degToRad(-9) },
+    depth: 3.65,
+    openY: 0.86,
+    closedY: 0.72,
+    xiaoye: { xOpen: -2.62, xClosed: -2.5, y: 0.55, z: 0.16, scaleOpen: 1.4, scaleClosed: 1.46, yaw: THREE.MathUtils.degToRad(10) },
+    nono: { xOpen: 2.58, xClosed: 2.5, y: 0.02, z: 0.22, scaleOpen: 1.78, scaleClosed: 1.84, yaw: THREE.MathUtils.degToRad(-10) },
   },
   mobile: {
-    depth: 1.95,
-    openY: 0.22,
-    closedY: 0.04,
-    xiaoyi: { xOpen: -0.92, xClosed: -0.98, y: 0.48, z: 0.08, scaleOpen: 1.48, scaleClosed: 1.54, yaw: THREE.MathUtils.degToRad(9) },
-    nono: { xOpen: 0.92, xClosed: 0.98, y: 0.38, z: 0.06, scaleOpen: 1.62, scaleClosed: 1.68, yaw: THREE.MathUtils.degToRad(-10) },
+    depth: 2.22,
+    openY: 0.28,
+    closedY: 0.14,
+    xiaoye: { xOpen: -1.04, xClosed: -1.1, y: 0.59, z: 0.08, scaleOpen: 1.62, scaleClosed: 1.68, yaw: THREE.MathUtils.degToRad(9) },
+    nono: { xOpen: 1.04, xClosed: 1.1, y: 0.5, z: 0.06, scaleOpen: 1.74, scaleClosed: 1.8, yaw: THREE.MathUtils.degToRad(-10) },
   },
 } as const;
 
@@ -354,7 +354,7 @@ export function CatSprite3D({
             interactionRequested.current = true;
           }}
         >
-        <planeGeometry args={[layout.width * 0.78, layout.height * 0.9]} />
+          <planeGeometry args={[layout.width * 1.02, layout.height * 1.02]} />
           <meshBasicMaterial transparent opacity={0} depthWrite={false} colorWrite={false} />
         </mesh>
         {textures.map((texture, index) => (
@@ -421,13 +421,13 @@ export function CatCompanions({ activeChapter, panelOpen, reducedMotion, onInter
   });
 
   return (
-    <group ref={group} name="nono-and-xiaoyi-2-5d">
+    <group ref={group} name="nono-and-xiaoye-2-5d">
       <CatSprite3D
-        identity="xiaoyi"
-        position={[panelOpen ? stage.xiaoyi.xOpen : stage.xiaoyi.xClosed, stage.xiaoyi.y, stage.xiaoyi.z]}
-        scale={panelOpen ? stage.xiaoyi.scaleOpen : stage.xiaoyi.scaleClosed}
+        identity="xiaoye"
+        position={[panelOpen ? stage.xiaoye.xOpen : stage.xiaoye.xClosed, stage.xiaoye.y, stage.xiaoye.z]}
+        scale={panelOpen ? stage.xiaoye.scaleOpen : stage.xiaoye.scaleClosed}
         side={-1}
-        inwardYaw={stage.xiaoyi.yaw}
+        inwardYaw={stage.xiaoye.yaw}
         entranceDelay={0}
         lockFront={compact}
         reducedMotion={reducedMotion}

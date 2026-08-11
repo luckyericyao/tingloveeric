@@ -4,9 +4,10 @@ import Image from "next/image";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { ArrowRight } from "lucide-react";
-import { useCallback, useEffect, useRef, useState, type SyntheticEvent } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { storyWorld } from "@/data/storyWorld";
 import { CinemaPrelude } from "@/components/CinemaPrelude";
+import { useStoryAudio } from "@/components/StoryAudioDirector";
 import type {
   RenderQuality,
   StoryPlaybackDirection,
@@ -46,12 +47,8 @@ export function LoveStoryExperience() {
   const [playbackState, setPlaybackState] = useState<StoryPlaybackState>("idle");
   const [playbackDirection, setPlaybackDirection] = useState<StoryPlaybackDirection>("forward");
   const [timelineRun, setTimelineRun] = useState(0);
-  const [audioError, setAudioError] = useState(false);
-  const [openingAudioBlocked, setOpeningAudioBlocked] = useState(false);
   const [preludeSeconds, setPreludeSeconds] = useState(0);
-  const [activeTrackIndex, setActiveTrackIndex] = useState(0);
   const experienceRef = useRef<HTMLElement>(null);
-  const audioRef = useRef<HTMLAudioElement>(null);
   const activeChapterRef = useRef(0);
   const maxViewedChapterRef = useRef(0);
   const playbackStateRef = useRef<StoryPlaybackState>("idle");
@@ -59,10 +56,17 @@ export function LoveStoryExperience() {
   const filmStartedRef = useRef(false);
   const musicDurationRef = useRef(DEFAULT_MUSIC_DURATION_SECONDS);
   const chapter = storyWorld.chapters[activeChapter];
-  const availableTracks = storyWorld.music.tracks.filter((track) => track.available);
-  const activeTrack = availableTracks[activeTrackIndex] ?? null;
-  const storyTrackIndex = availableTracks.findIndex((track) => track.id === "wo-shi-yi-zhi-yu");
   const lastChapter = storyWorld.chapters.length - 1;
+  const {
+    activeTrack,
+    currentTime: audioCurrentTime,
+    duration: audioDuration,
+    endedTrack,
+    error: audioError,
+    needsGesture: audioNeedsGesture,
+    playing,
+    playTrack,
+  } = useStoryAudio();
 
   const setPlayback = useCallback((state: StoryPlaybackState) => {
     playbackStateRef.current = state;
@@ -137,21 +141,6 @@ export function LoveStoryExperience() {
   }, [started]);
 
   useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio || !activeTrack) return;
-    if (!started) {
-      audio.load();
-      void audio.play().then(() => {
-        setOpeningAudioBlocked(false);
-        setAudioError(false);
-      }).catch(() => {
-        if (started || !audio.paused) return;
-        setOpeningAudioBlocked(true);
-      });
-    }
-  }, [activeTrack, started]);
-
-  useEffect(() => {
     if (!started || !sceneReady || filmStartedRef.current) return;
     filmStartedRef.current = true;
     activeChapterRef.current = 0;
@@ -174,56 +163,28 @@ export function LoveStoryExperience() {
     setPlayback("idle");
     setStarted(true);
     setPanelOpen(true);
-    setAudioError(false);
-    setOpeningAudioBlocked(false);
     filmStartedRef.current = false;
-    const nextTrackIndex = storyTrackIndex >= 0 ? storyTrackIndex : 0;
-    const nextTrack = availableTracks[nextTrackIndex] ?? null;
-    setActiveTrackIndex(nextTrackIndex);
-
-    const audio = audioRef.current;
-    if (!audio || !nextTrack) return;
-    audio.src = nextTrack.src;
-    audio.load();
-    audio.volume = 0.3;
-    try {
-      await audio.play();
-      setAudioError(false);
-    } catch {
-      if (!audio.paused) {
-        setAudioError(false);
-        return;
-      }
-      setAudioError(true);
-    }
+    await playTrack("story");
   };
 
   const playOpeningAudio = async () => {
-    const audio = audioRef.current;
-    if (!audio || started) return;
-    try {
-      audio.volume = 0.26;
-      await audio.play();
-      setOpeningAudioBlocked(false);
-    } catch {
-      setOpeningAudioBlocked(true);
-    }
+    if (started) return;
+    await playTrack("opening");
   };
 
   const handleSceneInteraction = useCallback(() => {
     // CatSprite3D owns the only intentional interaction inside the film.
   }, []);
 
-  const handleAudioTimeUpdate = (event: SyntheticEvent<HTMLAudioElement>) => {
+  useEffect(() => {
     if (!started || !sceneReady || !filmStartedRef.current) return;
     if (playbackStateRef.current === "transitioning" || playbackStateRef.current === "completed") return;
 
-    const audio = event.currentTarget;
-    const duration = Number.isFinite(audio.duration) && audio.duration > 0
-      ? audio.duration
+    const duration = Number.isFinite(audioDuration) && audioDuration > 0
+      ? audioDuration
       : musicDurationRef.current;
     musicDurationRef.current = duration;
-    const progress = audio.currentTime / duration;
+    const progress = audioCurrentTime / duration;
     const nextChapter = Math.min(
       lastChapter,
       FILM_CHAPTER_CUE_RATIOS.reduce<number>((current, cue, index) => (progress >= cue ? index : current), 0),
@@ -232,9 +193,9 @@ export function LoveStoryExperience() {
     if (nextChapter > activeChapterRef.current) {
       queueFilmChapter(activeChapterRef.current + 1);
     }
-  };
+  }, [audioCurrentTime, audioDuration, lastChapter, queueFilmChapter, sceneReady, started]);
 
-  const handleAudioEnded = () => {
+  const handleAudioEnded = useCallback(() => {
     if (!started) return;
     activeChapterRef.current = lastChapter;
     maxViewedChapterRef.current = lastChapter;
@@ -242,7 +203,13 @@ export function LoveStoryExperience() {
     setMaxViewedChapter(lastChapter);
     setPanelOpen(true);
     setPlayback("completed");
-  };
+  }, [lastChapter, setPlayback, started]);
+
+  useEffect(() => {
+    if (!started || endedTrack !== "story") return;
+    const timer = window.setTimeout(handleAudioEnded, 0);
+    return () => window.clearTimeout(timer);
+  }, [endedTrack, handleAudioEnded, started]);
 
   const statusText = playbackState === "transitioning"
     ? "镜头转场中"
@@ -261,28 +228,6 @@ export function LoveStoryExperience() {
       data-chapter={activeChapter}
       data-max-viewed={maxViewedChapter}
     >
-      <audio
-        ref={audioRef}
-        src={activeTrack?.src}
-        autoPlay
-        preload="auto"
-        onPlay={() => {
-          setAudioError(false);
-          if (!started) setOpeningAudioBlocked(false);
-        }}
-        onError={() => {
-          if (started) setAudioError(true);
-          else setOpeningAudioBlocked(true);
-        }}
-        onLoadedMetadata={(event) => {
-          if (Number.isFinite(event.currentTarget.duration) && event.currentTarget.duration > 0) {
-            musicDurationRef.current = event.currentTarget.duration;
-          }
-        }}
-        onTimeUpdate={handleAudioTimeUpdate}
-        onEnded={handleAudioEnded}
-      />
-
       {webglSupported && started ? (
         <StoryWorldCanvas
           activeChapter={activeChapter}
@@ -308,7 +253,9 @@ export function LoveStoryExperience() {
         ready={preludeSeconds >= PRELUDE_ENTRY_SECONDS}
         started={started}
         entryAvailable={webglSupported !== null}
-        openingAudioBlocked={openingAudioBlocked}
+        openingAudioBlocked={audioNeedsGesture && activeTrack.id === "opening"}
+        audioPlaying={activeTrack.id === "opening" && playing}
+        audioError={activeTrack.id === "opening" && audioError}
         ariaHidden={started && sceneReady}
         onPlayOpeningAudio={playOpeningAudio}
         onEnter={startStory}
@@ -334,7 +281,7 @@ export function LoveStoryExperience() {
           <p className={styles.chapterStatus} aria-live="polite">
             {statusText}
           </p>
-          {audioError ? <p className={styles.errorNote}>音乐没有自动播放，放映仍会继续。</p> : null}
+          {audioError || (activeTrack.id === "story" && audioNeedsGesture) ? <p className={styles.errorNote}>音乐没有自动播放，放映仍会继续。</p> : null}
 
           <article
             key={`${chapter.id}-${timelineRun}`}

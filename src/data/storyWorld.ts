@@ -1,3 +1,5 @@
+import { archiveContent } from "@/data/archiveContent";
+
 export type StoryArtifact =
   | "prologue"
   | "coordinates"
@@ -43,18 +45,12 @@ export const storyWorld = {
     title: "故事里的歌",
     tracks: [
       {
-        id: "jiu-shi-ai-ni",
-        title: "就是爱你",
-        artist: "陶喆",
-        src: "/audio/jiu-shi-ai-ni.m4a",
+        ...archiveContent.audio.opening,
         type: "audio/mp4",
         available: true,
       },
       {
-        id: "wo-shi-yi-zhi-yu",
-        title: "我是一只鱼",
-        artist: "任贤齐",
-        src: "/audio/wo-shi-yi-zhi-yu.m4a",
+        ...archiveContent.audio.story,
         type: "audio/mp4",
         available: true,
       },
@@ -78,7 +74,7 @@ export const storyWorld = {
       place: "",
       quote: "不是一个恋爱 App，而是只对两个人开放的私人档案馆。",
       body: "这里先保存已经发生过的细节。未来怎么走，不替任何人提前写好。",
-      prompt: "轻轻给一个方向，故事会自己向前",
+      prompt: "镜头已经替你向前",
       source: "档案说明",
       artifact: "prologue",
       position: [-6, 0, -1],
@@ -125,11 +121,11 @@ export const storyWorld = {
       id: "her-world",
       index: "03",
       label: "她的小世界",
-      title: "诺诺与小伊",
+      title: `${archiveContent.cats.nono.nameZh}与${archiveContent.cats.xiaoye.nameZh}`,
       date: "真实的猫咪资料",
       place: "她的生活",
       quote: "先把名字和花纹记准确。",
-      body: "诺诺是海豹双色布偶，脸部和耳朵有明显重点色；小伊是银白色长毛猫。它们不需要替故事表演，只要作为她生活里真实的两个角色被看见。",
+      body: `${archiveContent.cats.nono.nameZh}是${archiveContent.cats.nono.appearance}；${archiveContent.cats.xiaoye.nameZh}是${archiveContent.cats.xiaoye.appearance}它们不需要替故事表演，只要作为她生活里真实的两个角色被看见。`,
       prompt: "看见她，也尊重她的未知",
       source: "真实记录",
       artifact: "cats",

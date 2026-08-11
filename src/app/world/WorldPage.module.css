@@ -92,6 +92,111 @@
   z-index: 2;
 }
 
+.roomRail {
+  display: grid;
+  width: min(1240px, calc(100% - 48px));
+  grid-template-columns: minmax(230px, 0.55fr) minmax(0, 1.45fr);
+  gap: clamp(28px, 7vw, 96px);
+  margin: 0 auto;
+  padding: 0 0 110px;
+}
+
+.roomRailIntro {
+  align-self: start;
+  padding-top: 10px;
+  border-top: 1px solid rgba(42, 32, 34, 0.26);
+}
+
+.roomRailIntro p {
+  margin: 12px 0 0;
+  color: var(--archive-rose, #ad6874);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+}
+
+.roomRailIntro h2 {
+  max-width: 12em;
+  margin: 24px 0 0;
+  color: var(--archive-ink, #2a2022);
+  font-family: var(--font-serif-elegant);
+  font-size: clamp(28px, 3.2vw, 46px);
+  font-weight: 400;
+  line-height: 1.2;
+}
+
+.roomLinks {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 24px;
+}
+
+.roomLink {
+  display: grid;
+  min-height: 152px;
+  align-content: start;
+  gap: 8px;
+  padding: 16px 0 18px;
+  border-top: 1px solid rgba(42, 32, 34, 0.18);
+  color: var(--archive-ink, #2a2022);
+  transition: color 180ms ease, border-color 180ms ease, transform 180ms ease;
+}
+
+.roomLink span {
+  color: var(--archive-rose, #ad6874);
+  font-size: 10px;
+}
+
+.roomLink strong {
+  font-family: var(--font-serif-elegant);
+  font-size: 24px;
+  font-weight: 400;
+}
+
+.roomLink small {
+  max-width: 260px;
+  color: var(--archive-muted, #75686a);
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.roomLink:hover,
+.roomLink:focus-visible {
+  border-color: var(--archive-rose, #ad6874);
+  color: var(--archive-rose, #ad6874);
+  transform: translateX(4px);
+}
+
+.roomLink.lavender span {
+  color: #887da8;
+}
+
+.roomLink.gold span {
+  color: var(--archive-gold, #c6a36a);
+}
+
+@media (max-width: 700px) {
+  .roomRail {
+    width: calc(100% - 36px);
+    grid-template-columns: 1fr;
+    gap: 28px;
+    padding-bottom: 76px;
+  }
+
+  .roomRailIntro h2 {
+    margin-top: 16px;
+    font-size: 34px;
+  }
+
+  .roomLinks {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .roomLink {
+    min-height: 128px;
+  }
+}
+
 @media (max-width: 700px) {
   .hero {
     padding: 68px 20px 70px;

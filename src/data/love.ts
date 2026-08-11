@@ -1,3 +1,5 @@
+import { archiveContent } from "@/data/archiveContent";
+
 export type ImageAsset = {
   id: string;
   src: string;
@@ -95,8 +97,8 @@ export const coupleInfo = {
 };
 
 export const importantDates = {
-  hanniPost: "2025-01-27",
-  herWorldPost: "2025-01-29",
+  hanniPost: archiveContent.dates.hanniPost,
+  herWorldPost: archiveContent.dates.herWorldPost,
 };
 
 const hanniArchive: ImageAsset = {
@@ -126,16 +128,16 @@ const cpCottageArchive: ImageAsset = {
 const nonoArchive: ImageAsset = {
   id: "nono-archive",
   src: "/assets/cats/nono-front.webp",
-  alt: "灰白重点色猫咪诺诺的正面肖像",
-  caption: "诺诺 · Nono，脸部和耳朵带明显灰色重点色。",
+  alt: `灰白重点色猫咪${archiveContent.cats.nono.nameZh}的正面肖像`,
+  caption: `${archiveContent.cats.nono.nameZh} · ${archiveContent.cats.nono.nameEn}，${archiveContent.cats.nono.shortAppearance}`,
   category: "verified cat reference",
 };
 
-const xiaoyiArchive: ImageAsset = {
-  id: "xiaoyi-archive",
-  src: "/assets/cats/xiaoyi-front.webp",
-  alt: "银白色猫咪小伊的正面肖像",
-  caption: "小伊 · Xiaoyi，整体偏纯白与银白。",
+const xiaoyeArchive: ImageAsset = {
+  id: "xiaoye-archive",
+  src: "/assets/cats/xiaoye-front.webp",
+  alt: `${archiveContent.cats.xiaoye.appearance}的正面肖像`,
+  caption: `${archiveContent.cats.xiaoye.nameZh}，${archiveContent.cats.xiaoye.shortAppearance}`,
   category: "verified cat reference",
 };
 
@@ -209,7 +211,7 @@ export const profileHerImages: ImageAsset[] = [
   hanniArchive,
   herWorldArchive,
   nonoArchive,
-  xiaoyiArchive,
+  xiaoyeArchive,
 ];
 
 export const profileHimImages: ImageAsset[] = [
@@ -231,7 +233,7 @@ export const loveWorldRooms: RoomCard[] = [
   {
     id: "cats-room",
     title: "她与两只猫",
-    body: "诺诺与小伊，保留它们各自的花纹、名字和柔软的生活痕迹。",
+      body: `${archiveContent.cats.nono.nameZh}与${archiveContent.cats.xiaoye.nameZh}，保留它们各自的花纹、名字和柔软的生活痕迹。`,
     href: "/her",
     sticker: "她的小世界",
     accent: "lavender",
@@ -812,10 +814,10 @@ export const worldMapPlaces: WorldMapPlace[] = [
 
 export const profileHer: Profile = {
   name: "她的生活碎片",
-  subtitle: "几张照片，几件小事，还有诺诺和小伊。",
+  subtitle: `几张照片，几件小事，还有${archiveContent.cats.nono.nameZh}和${archiveContent.cats.xiaoye.nameZh}。`,
   intro:
     "那时候她在 Soul 上叫 Hanni。2025 年 1 月 27 日是一张写着“小疯子”的自拍，1 月 29 日是一只猫、一缸鱼和一盆发财树。",
-  traits: ["Hanni", "2025.01.27", "2025.01.29", "诺诺与小伊"],
+  traits: [archiveContent.identity.publicHerName, archiveContent.dates.hanniPost.replaceAll("-", "."), archiveContent.dates.herWorldPost.replaceAll("-", "."), `${archiveContent.cats.nono.nameZh}与${archiveContent.cats.xiaoye.nameZh}`],
   sections: [
     {
       title: "最早看见的她",
@@ -830,10 +832,10 @@ export const profileHer: Profile = {
       details: ["猫、鱼缸和发财树", "不替她说明心情"],
     },
     {
-      title: "诺诺与小伊",
+      title: `${archiveContent.cats.nono.nameZh}与${archiveContent.cats.xiaoye.nameZh}`,
       eyebrow: "她的小世界",
-      body: "诺诺是带灰色重点色的猫，小伊整体更偏白与银白。它们各自有名字，也各自保留自己的样子。",
-      details: ["诺诺 · Nono", "小伊 · Xiaoyi", "花纹与名字不混淆"],
+      body: `${archiveContent.cats.nono.nameZh}是带灰色重点色的猫，${archiveContent.cats.xiaoye.nameZh}${archiveContent.cats.xiaoye.shortAppearance}它们各自有名字，也各自保留自己的样子。`,
+      details: [`${archiveContent.cats.nono.nameZh} · ${archiveContent.cats.nono.nameEn}`, archiveContent.cats.xiaoye.nameZh, "花纹与名字不混淆"],
     },
   ],
 };

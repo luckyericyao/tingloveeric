@@ -51,7 +51,7 @@ async function storyState(page) {
 }
 
 async function seekFilmToChapter(page, chapter) {
-  const targetTime = Math.max(0.05, musicDuration * chapterCues[chapter] + 0.05);
+  const targetTime = Math.max(0.8, musicDuration * chapterCues[chapter] + 0.8);
   await page.locator("audio").evaluate((audio, time) => {
     audio.currentTime = time;
     audio.dispatchEvent(new Event("timeupdate", { bubbles: true }));

@@ -250,7 +250,7 @@ export function OriginalCoordinatesChapter() {
       <section className={styles.catsBand}>
         <div className={styles.catsIntro} data-reveal>
           <p className={styles.eyebrow}>{coordinateMemories[3].sourceLabel} · 她的小世界</p>
-          <h2>诺诺与小伊</h2>
+          <h2>诺诺与小yeah</h2>
           <p>两只猫不只是照片墙里的素材。它们是最早让我看见她生活质地的两个角色。</p>
         </div>
         <div className={styles.catGrid}>

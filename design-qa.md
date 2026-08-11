@@ -4,7 +4,7 @@
 
 - Source visual truth:
   - `/Users/ericyao/.codex/attachments/50d4cb8a-b0ac-4dfd-bcb7-8f3f3ad13c7b/image-2.jpeg` (Nono: white coat, dark seal ears and eye mask, blue-grey eyes)
-  - `/Users/ericyao/.codex/attachments/50d4cb8a-b0ac-4dfd-bcb7-8f3f3ad13c7b/image-1.jpeg` (Xiaoyi: silver-white coat, pale forehead markings, round grey-green eyes)
+  - `/Users/ericyao/.codex/attachments/50d4cb8a-b0ac-4dfd-bcb7-8f3f3ad13c7b/image-1.jpeg` (小yeah: silver-white coat, pale forehead markings, round grey-green eyes)
 - Browser-rendered implementation:
   - `/tmp/ting-3d-story-desktop.png`
   - `/tmp/ting-3d-story-desktop-closed.png`
@@ -17,9 +17,9 @@
 ## Findings
 
 - No actionable P0, P1, or P2 findings remain.
-- Nono is fixed on the left and reads immediately as a seal-bicolor ragdoll: white inverted-V face, dark ears and eye mask, pink nose, and blue-grey eyes.
-- Xiaoyi is fixed on the right and reads immediately as a silver-white longhair: rounder face, silver crown and ears, pink nose, and grey-green eyes.
-- The desktop pair now frames the story from the foreground: Xiaoyi on the lower left and Nono on the lower right, both turned slightly inward.
+- 小yeah is fixed on the left and reads immediately as a silver-white longhair: rounder face, silver crown and ears, pink nose, and grey-green eyes.
+- Nono is fixed on the right and reads immediately as a seal-bicolor ragdoll: white inverted-V face, dark ears and eye mask, pink nose, and blue-grey eyes.
+- The desktop pair now frames the story from the foreground: 小yeah on the lower left and Nono on the lower right, both turned slightly inward.
 - Mobile uses independent open/closed scales and positions. Open narration keeps both faces above the reading surface; closing narration lets both cats settle larger into the lower corners.
 - The butterfly is now a restrained pearl-white and pale-gold textured form with independent wings, a small 3D body, and no strong bloom.
 
@@ -52,7 +52,7 @@
 
 - [x] Remove the sphere/cone/capsule cat construction.
 - [x] Replace it with two generated, textured 2.5D cats.
-- [x] Place Nono on the left and Xiaoyi on the right.
+- [x] Place 小yeah on the left and Nono on the right.
 - [x] Match each reference's defining coat, mask, ear, eye, and face characteristics across view and blink variants.
 - [x] Replace the old glowing butterfly with textured pearl wings and a curved flight path.
 - [x] Preserve hover/click guidance and reduced-motion behavior.

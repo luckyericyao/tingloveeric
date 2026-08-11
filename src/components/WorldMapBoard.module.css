@@ -212,6 +212,17 @@
   overflow: visible;
 }
 
+.mapLoading {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  min-height: 420px;
+  place-items: center;
+  color: var(--color-muted);
+  font-family: var(--font-serif-elegant);
+  font-size: 18px;
+}
+
 .mapControls {
   position: absolute;
   z-index: 5;
@@ -375,8 +386,8 @@
   right: 0;
   bottom: 0;
   left: 0;
-  height: 48%;
-  background: linear-gradient(transparent, rgba(33, 28, 29, 0.74));
+  height: 38%;
+  background: linear-gradient(transparent, rgba(33, 28, 29, 0.52));
   content: "";
   pointer-events: none;
 }
@@ -1016,13 +1027,13 @@
 .cityHoverCard {
   top: 20px;
   left: 20px;
-  width: min(600px, calc(100% - 40px));
-  aspect-ratio: 1.58;
-  box-shadow: 0 26px 56px rgba(42, 32, 34, 0.23);
+  width: min(760px, calc(100% - 40px));
+  aspect-ratio: 1.7;
+  box-shadow: 0 22px 48px rgba(42, 32, 34, 0.18);
 }
 
 .cityHoverCopy {
-  padding: 52px 28px 24px;
+  padding: 44px 30px 24px;
 }
 
 .cityHoverCopy span,
@@ -1031,7 +1042,7 @@
 }
 
 .cityHoverCopy strong {
-  font-size: clamp(38px, 4vw, 54px);
+  font-size: clamp(38px, 4vw, 58px);
 }
 
 .cityHoverCopy p {
@@ -1134,12 +1145,12 @@
   .cityHoverCard {
     top: 12px;
     left: 12px;
-    width: min(360px, calc(100% - 24px));
-    aspect-ratio: 1.25;
+    width: calc(100% - 24px);
+    aspect-ratio: 1.38;
   }
 
   .cityHoverCopy {
-    padding: 34px 17px 15px;
+    padding: 38px 17px 15px;
   }
 
   .cityHoverCopy strong {

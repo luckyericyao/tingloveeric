@@ -1305,6 +1305,54 @@
   opacity: 0.46;
 }
 
+/* Keep the handoff visible without making the first minute feel like a form. */
+.preludeEnterQuiet {
+  border-color: rgba(255, 248, 239, 0.22);
+  background: rgba(223, 191, 196, 0.16);
+  color: rgba(255, 248, 239, 0.66);
+}
+
+/* The film copy is a lower-third, not a dashboard card. */
+.chapterPanel {
+  width: min(470px, calc(100vw - 56px));
+  min-height: 0;
+  padding: 20px 0 0 22px;
+  border-top: 1px solid rgba(255, 248, 239, 0.2);
+  border-right: 0;
+  border-bottom: 0;
+  border-left: 2px solid var(--archive-rose-soft, #dfbfc4);
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.chapterPanel h2 {
+  margin-top: 14px;
+}
+
+.chapterFooter {
+  max-width: 410px;
+}
+
+@media (max-width: 767px) {
+  .chapterPanel {
+    right: 14px;
+    bottom: 76px;
+    left: 14px;
+    width: auto;
+    padding: 14px 14px 0;
+    border-top: 1px solid rgba(255, 248, 239, 0.2);
+    border-right: 0;
+    border-bottom: 0;
+    border-left: 2px solid var(--archive-rose-soft, #dfbfc4);
+    background: transparent;
+  }
+
+  .chapterFooter {
+    max-width: none;
+  }
+}
+
 @keyframes preludeDrift {
   from { transform: scale(1.04) translate3d(0, 0, 0); }
   to { transform: scale(1.09) translate3d(-0.8%, -0.6%, 0); }

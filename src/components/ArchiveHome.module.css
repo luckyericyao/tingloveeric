@@ -1441,6 +1441,81 @@
   border-color: rgba(42, 32, 34, 0.32);
 }
 
+/* The opening minute reveals one tender detail at a time. */
+.heroPrint {
+  opacity: 0;
+  transition: opacity 900ms ease, transform 1200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.heroImage {
+  filter: saturate(0.88) brightness(1.08) contrast(1.01);
+}
+
+.heroVeil {
+  background:
+    linear-gradient(90deg, rgba(61, 39, 45, 0.48) 0%, rgba(61, 39, 45, 0.2) 42%, rgba(61, 39, 45, 0.04) 72%),
+    linear-gradient(180deg, rgba(61, 39, 45, 0.08), transparent 48%, rgba(47, 29, 36, 0.28));
+}
+
+.heroPrintShown {
+  opacity: 1;
+}
+
+.heroPreludeReveal {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+}
+
+.heroBody,
+.heroSweetLine {
+  opacity: 0.18;
+  transform: translateY(10px);
+  transition: opacity 1000ms ease, transform 1000ms ease;
+}
+
+.heroSweetLine {
+  opacity: 0.08;
+}
+
+.heroEntry {
+  position: absolute;
+  z-index: 4;
+  bottom: 76px;
+  left: 28px;
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 10px;
+  padding: 0 13px;
+  border-bottom: 1px solid rgba(255, 248, 239, 0.52);
+  color: #fff8ef;
+  font-size: 11px;
+  transition: opacity 800ms ease, border-color 180ms ease, color 180ms ease;
+}
+
+.heroEntryQuiet {
+  opacity: 0.36;
+}
+
+.heroEntry:hover,
+.heroEntry:focus-visible {
+  border-color: var(--archive-rose-soft);
+  color: #fff;
+}
+
+@media (max-width: 767px) {
+  .heroEntry {
+    right: auto;
+    bottom: 128px;
+    left: 16px;
+  }
+
+  .scrollHint {
+    right: 64px;
+    bottom: 36px;
+  }
+}
+
 @media (max-width: 767px) {
   .topbar {
     min-height: 64px;

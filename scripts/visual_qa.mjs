@@ -11,10 +11,10 @@ const generatedSceneAssets = [
   "/assets/cats/nono-left.webp",
   "/assets/cats/nono-right.webp",
   "/assets/cats/nono-blink.webp",
-  "/assets/cats/xiaoyi-front.webp",
-  "/assets/cats/xiaoyi-left.webp",
-  "/assets/cats/xiaoyi-right.webp",
-  "/assets/cats/xiaoyi-blink.webp",
+  "/assets/cats/xiaoye-front.webp",
+  "/assets/cats/xiaoye-left.webp",
+  "/assets/cats/xiaoye-right.webp",
+  "/assets/cats/xiaoye-blink.webp",
   "/assets/butterfly/pearl-wing.webp",
 ];
 
@@ -60,7 +60,7 @@ async function waitForIntro(page) {
 }
 
 async function seekFilmToChapter(page, chapter) {
-  const targetTime = Math.max(0.05, musicDuration * chapterCues[chapter] + 0.05);
+  const targetTime = Math.max(0.8, musicDuration * chapterCues[chapter] + 0.8);
   await page.locator("audio").evaluate((audio, time) => {
     audio.currentTime = time;
     audio.dispatchEvent(new Event("timeupdate", { bubbles: true }));
@@ -268,7 +268,7 @@ async function runCoordinatesViewport(browser, options) {
   const closeButtons = page.getByRole("button", { name: "关闭图片" });
   await closeButtons.nth(1).click();
 
-  const catsHeading = page.getByRole("heading", { name: "诺诺与小伊" });
+  const catsHeading = page.getByRole("heading", { name: "诺诺与小yeah" });
   await catsHeading.scrollIntoViewIfNeeded();
   await page.waitForFunction(
     () => Array.from(document.images).every((image) => image.complete && image.naturalWidth > 0),

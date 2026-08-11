@@ -56,6 +56,14 @@ body.cinematic-page {
   overscroll-behavior-y: none;
 }
 
+.story-audio-director {
+  position: fixed;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
 .story-world-label {
   display: flex;
   align-items: center;

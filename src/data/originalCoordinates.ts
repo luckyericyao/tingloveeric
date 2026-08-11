@@ -1,3 +1,5 @@
+import { archiveContent } from "@/data/archiveContent";
+
 export type CoordinateMemory = {
   id: string;
   title: string;
@@ -13,8 +15,8 @@ export type CoordinateMemory = {
 export const coordinateMemories = [
   {
     id: "hanni-portrait",
-    title: "那时候她叫 Hanni",
-    date: "2025.01.27",
+    title: `那时候她叫 ${archiveContent.identity.publicHerName}`,
+    date: archiveContent.dates.hanniPost.replaceAll("-", "."),
     source: "/images/edited/hanni-portrait.jpg",
     alt: "暖色灯光中的一张自拍画面",
     caption: "昏黄的灯光，一张写着“小疯子”的自拍。故事还没有开始，所有事情都仍然拥有无限可能。",
@@ -25,7 +27,7 @@ export const coordinateMemories = [
   {
     id: "her-world",
     title: "她最早向外展示的生活",
-    date: "2025.01.29",
+    date: archiveContent.dates.herWorldPost.replaceAll("-", "."),
     source: "/images/edited/her-world.jpg",
     alt: "猫、鱼缸和发财树组成的生活画面",
     caption: "一只猫，一缸鱼，一盆发财树。这是我最早看见的、属于她的生活。",
@@ -56,12 +58,12 @@ export const coordinateMemories = [
     focalPoint: "50% 36%",
   },
   {
-    id: "xiaoyi",
-    title: "小伊 · Xiaoyi",
+    id: "xiaoye",
+    title: archiveContent.cats.xiaoye.nameZh,
     date: "她的小世界",
-    source: "/assets/cats/xiaoyi-front.webp",
-    alt: "银白色猫咪小伊的正面肖像",
-    caption: "整体更偏纯白与银白。安静、柔软，像一束落在房间里的冷光。",
+    source: "/assets/cats/xiaoye-front.webp",
+    alt: "银白色长毛猫小yeah的正面肖像",
+    caption: `${archiveContent.cats.xiaoye.shortAppearance}安静、柔软，像一束落在房间里的冷光。`,
     kind: "cat",
     sourceLabel: "真实记录",
     focalPoint: "50% 48%",
@@ -69,12 +71,11 @@ export const coordinateMemories = [
 ] satisfies CoordinateMemory[];
 
 export const originalCoordinates = {
-  title: "我们最初在 Soul 相遇",
-  period: "2025.01",
-  opening:
-    "在真正了解她以前，我先看见了她的一张自拍、一只猫、一缸鱼和一盆发财树。",
+  title: archiveContent.firstCoordinates.title,
+  period: archiveContent.firstCoordinates.period,
+  opening: archiveContent.firstCoordinates.opening,
   tenderMoments: {
-    eyebrow: "真实记录 · Eric 的感受",
+    eyebrow: "Eric 的感受",
     title: "甜蜜的瞬间",
     lead: "那段时间，陌生慢慢有了温度。",
     paragraphs: [

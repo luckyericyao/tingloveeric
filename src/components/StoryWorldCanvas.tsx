@@ -45,7 +45,7 @@ export function StoryWorldCanvas({
   return (
     <Canvas
       className={styles.canvas}
-      shadows={quality === "cinematic"}
+      shadows={quality === "cinematic" ? "basic" : false}
       dpr={quality === "cinematic" ? [1, 1.45] : 1}
       camera={{
         fov: 42,

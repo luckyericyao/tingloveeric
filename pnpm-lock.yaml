@@ -4,19 +4,22 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  '@react-three/fiber@9.7.0': 969b807ecf358ee8909607e452455d7fc46dc7d4e1272fecfe84d60ad78cbc87
+
 importers:
 
   .:
     dependencies:
       '@react-three/drei':
         specifier: ^10.7.7
-        version: 10.7.7(@react-three/fiber@9.6.1(@types/react@19.2.17)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(three@0.185.1))(@types/react@19.2.17)(@types/three@0.185.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(three@0.185.1)
+        version: 10.7.7(@react-three/fiber@9.7.0(patch_hash=969b807ecf358ee8909607e452455d7fc46dc7d4e1272fecfe84d60ad78cbc87)(@types/react@19.2.17)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(three@0.185.1))(@types/react@19.2.17)(@types/three@0.185.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(three@0.185.1)
       '@react-three/fiber':
-        specifier: ^9.6.1
-        version: 9.6.1(@types/react@19.2.17)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(three@0.185.1)
+        specifier: ^9.7.0
+        version: 9.7.0(patch_hash=969b807ecf358ee8909607e452455d7fc46dc7d4e1272fecfe84d60ad78cbc87)(@types/react@19.2.17)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(three@0.185.1)
       '@react-three/postprocessing':
         specifier: ^3.0.4
-        version: 3.0.4(@react-three/fiber@9.6.1(@types/react@19.2.17)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(three@0.185.1))(@types/three@0.185.1)(react@19.2.4)(three@0.185.1)
+        version: 3.0.4(@react-three/fiber@9.7.0(patch_hash=969b807ecf358ee8909607e452455d7fc46dc7d4e1272fecfe84d60ad78cbc87)(@types/react@19.2.17)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(three@0.185.1))(@types/three@0.185.1)(react@19.2.4)(three@0.185.1)
       lucide-react:
         specifier: ^1.24.0
         version: 1.24.0(react@19.2.4)
@@ -506,8 +509,8 @@ packages:
       react-dom:
         optional: true
 
-  '@react-three/fiber@9.6.1':
-    resolution: {integrity: sha512-zF0rsKcVYpcJwbFEnv2HkHX9cvOEgsfQo/X8lwmR2dn13S4qEQJXir9fxf5js2LQFoXqxOY7MDkOkYx2uZ4gSg==}
+  '@react-three/fiber@9.7.0':
+    resolution: {integrity: sha512-EWm9FwcaOZQu/ExFW5rggoCMM1NJet5YbxVxKaOE+KSncrjU0Wx7017qSyGFvupviK89nMYGCWU3BIK4dI1clw==}
     peerDependencies:
       expo: '>=43.0'
       expo-asset: '>=8.4'
@@ -2765,12 +2768,12 @@ snapshots:
 
   '@nolyfill/is-core-module@1.0.39': {}
 
-  '@react-three/drei@10.7.7(@react-three/fiber@9.6.1(@types/react@19.2.17)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(three@0.185.1))(@types/react@19.2.17)(@types/three@0.185.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(three@0.185.1)':
+  '@react-three/drei@10.7.7(@react-three/fiber@9.7.0(patch_hash=969b807ecf358ee8909607e452455d7fc46dc7d4e1272fecfe84d60ad78cbc87)(@types/react@19.2.17)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(three@0.185.1))(@types/react@19.2.17)(@types/three@0.185.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(three@0.185.1)':
     dependencies:
       '@babel/runtime': 7.29.7
       '@mediapipe/tasks-vision': 0.10.17
       '@monogrid/gainmap-js': 3.4.0(three@0.185.1)
-      '@react-three/fiber': 9.6.1(@types/react@19.2.17)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(three@0.185.1)
+      '@react-three/fiber': 9.7.0(patch_hash=969b807ecf358ee8909607e452455d7fc46dc7d4e1272fecfe84d60ad78cbc87)(@types/react@19.2.17)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(three@0.185.1)
       '@use-gesture/react': 10.3.1(react@19.2.4)
       camera-controls: 3.1.2(three@0.185.1)
       cross-env: 7.0.3
@@ -2798,7 +2801,7 @@ snapshots:
       - '@types/three'
       - immer
 
-  '@react-three/fiber@9.6.1(@types/react@19.2.17)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(three@0.185.1)':
+  '@react-three/fiber@9.7.0(patch_hash=969b807ecf358ee8909607e452455d7fc46dc7d4e1272fecfe84d60ad78cbc87)(@types/react@19.2.17)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(three@0.185.1)':
     dependencies:
       '@babel/runtime': 7.29.7
       '@types/webxr': 0.5.24
@@ -2818,9 +2821,9 @@ snapshots:
       - '@types/react'
       - immer
 
-  '@react-three/postprocessing@3.0.4(@react-three/fiber@9.6.1(@types/react@19.2.17)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(three@0.185.1))(@types/three@0.185.1)(react@19.2.4)(three@0.185.1)':
+  '@react-three/postprocessing@3.0.4(@react-three/fiber@9.7.0(patch_hash=969b807ecf358ee8909607e452455d7fc46dc7d4e1272fecfe84d60ad78cbc87)(@types/react@19.2.17)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(three@0.185.1))(@types/three@0.185.1)(react@19.2.4)(three@0.185.1)':
     dependencies:
-      '@react-three/fiber': 9.6.1(@types/react@19.2.17)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(three@0.185.1)
+      '@react-three/fiber': 9.7.0(patch_hash=969b807ecf358ee8909607e452455d7fc46dc7d4e1272fecfe84d60ad78cbc87)(@types/react@19.2.17)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(three@0.185.1)
       maath: 0.6.0(@types/three@0.185.1)(three@0.185.1)
       n8ao: 1.10.3(postprocessing@6.39.2(three@0.185.1))(three@0.185.1)
       postprocessing: 6.39.2(three@0.185.1)

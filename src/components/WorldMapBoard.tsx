@@ -101,7 +101,7 @@ const mapModes: Record<
   world: {
     label: "世界",
     title: "世界主要旅游城市",
-    description: "悬停点位查看代表性地标 · 重要地点保持稀疏",
+    description: "点按或悬停查看代表性地标 · 重要地点保持稀疏",
     projection: "geoEqualEarth",
     scale: 155,
     center: [0, 15],
@@ -246,6 +246,12 @@ export function WorldMapBoard({ seedPlaces }: WorldMapBoardProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editorOpen, setEditorOpen] = useState(false);
   const [message, setMessage] = useState("");
+  const [mapReady, setMapReady] = useState(false);
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => setMapReady(true));
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -489,7 +495,7 @@ export function WorldMapBoard({ seedPlaces }: WorldMapBoardProps) {
           <h2>先看看想去的城市</h2>
         </div>
         <div>
-          <p>把重要城市和地标点亮，悬停时先看一眼它最容易被记住的画面。个人愿望，仍然可以自己写。</p>
+          <p>把重要城市和地标点亮，点按或悬停时先看一眼它最容易被记住的画面。个人愿望，仍然可以自己写。</p>
           <div className={styles.stats} aria-label="旅行统计">
             <div className={styles.stat}>
               <strong>{visitedCount}</strong>
@@ -603,13 +609,14 @@ export function WorldMapBoard({ seedPlaces }: WorldMapBoardProps) {
             </div>
 
             <div className={styles.mapSvg}>
-              <ComposableMap
-                width={1000}
-                height={620}
-                projection={mapModes[mapMode].projection}
-                projectionConfig={{ scale: mapModes[mapMode].scale }}
-                className={styles.mapCanvas}
-              >
+              {mapReady ? (
+                <ComposableMap
+                  width={1000}
+                  height={620}
+                  projection={mapModes[mapMode].projection}
+                  projectionConfig={{ scale: mapModes[mapMode].scale }}
+                  className={styles.mapCanvas}
+                >
                 <ZoomableGroup
                   key={mapMode}
                   center={mapPosition.coordinates}
@@ -641,7 +648,10 @@ export function WorldMapBoard({ seedPlaces }: WorldMapBoardProps) {
                             role="button"
                             tabIndex={0}
                             aria-label={`${place.cityZh || place.name} · ${place.name} · ${place.landmark || "地点名片"} · ${formatStatus(place.status)}`}
-                            onClick={() => setSelectedId(place.id)}
+                            onClick={() => {
+                              setSelectedId(place.id);
+                              setHoveredId(place.id);
+                            }}
                             onKeyDown={(event) => handleMarkerKeyDown(event, place.id)}
                             onMouseEnter={() => setHoveredId(place.id)}
                             onMouseLeave={() => setHoveredId(null)}
@@ -678,7 +688,10 @@ export function WorldMapBoard({ seedPlaces }: WorldMapBoardProps) {
                     );
                   })}
                 </ZoomableGroup>
-              </ComposableMap>
+                </ComposableMap>
+              ) : (
+                <div className={styles.mapLoading} role="status">正在展开世界地图…</div>
+              )}
             </div>
 
             {hoveredPlace ? (
@@ -707,7 +720,7 @@ export function WorldMapBoard({ seedPlaces }: WorldMapBoardProps) {
 
             <div className={styles.mapBadge}>
               <strong>{mapMode === "world" ? "世界地图" : "美国地图"}</strong>
-              悬停一座城市，先看它的代表性画面；点击后，再读这一处留给自己的愿望。
+              点按或悬停一座城市，先看它的代表性画面；点击后，再读这一处留给自己的愿望。
             </div>
             <div className={styles.mapLegend} aria-label="地点图例">
               <span>

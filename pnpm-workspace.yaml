@@ -4,3 +4,5 @@ allowBuilds:
 ignoredBuiltDependencies:
   - sharp
   - unrs-resolver
+patchedDependencies:
+  '@react-three/fiber@9.7.0': patches/@react-three__fiber@9.7.0.patch

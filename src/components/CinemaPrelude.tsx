@@ -10,6 +10,8 @@ type CinemaPreludeProps = {
   started: boolean;
   entryAvailable: boolean;
   openingAudioBlocked: boolean;
+  audioPlaying: boolean;
+  audioError: boolean;
   ariaHidden: boolean;
   onPlayOpeningAudio: () => void;
   onEnter: () => void;
@@ -26,12 +28,15 @@ export function CinemaPrelude({
   started,
   entryAvailable,
   openingAudioBlocked,
+  audioPlaying,
+  audioError,
   ariaHidden,
   onPlayOpeningAudio,
   onEnter,
 }: CinemaPreludeProps) {
   const beat = progress >= 0.82 ? 3 : progress >= 0.53 ? 2 : progress >= 0.24 ? 1 : 0;
   const elapsedSeconds = progress * 60;
+  const audioStatus = audioError ? "音乐暂不可用" : openingAudioBlocked ? "点击后播放" : audioPlaying ? "正在播放" : "已暂停";
 
   return (
     <section
@@ -51,7 +56,7 @@ export function CinemaPrelude({
           </span>
         </div>
         <div className={styles.preludeTrack} aria-live="polite">
-          <span>正在播放</span>
+          <span>{audioStatus}</span>
           <strong>就是爱你 · 陶喆</strong>
           <small>{formatClock(elapsedSeconds)} / 1:00</small>
         </div>
@@ -64,7 +69,7 @@ export function CinemaPrelude({
           <p className={styles.preludeLead}>
             一张自拍、一只猫，<br />还有一句“晚安～”。
           </p>
-          <div className={`${styles.preludeQuote} ${beat >= 3 ? styles.preludeVisible : ""}`}>
+          <div className={`${styles.preludeQuote} ${beat >= 3 ? styles.preludeVisible : ""}`} aria-hidden={beat < 3}>
             <span>靠近以后</span>
             <blockquote>“明天听你分享。”</blockquote>
             <blockquote>“真棒。” · “晚安～”</blockquote>
@@ -73,7 +78,7 @@ export function CinemaPrelude({
         </div>
 
         <div className={styles.preludeGallery} aria-label="被保存下来的甜蜜画面">
-          <figure className={`${styles.preludePhoto} ${styles.preludePortrait} ${beat >= 1 ? styles.preludeVisible : ""}`}>
+          <figure className={`${styles.preludePhoto} ${styles.preludePortrait} ${beat >= 1 ? styles.preludeVisible : ""}`} aria-hidden={beat < 1}>
             <div className={styles.preludePhotoImage}>
               <Image
                 src="/images/edited/hanni-portrait.jpg"
@@ -89,7 +94,7 @@ export function CinemaPrelude({
             </figcaption>
           </figure>
 
-          <figure className={`${styles.preludePhoto} ${styles.preludeWorld} ${beat >= 2 ? styles.preludeVisible : ""}`}>
+          <figure className={`${styles.preludePhoto} ${styles.preludeWorld} ${beat >= 2 ? styles.preludeVisible : ""}`} aria-hidden={beat < 2}>
             <div className={styles.preludePhotoImage}>
               <Image
                 src="/images/edited/her-world.jpg"
@@ -123,8 +128,9 @@ export function CinemaPrelude({
             </span>
           )}
           <button
-            className={styles.preludeEnter}
+            className={`${styles.preludeEnter} ${!ready ? styles.preludeEnterQuiet : ""}`}
             type="button"
+            data-story-enter
             onClick={onEnter}
             disabled={!entryAvailable || started}
             tabIndex={ariaHidden ? -1 : 0}

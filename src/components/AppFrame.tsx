@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
+import { StoryAudioDirector } from "@/components/StoryAudioDirector";
 
 export function AppFrame({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -21,13 +22,15 @@ export function AppFrame({ children }: { children: React.ReactNode }) {
     };
   }, [cinematicChapter, storyWorld]);
 
-  if (immersive) return children;
-
   return (
-    <>
-      <SiteHeader />
-      {children}
-      <SiteFooter />
-    </>
+    <StoryAudioDirector>
+      {immersive ? children : (
+        <>
+          <SiteHeader />
+          {children}
+          <SiteFooter />
+        </>
+      )}
+    </StoryAudioDirector>
   );
 }

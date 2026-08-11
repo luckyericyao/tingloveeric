@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Archive, ArrowDown, ArrowRight, LockKeyhole, Pause, Play, Volume2, VolumeX } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { coordinateMemories, originalCoordinates } from "@/data/originalCoordinates";
+import { useStoryAudio } from "@/components/StoryAudioDirector";
 import styles from "./ArchiveHome.module.css";
 
 const homeMoments = [
@@ -31,7 +32,7 @@ const homeMoments = [
     index: "03",
     kicker: "靠近以后 · 甜蜜的回应",
     title: "那些小小的回应",
-    source: "真实记录 · Eric 的感受",
+    source: "Eric 的感受",
     quote: "“明天听你分享。” “晚安～”",
     body: "写下名字、改简历、分享工作和日常。那些很小的回应不能定义整段关系，却真实发生过。",
   },
@@ -39,10 +40,19 @@ const homeMoments = [
 
 const heroPrints = [
   {
+    source: "/images/edited/hanni-portrait.jpg",
+    alt: "2025 年 1 月 27 日暖色灯光中的自拍画面",
+    label: "那时候她叫 Hanni",
+    date: "2025.01.27",
+    beat: 1,
+    className: "heroPrintPortrait",
+  },
+  {
     source: "/images/edited/her-world.jpg",
     alt: "猫、鱼缸和发财树组成的生活画面",
     label: "她的小世界",
     date: "2025.01.29",
+    beat: 2,
     className: "heroPrintWorld",
   },
 ] as const;
@@ -56,72 +66,26 @@ function formatTime(value: number) {
 
 export function ArchiveHome() {
   const homeRef = useRef<HTMLElement>(null);
-  const audioRef = useRef<HTMLAudioElement>(null);
-  const [playing, setPlaying] = useState(false);
-  const [muted, setMuted] = useState(false);
-  const [needsGesture, setNeedsGesture] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const fadeFrameRef = useRef<number | null>(null);
+  const [preludeSeconds, setPreludeSeconds] = useState(0);
+  const {
+    currentTime,
+    duration,
+    error: audioError,
+    muted,
+    needsGesture,
+    playing,
+    toggleMute,
+    togglePlayback,
+  } = useStoryAudio();
 
   useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    const savedMuted = window.localStorage.getItem("tingloveeric.muted") === "true";
-    audio.volume = savedMuted ? 0 : 0.26;
-    audio.muted = savedMuted;
-    setMuted(savedMuted);
-
-    const fadeIn = () => {
-      if (savedMuted) return;
-      const startedAt = performance.now();
-      const step = (now: number) => {
-        const progress = Math.min(1, (now - startedAt) / 1300);
-        audio.volume = 0.26 * progress;
-        if (progress < 1) fadeFrameRef.current = window.requestAnimationFrame(step);
-      };
-      if (fadeFrameRef.current !== null) window.cancelAnimationFrame(fadeFrameRef.current);
-      fadeFrameRef.current = window.requestAnimationFrame(step);
-    };
-
-    let disposed = false;
-    let removeUnlockListeners = () => {};
-
-    const tryPlayback = async () => {
-      if (disposed) return;
-      if (!audio.paused) return;
-      try {
-        await audio.play();
-        if (disposed) return;
-        fadeIn();
-        setNeedsGesture(false);
-        removeUnlockListeners();
-      } catch {
-        setNeedsGesture(true);
-      }
-    };
-
-    const unlock = () => void tryPlayback();
-    const unlockOptions: AddEventListenerOptions = { passive: true };
-    const events = ["pointerdown", "touchstart", "wheel", "keydown"] as const;
-    events.forEach((event) => window.addEventListener(event, unlock, unlockOptions));
-    audio.addEventListener("canplay", unlock);
-    removeUnlockListeners = () => {
-      events.forEach((event) => window.removeEventListener(event, unlock, unlockOptions));
-      audio.removeEventListener("canplay", unlock);
-    };
-
-    const blockedTimer = window.setTimeout(() => {
-      if (audio.paused) setNeedsGesture(true);
-    }, 700);
-
-    return () => {
-      disposed = true;
-      removeUnlockListeners();
-      window.clearTimeout(blockedTimer);
-      if (fadeFrameRef.current !== null) window.cancelAnimationFrame(fadeFrameRef.current);
-      audio.pause();
-    };
+    const startedAt = performance.now();
+    const timer = window.setInterval(() => {
+      const elapsed = Math.min(60, Math.floor((performance.now() - startedAt) / 1000));
+      setPreludeSeconds(elapsed);
+      if (elapsed >= 60) window.clearInterval(timer);
+    }, 250);
+    return () => window.clearInterval(timer);
   }, []);
 
   useEffect(() => {
@@ -142,43 +106,11 @@ export function ArchiveHome() {
     return () => observer.disconnect();
   }, []);
 
-  const togglePlayback = async () => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    if (!audio.paused) {
-      audio.pause();
-      return;
-    }
-
-    try {
-      await audio.play();
-      audio.volume = muted ? 0 : 0.26;
-      setNeedsGesture(false);
-    } catch {
-      setNeedsGesture(true);
-    }
-  };
-
   const progress = duration > 0 ? Math.min(currentTime / duration, 1) : 0;
+  const preludeBeat = preludeSeconds >= 55 ? 3 : preludeSeconds >= 35 ? 2 : preludeSeconds >= 15 ? 1 : 0;
 
   return (
     <main ref={homeRef} className={styles.home}>
-      <audio
-        ref={audioRef}
-        src="/audio/jiu-shi-ai-ni.m4a"
-        autoPlay
-        playsInline
-        preload="auto"
-        onPlay={() => {
-          setPlaying(true);
-          setNeedsGesture(false);
-        }}
-        onPause={() => setPlaying(false)}
-        onLoadedMetadata={(event) => setDuration(event.currentTarget.duration)}
-        onDurationChange={(event) => setDuration(event.currentTarget.duration)}
-        onTimeUpdate={(event) => setCurrentTime(event.currentTarget.currentTime)}
-      />
-
       <header className={styles.topbar}>
         <Link className={styles.brand} href="/">
           <strong>Ting & Eric</strong>
@@ -192,7 +124,7 @@ export function ArchiveHome() {
           </Link>
           <div className={styles.soundtrack}>
             <div className={styles.soundtrackCopy}>
-              <span>{needsGesture ? "滑动后播放" : "正在播放"}</span>
+              <span>{audioError ? "音乐暂不可用" : needsGesture ? "滑动后播放" : playing ? "正在播放" : "已暂停"}</span>
               <strong>就是爱你 · 陶喆</strong>
               <div className={styles.progressTrack} aria-hidden="true">
                 <span style={{ transform: `scaleX(${progress})` }} />
@@ -211,15 +143,7 @@ export function ArchiveHome() {
             <button
               type="button"
               className={styles.iconButton}
-              onClick={() => {
-                const audio = audioRef.current;
-                if (!audio) return;
-                const nextMuted = !muted;
-                audio.muted = nextMuted;
-                audio.volume = nextMuted ? 0 : 0.26;
-                window.localStorage.setItem("tingloveeric.muted", String(nextMuted));
-                setMuted(nextMuted);
-              }}
+              onClick={toggleMute}
               aria-label={muted ? "取消静音" : "静音"}
               title={muted ? "取消静音" : "静音"}
             >
@@ -229,7 +153,7 @@ export function ArchiveHome() {
         </div>
       </header>
 
-      <section className={styles.hero}>
+      <section className={styles.hero} data-prelude-beat={preludeBeat}>
         <Image
           src="/images/home/hero-memory-collage.jpg"
           alt="一张由旧自拍、猫咪、鱼缸与两只猫组成的甜蜜记忆拼贴"
@@ -240,11 +164,10 @@ export function ArchiveHome() {
         />
         <div className={styles.heroVeil} aria-hidden="true" />
         <div className={styles.heroScrapbook} aria-label="被保存下来的三张画面">
-          {heroPrints.map((print, index) => (
+          {heroPrints.map((print) => (
             <figure
               key={print.source}
-              className={`${styles.heroPrint} ${styles[print.className]}`}
-              data-home-reveal
+              className={`${styles.heroPrint} ${styles[print.className]} ${preludeBeat >= print.beat ? styles.heroPrintShown : ""}`}
             >
               <div className={styles.heroPrintImage}>
                 <Image
@@ -252,7 +175,7 @@ export function ArchiveHome() {
                   alt={print.alt}
                   fill
                   sizes="(max-width: 767px) 34vw, 16vw"
-                  priority={index === 0}
+                  priority
                   className={styles.heroPrintPhoto}
                 />
               </div>
@@ -263,16 +186,16 @@ export function ArchiveHome() {
             </figure>
           ))}
         </div>
-          <div className={styles.heroCopy}>
+        <div className={styles.heroCopy}>
           <p className={styles.heroKicker}>2025.01 · 三件小事</p>
           <h1>甜蜜的瞬间</h1>
           <p className={styles.positioning}>
             一张自拍、一只猫，<br />还有一句“晚安～”。
           </p>
-          <p className={styles.heroBody}>
+          <p className={`${styles.heroBody} ${preludeBeat >= 1 ? styles.heroPreludeReveal : ""}`}>
             先是她叫 Hanni，后来是生活里几句很小的回应。
           </p>
-          <p className={styles.heroSweetLine}>
+          <p className={`${styles.heroSweetLine} ${preludeBeat >= 3 ? styles.heroPreludeReveal : ""}`}>
             “明天听你分享～”<br />“真棒。” · “晚安～”
           </p>
         </div>
@@ -281,7 +204,11 @@ export function ArchiveHome() {
           <span><b>02</b> 看见她的生活</span>
           <span><b>03</b> 甜蜜的回应</span>
         </div>
-        <p className={styles.scrollHint}>向下，时间会继续</p>
+        <Link className={`${styles.heroEntry} ${preludeSeconds < 50 ? styles.heroEntryQuiet : ""}`} href="/cinema">
+          <span>{preludeSeconds >= 50 ? "进入故事" : "故事在慢慢展开"}</span>
+          <ArrowRight size={16} strokeWidth={1.5} />
+        </Link>
+        <p className={styles.scrollHint}>一分钟序幕正在展开</p>
         <a className={styles.scrollCue} href="#archive-timeline" aria-label="继续阅读原始坐标">
           <ArrowDown size={18} strokeWidth={1.5} />
         </a>

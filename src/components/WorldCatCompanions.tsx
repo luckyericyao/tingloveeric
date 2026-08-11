@@ -22,7 +22,7 @@ export function WorldCatCompanions() {
 
       <figure className={`${styles.cat} ${styles.xiaoye}`} data-testid="world-cat-xiaoye">
         <Image
-          src="/assets/cats/xiaoyi-left.webp"
+          src="/assets/cats/xiaoye-left.webp"
           alt="小yeah，银白色长毛猫"
           width={1128}
           height={1394}

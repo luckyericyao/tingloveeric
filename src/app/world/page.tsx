@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { WorldMapBoard } from "@/components/WorldMapBoard";
 import { WorldCatCompanions } from "@/components/WorldCatCompanions";
-import { worldMapPlaces } from "@/data/love";
+import { loveWorldRooms, worldMapPlaces } from "@/data/love";
 import styles from "./WorldPage.module.css";
 
 export const metadata: Metadata = {
@@ -26,7 +26,7 @@ export default function WorldPage() {
               地方
             </h1>
             <p className={styles.heroCopy}>
-              巴黎、东京、上海……先把那些想亲眼看见的城市和地标点亮。悬停地图上的点位，会出现一张地标照片。
+              巴黎、东京、上海……先把那些想亲眼看见的城市和地标点亮。点按或悬停地图上的点位，会出现一张地标照片。
             </p>
           </div>
           <div className={styles.heroAside}>
@@ -52,6 +52,22 @@ export default function WorldPage() {
       <div className={styles.boardWrap}>
         <WorldMapBoard seedPlaces={worldMapPlaces} />
       </div>
+
+      <nav className={styles.roomRail} aria-label="地图之后的四个房间">
+        <div className={styles.roomRailIntro}>
+          <p>地图之后</p>
+          <h2>回到只对两个人开放的房间。</h2>
+        </div>
+        <div className={styles.roomLinks}>
+          {loveWorldRooms.map((room) => (
+            <a key={room.id} href={room.href} className={`${styles.roomLink} ${styles[room.accent]}`}>
+              <span>{room.sticker}</span>
+              <strong>{room.title}</strong>
+              <small>{room.body}</small>
+            </a>
+          ))}
+        </div>
+      </nav>
     </main>
   );
 }
