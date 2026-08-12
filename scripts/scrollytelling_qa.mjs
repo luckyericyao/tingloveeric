@@ -4,8 +4,7 @@ const executablePath = "/Applications/Google Chrome.app/Contents/MacOS/Google Ch
 const baseURL = process.env.QA_URL || "http://127.0.0.1:3000";
 const storyURL = `${baseURL}/cinema`;
 const chapterCount = 6;
-const musicDuration = 254.4;
-const chapterCues = [0, 0.14, 0.3, 0.47, 0.65, 0.82];
+const chapterCues = [0, 30, 62, 108, 168, 213];
 
 function captureFailures(page, errors, failedRequests) {
   page.on("console", (message) => {
@@ -28,8 +27,13 @@ async function enterStory(page) {
   await page.waitForTimeout(350);
   const earlyEnterCount = await page.locator("[data-story-enter]").count();
   if (earlyEnterCount !== 0) throw new Error("进入故事按钮在一分钟序幕结束前出现");
+  await page.waitForFunction(() => {
+    const prelude = document.querySelector("[aria-label='甜蜜的序幕']");
+    return prelude?.getAttribute("data-prelude-seconds") === "59"
+      && !document.querySelector("[data-story-enter]");
+  }, null, { timeout: 65000 });
   const enter = page.locator("[data-story-enter]");
-  await enter.waitFor({ state: "visible", timeout: 65000 });
+  await enter.waitFor({ state: "visible", timeout: 5000 });
   const openingAudioSource = await page.locator("audio").evaluate((audio) => audio.currentSrc);
   await page.waitForFunction(() => {
     const button = Array.from(document.querySelectorAll("button")).find((item) => item.textContent?.includes("进入故事"));
@@ -55,7 +59,7 @@ async function storyState(page) {
 }
 
 async function seekFilmToChapter(page, chapter) {
-  const targetTime = Math.max(0.8, musicDuration * chapterCues[chapter] + 0.8);
+  const targetTime = Math.max(0.8, chapterCues[chapter] + 0.8);
   await page.locator("audio").evaluate((audio, time) => {
     audio.currentTime = time;
     audio.dispatchEvent(new Event("timeupdate", { bubbles: true }));

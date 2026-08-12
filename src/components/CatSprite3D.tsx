@@ -4,7 +4,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useTexture } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
-import { storyWorld } from "@/data/storyWorld";
 
 export type CatIdentity = "nono" | "xiaoye";
 
@@ -62,18 +61,18 @@ const VIEW_ORDER = ["front", "left", "right", "blink"] as const;
 
 const CAT_STAGE_LAYOUT = {
   desktop: {
-    depth: 3.65,
-    openY: 0.86,
-    closedY: 0.72,
+    depth: 8,
+    openY: -0.88,
+    closedY: -0.98,
     xiaoye: { xOpen: -2.62, xClosed: -2.5, y: 0.55, z: 0.16, scaleOpen: 1.4, scaleClosed: 1.46, yaw: THREE.MathUtils.degToRad(10) },
     nono: { xOpen: 2.58, xClosed: 2.5, y: 0.02, z: 0.22, scaleOpen: 1.78, scaleClosed: 1.84, yaw: THREE.MathUtils.degToRad(-10) },
   },
   mobile: {
-    depth: 2.22,
-    openY: 0.28,
-    closedY: 0.14,
-    xiaoye: { xOpen: -1.04, xClosed: -1.1, y: 0.59, z: 0.08, scaleOpen: 1.62, scaleClosed: 1.68, yaw: THREE.MathUtils.degToRad(9) },
-    nono: { xOpen: 1.04, xClosed: 1.1, y: 0.5, z: 0.06, scaleOpen: 1.74, scaleClosed: 1.8, yaw: THREE.MathUtils.degToRad(-10) },
+    depth: 7.4,
+    openY: -1.35,
+    closedY: -1.42,
+    xiaoye: { xOpen: -0.84, xClosed: -0.78, y: 0.59, z: 0.08, scaleOpen: 1.4, scaleClosed: 1.44, yaw: THREE.MathUtils.degToRad(9) },
+    nono: { xOpen: 0.84, xClosed: 0.78, y: 0.5, z: 0.06, scaleOpen: 1.52, scaleClosed: 1.56, yaw: THREE.MathUtils.degToRad(-10) },
   },
 } as const;
 
@@ -397,27 +396,30 @@ export function CatSprite3D({
 export function CatCompanions({ activeChapter, panelOpen, reducedMotion, onInteract }: CatCompanionsProps) {
   const group = useRef<THREE.Group>(null);
   const target = useMemo(() => new THREE.Vector3(), []);
+  const targetQuaternion = useMemo(() => new THREE.Quaternion(), []);
   const groupInitialized = useRef(false);
-  const { size } = useThree();
+  const { camera, size } = useThree();
   const compact = size.width < 680;
   const stage = compact ? CAT_STAGE_LAYOUT.mobile : CAT_STAGE_LAYOUT.desktop;
 
   useFrame((state, delta) => {
     if (!group.current) return;
-    const chapter = storyWorld.chapters[activeChapter];
-    target.set(chapter.position[0], panelOpen ? stage.openY : stage.closedY, chapter.position[2] + stage.depth);
+    target
+      .set(0, panelOpen ? stage.openY : stage.closedY, -stage.depth)
+      .applyMatrix4(camera.matrixWorld);
+    targetQuaternion.copy(camera.quaternion);
     if (!groupInitialized.current) {
       group.current.position.copy(target);
+      group.current.quaternion.copy(targetQuaternion);
       groupInitialized.current = true;
     } else {
       group.current.position.lerp(target, 1 - Math.exp(-delta * (panelOpen ? 3.4 : 2.8)));
+      group.current.quaternion.slerp(targetQuaternion, 1 - Math.exp(-delta * 4.8));
     }
-    group.current.rotation.y = THREE.MathUtils.lerp(
-      group.current.rotation.y,
-      activeChapter % 2 ? -0.035 : 0.028,
-      1 - Math.exp(-delta * 2.5),
-    );
-    if (!reducedMotion) group.current.position.y += Math.sin(state.clock.elapsedTime * 1.9) * 0.0015;
+    if (!reducedMotion) {
+      const sway = Math.sin(state.clock.elapsedTime * 1.9 + activeChapter * 0.7) * 0.0015;
+      group.current.translateY(sway);
+    }
   });
 
   return (

@@ -13,6 +13,7 @@ import {
 import styles from "./LoveStoryExperience.module.css";
 
 type StoryWorldCanvasProps = {
+  activeBeat: number;
   activeChapter: number;
   panelOpen: boolean;
   quality: RenderQuality;
@@ -33,6 +34,7 @@ function SceneReady({ onReady }: { onReady: () => void }) {
 }
 
 export function StoryWorldCanvas({
+  activeBeat,
   activeChapter,
   panelOpen,
   quality,
@@ -66,6 +68,7 @@ export function StoryWorldCanvas({
     >
       <Suspense fallback={null}>
         <StoryWorldScene
+          activeBeat={activeBeat}
           activeChapter={activeChapter}
           started
           panelOpen={panelOpen}

@@ -20,9 +20,9 @@ const StoryWorldCanvas = dynamic(
   { ssr: false },
 );
 
-const FORWARD_TRANSITION_MS = 1050;
+const CHAPTER_TRANSITION_MS = 860;
+const BEAT_TRANSITION_MS = 260;
 const DEFAULT_MUSIC_DURATION_SECONDS = 254.4;
-const FILM_CHAPTER_CUE_RATIOS = [0, 0.14, 0.3, 0.47, 0.65, 0.82] as const;
 const PRELUDE_DURATION_SECONDS = 60;
 
 function detectWebGL() {
@@ -38,6 +38,7 @@ export function LoveStoryExperience() {
   const [started, setStarted] = useState(false);
   const [sceneReady, setSceneReady] = useState(false);
   const [webglSupported, setWebglSupported] = useState<boolean | null>(null);
+  const [activeBeat, setActiveBeat] = useState(0);
   const [activeChapter, setActiveChapter] = useState(0);
   const [maxViewedChapter, setMaxViewedChapter] = useState(0);
   const [panelOpen, setPanelOpen] = useState(true);
@@ -48,13 +49,16 @@ export function LoveStoryExperience() {
   const [timelineRun, setTimelineRun] = useState(0);
   const [preludeSeconds, setPreludeSeconds] = useState(0);
   const experienceRef = useRef<HTMLElement>(null);
+  const activeBeatRef = useRef(0);
   const activeChapterRef = useRef(0);
   const maxViewedChapterRef = useRef(0);
   const playbackStateRef = useRef<StoryPlaybackState>("idle");
   const timelineTimers = useRef<number[]>([]);
   const filmStartedRef = useRef(false);
   const musicDurationRef = useRef(DEFAULT_MUSIC_DURATION_SECONDS);
+  const beat = storyWorld.timeline[activeBeat];
   const chapter = storyWorld.chapters[activeChapter];
+  const lastBeat = storyWorld.timeline.length - 1;
   const lastChapter = storyWorld.chapters.length - 1;
   const {
     activeTrack,
@@ -85,25 +89,30 @@ export function LoveStoryExperience() {
     timelineTimers.current.push(timer);
   }, []);
 
-  const queueFilmChapter = useCallback((index: number) => {
-    if (index <= activeChapterRef.current || index > lastChapter) return;
+  const queueFilmBeat = useCallback((index: number) => {
+    if (index <= activeBeatRef.current || index > lastBeat) return;
+    const nextBeat = storyWorld.timeline[index];
+    const nextChapter = nextBeat.chapterIndex;
+    const chapterChanged = nextChapter !== activeChapterRef.current;
     clearTimeline();
-    setPlayback("transitioning");
+    setPlayback(chapterChanged ? "transitioning" : "playing");
     setPlaybackDirection("forward");
     setPanelOpen(false);
-    activeChapterRef.current = index;
-    const viewedChapter = Math.max(maxViewedChapterRef.current, index);
+    activeBeatRef.current = index;
+    setActiveBeat(index);
+    activeChapterRef.current = nextChapter;
+    const viewedChapter = Math.max(maxViewedChapterRef.current, nextChapter);
     maxViewedChapterRef.current = viewedChapter;
-    setActiveChapter(index);
+    setActiveChapter(nextChapter);
     setMaxViewedChapter(viewedChapter);
     setTimelineRun((current) => current + 1);
 
-    const transitionDuration = reducedMotion ? 80 : FORWARD_TRANSITION_MS;
+    const transitionDuration = reducedMotion ? 40 : chapterChanged ? CHAPTER_TRANSITION_MS : BEAT_TRANSITION_MS;
     scheduleTimeline(() => {
       setPanelOpen(true);
       setPlayback("playing");
     }, transitionDuration);
-  }, [clearTimeline, lastChapter, reducedMotion, scheduleTimeline, setPlayback]);
+  }, [clearTimeline, lastBeat, reducedMotion, scheduleTimeline, setPlayback]);
 
   useEffect(() => {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -142,6 +151,7 @@ export function LoveStoryExperience() {
   useEffect(() => {
     if (!started || !sceneReady || filmStartedRef.current) return;
     filmStartedRef.current = true;
+    activeBeatRef.current = 0;
     activeChapterRef.current = 0;
     setPlaybackDirection("forward");
     setPanelOpen(true);
@@ -155,8 +165,10 @@ export function LoveStoryExperience() {
 
   const startStory = async () => {
     clearTimeline();
+    activeBeatRef.current = 0;
     activeChapterRef.current = 0;
     maxViewedChapterRef.current = 0;
+    setActiveBeat(0);
     setActiveChapter(0);
     setMaxViewedChapter(0);
     setPlayback("idle");
@@ -179,30 +191,30 @@ export function LoveStoryExperience() {
     if (!started || !sceneReady || !filmStartedRef.current) return;
     if (playbackStateRef.current === "transitioning" || playbackStateRef.current === "completed") return;
 
-    const duration = Number.isFinite(audioDuration) && audioDuration > 0
-      ? audioDuration
-      : musicDurationRef.current;
-    musicDurationRef.current = duration;
-    const progress = audioCurrentTime / duration;
-    const nextChapter = Math.min(
-      lastChapter,
-      FILM_CHAPTER_CUE_RATIOS.reduce<number>((current, cue, index) => (progress >= cue ? index : current), 0),
+    if (Number.isFinite(audioDuration) && audioDuration > 0) {
+      musicDurationRef.current = audioDuration;
+    }
+    const nextBeat = storyWorld.timeline.reduce<number>(
+      (current, item, index) => (audioCurrentTime >= item.start ? index : current),
+      0,
     );
 
-    if (nextChapter > activeChapterRef.current) {
-      queueFilmChapter(activeChapterRef.current + 1);
+    if (nextBeat > activeBeatRef.current) {
+      queueFilmBeat(nextBeat);
     }
-  }, [audioCurrentTime, audioDuration, lastChapter, queueFilmChapter, sceneReady, started]);
+  }, [audioCurrentTime, audioDuration, queueFilmBeat, sceneReady, started]);
 
   const handleAudioEnded = useCallback(() => {
     if (!started) return;
+    activeBeatRef.current = lastBeat;
     activeChapterRef.current = lastChapter;
     maxViewedChapterRef.current = lastChapter;
+    setActiveBeat(lastBeat);
     setActiveChapter(lastChapter);
     setMaxViewedChapter(lastChapter);
     setPanelOpen(true);
     setPlayback("completed");
-  }, [lastChapter, setPlayback, started]);
+  }, [lastBeat, lastChapter, setPlayback, started]);
 
   useEffect(() => {
     if (!started || endedTrack !== "story") return;
@@ -224,11 +236,13 @@ export function LoveStoryExperience() {
       className={styles.experience}
       data-quality={quality}
       data-playback={playbackState}
+      data-beat={activeBeat}
       data-chapter={activeChapter}
       data-max-viewed={maxViewedChapter}
     >
       {webglSupported && started ? (
         <StoryWorldCanvas
+          activeBeat={activeBeat}
           activeChapter={activeChapter}
           panelOpen={panelOpen}
           quality={quality}
@@ -278,28 +292,26 @@ export function LoveStoryExperience() {
           </header>
 
           <p className={styles.chapterStatus} aria-live="polite">
-            {statusText}
+            {statusText} · {String(activeBeat + 1).padStart(2, "0")}/{storyWorld.timeline.length}
           </p>
           {audioError || (activeTrack.id === "story" && audioNeedsGesture) ? <p className={styles.errorNote}>音乐没有自动播放，放映仍会继续。</p> : null}
 
           <article
-            key={`${chapter.id}-${timelineRun}`}
+            key={`${beat.id}-${timelineRun}`}
             className={`${styles.chapterPanel} ${panelOpen ? "" : styles.chapterPanelHidden} ${playbackState === "playing" ? styles.chapterPanelPlaying : ""}`}
             aria-live="polite"
           >
             <div className={styles.chapterMeta}>
-              <span>{chapter.index}</span>
-              <span>{chapter.label}</span>
-              <span>{chapter.source}</span>
-              {chapter.date ? <span>{chapter.date}</span> : null}
-              {chapter.place ? <span>{chapter.place}</span> : null}
+              <span>{String(activeBeat + 1).padStart(2, "0")}</span>
+              <span>{beat.eyebrow}</span>
+              <span>{beat.source}</span>
             </div>
-            <h2>{chapter.title}</h2>
-            <p className={styles.chapterQuote}>“{chapter.quote}”</p>
-            <p className={styles.chapterBody}>{chapter.body}</p>
+            <h2>{beat.title}</h2>
+            {beat.quote ? <p className={styles.chapterQuote}>“{beat.quote}”</p> : null}
+            <p className={styles.chapterBody}>{beat.body}</p>
             <footer className={styles.chapterFooter}>
-              <span className={styles.chapterPrompt}>{chapter.prompt}</span>
-              {playbackState === "completed" && activeChapter === lastChapter && chapter.action ? (
+              <span className={styles.chapterPrompt}>{beat.prompt}</span>
+              {playbackState === "completed" && activeBeat === lastBeat && chapter.action ? (
                 <Link className={styles.chapterAction} href={chapter.action.href}>
                   {chapter.action.label}
                   <ArrowRight size={15} strokeWidth={1.6} />
@@ -307,6 +319,14 @@ export function LoveStoryExperience() {
               ) : null}
             </footer>
           </article>
+          <div className={styles.filmProgress} aria-hidden="true">
+            {storyWorld.timeline.map((item, index) => (
+              <span
+                className={index <= activeBeat ? styles.filmProgressSeen : ""}
+                key={item.id}
+              />
+            ))}
+          </div>
         </>
       ) : null}
     </main>
