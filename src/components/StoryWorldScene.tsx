@@ -25,7 +25,17 @@ type SceneProps = {
   onCatInteraction: () => void;
 };
 
-const PROJECTION_VISUALS = ["hanni", "her-world", "collage", "cottage", "guangzhou", "night"] as const satisfies readonly StoryVisualId[];
+const PROJECTION_VISUALS = [
+  "night",
+  "shanghai",
+  "guangzhou",
+  "cottage",
+  "paris",
+  "tokyo",
+  "yellowstone",
+  "starbase",
+  "antarctica",
+] as const satisfies readonly StoryVisualId[];
 const PROJECTION_ASPECT = 7.6 / 4.65;
 
 useTexture.preload(PROJECTION_VISUALS.map((id) => storyVisuals[id].src));

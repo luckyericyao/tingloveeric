@@ -4,7 +4,7 @@ const executablePath = "/Applications/Google Chrome.app/Contents/MacOS/Google Ch
 const baseURL = process.env.QA_URL || "http://127.0.0.1:3000";
 const storyURL = `${baseURL}/cinema`;
 const chapterCount = 6;
-const chapterCues = [0, 30, 62, 108, 168, 213];
+const chapterCues = [0, 46, 94, 110, 158, 235];
 
 function captureFailures(page, errors, failedRequests) {
   page.on("console", (message) => {

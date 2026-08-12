@@ -4,7 +4,7 @@ import { PNG } from "pngjs";
 const executablePath = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 const baseURL = process.env.QA_URL || "http://127.0.0.1:3000";
 const storyURL = `${baseURL}/cinema`;
-const chapterCues = [0, 30, 62, 108, 168, 213];
+const chapterCues = [0, 46, 94, 110, 158, 235];
 const generatedSceneAssets = [
   "/assets/cats/nono-front.webp",
   "/assets/cats/nono-left.webp",
@@ -15,6 +15,15 @@ const generatedSceneAssets = [
   "/assets/cats/xiaoye-right.webp",
   "/assets/cats/xiaoye-blink.webp",
   "/assets/butterfly/pearl-wing.webp",
+  "/images/shanghai-night-walk.jpg",
+  "/images/edited/cp-cottage-relic.jpg",
+  "/images/travel/guangzhou.jpg",
+  "/images/travel/shanghai.jpg",
+  "/images/travel/paris.jpg",
+  "/images/travel/tokyo.jpg",
+  "/images/travel/yellowstone.jpg",
+  "/images/travel/starbase.jpg",
+  "/images/travel/antarctica.jpg",
 ];
 
 function analyzePng(buffer) {
