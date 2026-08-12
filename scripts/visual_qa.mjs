@@ -52,10 +52,29 @@ function analyzePng(buffer) {
 
 async function waitForIntro(page) {
   await page.goto(storyURL, { waitUntil: "domcontentloaded" });
+  await page.locator("main").waitFor({ state: "visible" });
+  await page.waitForTimeout(350);
+  const earlyEnterCount = await page.locator("[data-story-enter]").count();
+  if (earlyEnterCount !== 0) throw new Error("进入故事按钮在一分钟序幕结束前出现");
+  await page.evaluate(() => {
+    const originalNow = performance.now.bind(performance);
+    Object.defineProperty(window, "__qaNativePerformanceNow", { configurable: true, value: originalNow });
+    Object.defineProperty(performance, "now", {
+      configurable: true,
+      value: () => originalNow() + 60000,
+    });
+  });
   await page.getByRole("button", { name: "进入故事" }).waitFor({ state: "visible" });
   await page.waitForFunction(() => {
     const button = Array.from(document.querySelectorAll("button")).find((item) => item.textContent?.includes("进入故事"));
     return button && !button.disabled;
+  });
+  await page.evaluate(() => {
+    const originalNow = window.__qaNativePerformanceNow;
+    if (typeof originalNow === "function") {
+      Object.defineProperty(performance, "now", { configurable: true, value: originalNow });
+      delete window.__qaNativePerformanceNow;
+    }
   });
 }
 

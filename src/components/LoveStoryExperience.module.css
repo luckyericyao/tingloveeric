@@ -1305,13 +1305,6 @@
   opacity: 0.46;
 }
 
-/* Keep the handoff visible without making the first minute feel like a form. */
-.preludeEnterQuiet {
-  border-color: rgba(255, 248, 239, 0.22);
-  background: rgba(223, 191, 196, 0.16);
-  color: rgba(255, 248, 239, 0.66);
-}
-
 /* The film copy is a lower-third, not a dashboard card. */
 .chapterPanel {
   width: min(470px, calc(100vw - 56px));

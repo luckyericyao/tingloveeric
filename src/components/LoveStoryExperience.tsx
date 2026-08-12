@@ -24,7 +24,6 @@ const FORWARD_TRANSITION_MS = 1050;
 const DEFAULT_MUSIC_DURATION_SECONDS = 254.4;
 const FILM_CHAPTER_CUE_RATIOS = [0, 0.14, 0.3, 0.47, 0.65, 0.82] as const;
 const PRELUDE_DURATION_SECONDS = 60;
-const PRELUDE_ENTRY_SECONDS = 54;
 
 function detectWebGL() {
   try {
@@ -250,7 +249,7 @@ export function LoveStoryExperience() {
 
       <CinemaPrelude
         progress={preludeSeconds / PRELUDE_DURATION_SECONDS}
-        ready={preludeSeconds >= PRELUDE_ENTRY_SECONDS}
+        ready={preludeSeconds >= PRELUDE_DURATION_SECONDS}
         started={started}
         entryAvailable={webglSupported !== null}
         openingAudioBlocked={audioNeedsGesture && activeTrack.id === "opening"}

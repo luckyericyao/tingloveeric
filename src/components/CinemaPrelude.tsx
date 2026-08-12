@@ -127,17 +127,19 @@ export function CinemaPrelude({
               {ready ? "序幕已经停在这里" : "一些细节正在慢慢显现"}
             </span>
           )}
-          <button
-            className={`${styles.preludeEnter} ${!ready ? styles.preludeEnterQuiet : ""}`}
-            type="button"
-            data-story-enter
-            onClick={onEnter}
-            disabled={!entryAvailable || started}
-            tabIndex={ariaHidden ? -1 : 0}
-          >
-            <span>{started ? "正在进入" : "进入故事"}</span>
-            <ArrowRight size={16} strokeWidth={1.5} />
-          </button>
+          {ready ? (
+            <button
+              className={styles.preludeEnter}
+              type="button"
+              data-story-enter
+              onClick={onEnter}
+              disabled={!entryAvailable || started}
+              tabIndex={ariaHidden ? -1 : 0}
+            >
+              <span>{started ? "正在进入" : "进入故事"}</span>
+              <ArrowRight size={16} strokeWidth={1.5} />
+            </button>
+          ) : null}
         </div>
       </footer>
     </section>
