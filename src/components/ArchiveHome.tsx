@@ -233,20 +233,22 @@ export function ArchiveHome() {
           <span><b>02</b> 看见她的生活</span>
           <span><b>03</b> 甜蜜的回应</span>
         </div>
-        <Link className={`${styles.heroEntry} ${preludeSeconds < 50 ? styles.heroEntryQuiet : ""}`} href="/cinema">
-          <span>{preludeSeconds >= 50 ? "进入故事" : "故事在慢慢展开"}</span>
-          <ArrowRight size={16} strokeWidth={1.5} />
-        </Link>
         {preludeComplete ? (
-          <a
-            className={styles.scrollCue}
-            href="#archive-timeline"
-            aria-label="继续往下看"
-            title="继续往下看"
-          >
-            <span>继续往下看</span>
-            <ArrowDown size={17} strokeWidth={1.5} />
-          </a>
+          <>
+            <Link className={styles.heroEntry} href="/cinema">
+              <span>进入故事</span>
+              <ArrowRight size={16} strokeWidth={1.5} />
+            </Link>
+            <a
+              className={styles.scrollCue}
+              href="#archive-timeline"
+              aria-label="继续往下看"
+              title="继续往下看"
+            >
+              <span>继续往下看</span>
+              <ArrowDown size={17} strokeWidth={1.5} />
+            </a>
+          </>
         ) : null}
       </section>
 
