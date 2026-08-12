@@ -54,8 +54,8 @@ function CinematicRig({
       camera.position.copy(targetPosition.current);
       lookAt.current.copy(targetLookAt.current);
     } else {
-      const transitionRate = playbackDirection === "backward" ? 3.35 : 2.18;
-      const cameraRate = playbackState === "transitioning" ? transitionRate : started ? 1.7 : 0.72;
+      const transitionRate = playbackDirection === "backward" ? 3.8 : 3.15;
+      const cameraRate = playbackState === "transitioning" ? transitionRate : started ? 2.05 : 0.86;
       const cameraEase = 1 - Math.exp(-delta * cameraRate);
       camera.position.lerp(targetPosition.current, cameraEase);
       lookAt.current.lerp(targetLookAt.current, cameraEase * 1.15);

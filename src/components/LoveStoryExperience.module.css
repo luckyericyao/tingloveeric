@@ -1503,3 +1503,239 @@
     transition-duration: 0.01ms;
   }
 }
+
+/* Film projection pass: text enters as a clean vertical roll, not a UI card fade. */
+.prelude {
+  transition-duration: 600ms;
+}
+
+.preludeBackdrop {
+  animation-duration: 42s;
+}
+
+.preludeCopy > .preludeKicker,
+.preludeCopy > h1,
+.preludeCopy > .preludeLead {
+  opacity: 0;
+  animation: filmTextRoll 620ms cubic-bezier(0.18, 0.82, 0.24, 1) both;
+}
+
+.preludeCopy > .preludeKicker {
+  animation-delay: 80ms;
+}
+
+.preludeCopy > h1 {
+  animation-delay: 170ms;
+}
+
+.preludeCopy > .preludeLead {
+  animation-delay: 330ms;
+}
+
+.preludeQuote {
+  transition: opacity 560ms ease, transform 560ms cubic-bezier(0.18, 0.82, 0.24, 1), clip-path 560ms ease;
+  clip-path: inset(100% 0 0);
+}
+
+.preludeQuote.preludeVisible {
+  clip-path: inset(0);
+}
+
+.preludePhoto {
+  transition-duration: 760ms;
+}
+
+.preludeWorld {
+  transition-delay: 140ms;
+}
+
+.chapterPanel {
+  width: min(640px, calc(100vw - 56px));
+  padding: 24px 0 0 28px;
+  border-top-color: rgba(255, 248, 239, 0.28);
+  transition: opacity 520ms ease, transform 700ms cubic-bezier(0.18, 0.82, 0.24, 1);
+}
+
+.chapterPanel::after {
+  position: absolute;
+  top: -1px;
+  left: 0;
+  width: 76px;
+  height: 1px;
+  content: "";
+  background: var(--archive-rose-soft, #dfbfc4);
+  opacity: 0.9;
+  animation: filmScanLine 900ms cubic-bezier(0.18, 0.82, 0.24, 1) both;
+}
+
+.chapterPanelHidden {
+  transform: translateY(32px);
+}
+
+.chapterPanelPlaying .chapterMeta,
+.chapterPanelPlaying h2,
+.chapterPanelPlaying .chapterQuote,
+.chapterPanelPlaying .chapterBody,
+.chapterPanelPlaying .chapterFooter {
+  animation: filmTextRoll 540ms cubic-bezier(0.18, 0.82, 0.24, 1) both;
+}
+
+.chapterPanelPlaying .chapterMeta {
+  animation-delay: 40ms;
+}
+
+.chapterPanelPlaying h2 {
+  animation-delay: 120ms;
+}
+
+.chapterPanelPlaying .chapterQuote {
+  animation-delay: 205ms;
+}
+
+.chapterPanelPlaying .chapterBody {
+  animation-delay: 290ms;
+}
+
+.chapterPanelPlaying .chapterFooter {
+  animation-delay: 380ms;
+}
+
+.chapterPanel h2 {
+  font-size: clamp(34px, 4vw, 48px);
+}
+
+.chapterQuote {
+  font-size: 21px;
+}
+
+.chapterBody {
+  max-width: 600px;
+  font-size: 15px;
+}
+
+.chapterFooter {
+  max-width: 600px;
+}
+
+.experience[data-playback="playing"] .brand,
+.experience[data-playback="playing"] .nowPlaying,
+.experience[data-playback="playing"] .chapterStatus {
+  animation: filmChromeIn 520ms cubic-bezier(0.18, 0.82, 0.24, 1) both;
+}
+
+.experience[data-playback="playing"] .nowPlaying {
+  animation-delay: 70ms;
+}
+
+.experience[data-playback="playing"] .chapterStatus {
+  animation-delay: 120ms;
+}
+
+@keyframes filmTextRoll {
+  0% {
+    clip-path: inset(100% 0 0);
+    opacity: 0;
+    transform: translate3d(0, 30px, 0);
+  }
+
+  62% {
+    opacity: 1;
+  }
+
+  100% {
+    clip-path: inset(0);
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes filmScanLine {
+  from {
+    opacity: 0;
+    transform: scaleX(0.15);
+    transform-origin: left center;
+  }
+
+  to {
+    opacity: 0.9;
+    transform: scaleX(1);
+    transform-origin: left center;
+  }
+}
+
+@keyframes filmChromeIn {
+  from {
+    opacity: 0.12;
+    transform: translateY(-9px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (min-width: 768px) {
+  .chapterPanel {
+    transform: translateX(-50%);
+  }
+
+  .chapterPanelHidden {
+    transform: translate(-50%, 32px);
+  }
+}
+
+@media (max-width: 767px) {
+  .chapterPanel {
+    right: 14px;
+    bottom: 76px;
+    left: 14px;
+    width: auto;
+    padding: 16px 16px 0;
+  }
+
+  .chapterPanelHidden {
+    transform: translateY(26px);
+  }
+
+  .chapterPanel h2 {
+    font-size: 30px;
+  }
+
+  .chapterQuote {
+    font-size: 18px;
+  }
+
+  .chapterBody {
+    font-size: 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .preludeCopy > .preludeKicker,
+  .preludeCopy > h1,
+  .preludeCopy > .preludeLead,
+  .chapterPanel::after,
+  .chapterPanelPlaying .chapterMeta,
+  .chapterPanelPlaying h2,
+  .chapterPanelPlaying .chapterQuote,
+  .chapterPanelPlaying .chapterBody,
+  .chapterPanelPlaying .chapterFooter {
+    animation: none;
+    opacity: 1;
+    clip-path: none;
+    transform: none;
+  }
+
+  .experience[data-playback="playing"] .brand,
+  .experience[data-playback="playing"] .nowPlaying,
+  .experience[data-playback="playing"] .chapterStatus {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  .preludeQuote {
+    clip-path: none;
+  }
+}

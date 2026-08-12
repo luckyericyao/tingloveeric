@@ -20,7 +20,7 @@ const StoryWorldCanvas = dynamic(
   { ssr: false },
 );
 
-const FORWARD_TRANSITION_MS = 1700;
+const FORWARD_TRANSITION_MS = 1050;
 const DEFAULT_MUSIC_DURATION_SECONDS = 254.4;
 const FILM_CHAPTER_CUE_RATIOS = [0, 0.14, 0.3, 0.47, 0.65, 0.82] as const;
 const PRELUDE_DURATION_SECONDS = 60;
@@ -256,7 +256,7 @@ export function LoveStoryExperience() {
         openingAudioBlocked={audioNeedsGesture && activeTrack.id === "opening"}
         audioPlaying={activeTrack.id === "opening" && playing}
         audioError={activeTrack.id === "opening" && audioError}
-        ariaHidden={started && sceneReady}
+        ariaHidden={started}
         onPlayOpeningAudio={playOpeningAudio}
         onEnter={startStory}
       />
