@@ -372,6 +372,140 @@
   padding: 150px 28px 170px;
 }
 
+.lastMeetingBand {
+  padding: 160px 28px 170px;
+  border-top: 1px solid rgba(243, 237, 227, 0.09);
+  border-bottom: 1px solid rgba(243, 237, 227, 0.09);
+  background: #101017;
+}
+
+.lastMeetingInner {
+  width: min(1120px, 100%);
+  margin: 0 auto;
+}
+
+.lastMeetingIntro {
+  max-width: 700px;
+}
+
+.lastMeetingIntro h2 {
+  margin: 20px 0 0;
+  font-family: var(--font-serif-elegant);
+  font-size: clamp(44px, 5vw, 72px);
+  font-weight: 400;
+  line-height: 1.15;
+}
+
+.lastMeetingIntro > p:not(.eyebrow) {
+  max-width: 560px;
+  margin: 28px 0 0;
+  color: rgba(243, 237, 227, 0.56);
+  font-size: 15px;
+  line-height: 2;
+}
+
+.lastMeetingRoute {
+  display: grid;
+  margin-top: 86px;
+  padding: 30px 0 32px;
+  border-top: 1px solid rgba(196, 164, 107, 0.28);
+  border-bottom: 1px solid rgba(196, 164, 107, 0.28);
+  grid-template-columns: minmax(130px, 0.7fr) minmax(180px, 1fr) minmax(130px, 0.7fr);
+  align-items: center;
+  gap: 28px;
+}
+
+.routePoint {
+  display: grid;
+  gap: 9px;
+}
+
+.routePointEnd {
+  justify-items: end;
+  text-align: right;
+}
+
+.routePoint span {
+  color: rgba(196, 164, 107, 0.72);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+}
+
+.routePoint strong {
+  font-family: var(--font-serif-elegant);
+  font-size: clamp(28px, 3vw, 42px);
+  font-weight: 400;
+}
+
+.routeTrack {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: rgba(243, 237, 227, 0.34);
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.routeTrack i {
+  flex: 1;
+  height: 1px;
+  background: rgba(243, 237, 227, 0.22);
+}
+
+.lastMeetingStory {
+  margin-top: 70px;
+}
+
+.lastMeetingFacts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.lastMeetingFact {
+  min-height: 148px;
+  padding: 0 28px;
+  border-left: 1px solid rgba(243, 237, 227, 0.12);
+}
+
+.lastMeetingFact:first-child {
+  padding-left: 0;
+  border-left: 0;
+}
+
+.lastMeetingFact:last-child {
+  padding-right: 0;
+}
+
+.lastMeetingFact > span {
+  color: rgba(196, 164, 107, 0.76);
+  font-family: var(--font-serif-elegant);
+  font-size: 18px;
+}
+
+.lastMeetingFact p {
+  max-width: 250px;
+  margin: 28px 0 0;
+  color: rgba(243, 237, 227, 0.62);
+  font-size: 14px;
+  line-height: 2;
+}
+
+.lastMeetingStory blockquote {
+  max-width: 780px;
+  margin: 82px 0 0;
+  font-family: var(--font-serif-elegant);
+  font-size: clamp(29px, 4vw, 52px);
+  line-height: 1.55;
+}
+
+.lastMeetingNote {
+  max-width: 620px;
+  margin: 26px 0 0;
+  color: rgba(243, 237, 227, 0.34);
+  font-size: 11px;
+  line-height: 1.9;
+}
+
 .catsIntro {
   width: min(780px, 100%);
   margin: 0 auto 80px;
@@ -665,6 +799,7 @@
   .tenderBand,
   .relicBand,
   .catsBand,
+  .lastMeetingBand,
   .epilogue {
     padding-right: 18px;
     padding-left: 18px;
@@ -774,6 +909,62 @@
   .catsBand {
     padding-top: 100px;
     padding-bottom: 110px;
+  }
+
+  .lastMeetingBand {
+    padding-top: 108px;
+    padding-bottom: 118px;
+  }
+
+  .lastMeetingIntro h2 {
+    font-size: 42px;
+  }
+
+  .lastMeetingRoute {
+    margin-top: 58px;
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
+
+  .routePointEnd {
+    justify-items: start;
+    text-align: left;
+  }
+
+  .routeTrack {
+    padding: 0 6px;
+  }
+
+  .lastMeetingStory {
+    margin-top: 56px;
+  }
+
+  .lastMeetingFacts {
+    grid-template-columns: 1fr;
+  }
+
+  .lastMeetingFact,
+  .lastMeetingFact:first-child,
+  .lastMeetingFact:last-child {
+    min-height: auto;
+    padding: 24px 0;
+    border-top: 1px solid rgba(243, 237, 227, 0.12);
+    border-left: 0;
+  }
+
+  .lastMeetingFact:first-child {
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  .lastMeetingFact p {
+    max-width: none;
+    margin-top: 14px;
+  }
+
+  .lastMeetingStory blockquote {
+    margin-top: 56px;
+    font-size: 30px;
   }
 
   .catsIntro {

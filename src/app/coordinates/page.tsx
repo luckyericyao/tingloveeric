@@ -3,7 +3,7 @@ import { OriginalCoordinatesChapter } from "@/components/OriginalCoordinatesChap
 
 export const metadata: Metadata = {
   title: "原始坐标 | Ting & Eric",
-  description: "一段真实发生过的相遇，和最早被保存下来的五张画面。",
+  description: "一段真实发生过的相遇、最后一次见面，和最早被保存下来的五张画面。",
 };
 
 export default function CoordinatesPage() {

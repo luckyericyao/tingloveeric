@@ -277,6 +277,45 @@ export function OriginalCoordinatesChapter() {
         </div>
       </section>
 
+      <section className={styles.lastMeetingBand} aria-label="最后一次见面">
+        <div className={styles.lastMeetingInner}>
+          <div className={`${styles.reveal} ${styles.lastMeetingIntro}`} data-reveal>
+            <p className={styles.eyebrow}>{originalCoordinates.lastMeeting.eyebrow}</p>
+            <h2>{originalCoordinates.lastMeeting.title}</h2>
+            <p>{originalCoordinates.lastMeeting.lead}</p>
+          </div>
+
+          <div className={`${styles.reveal} ${styles.lastMeetingRoute}`} data-reveal aria-label="从欧洲到广州的路线">
+            <div className={styles.routePoint}>
+              <span>出发地</span>
+              <strong>{originalCoordinates.lastMeeting.route[0]}</strong>
+            </div>
+            <div className={styles.routeTrack} aria-hidden="true">
+              <i />
+              <span>一段跨洲的路</span>
+              <i />
+            </div>
+            <div className={`${styles.routePoint} ${styles.routePointEnd}`}>
+              <span>见面</span>
+              <strong>{originalCoordinates.lastMeeting.route[1]}</strong>
+            </div>
+          </div>
+
+          <div className={`${styles.reveal} ${styles.lastMeetingStory}`} data-reveal>
+            <div className={styles.lastMeetingFacts}>
+              {originalCoordinates.lastMeeting.facts.map((fact, index) => (
+                <div className={styles.lastMeetingFact} key={fact}>
+                  <span>{String(index + 1).padStart(2, "0")}</span>
+                  <p>{fact}</p>
+                </div>
+              ))}
+            </div>
+            <blockquote>“{originalCoordinates.lastMeeting.feeling}”</blockquote>
+            <p className={styles.lastMeetingNote}>{originalCoordinates.lastMeeting.note}</p>
+          </div>
+        </div>
+      </section>
+
       <section className={styles.epilogue}>
         <div className={styles.epilogueInner} data-reveal>
           <p className={styles.eyebrow}>{originalCoordinates.change.eyebrow}</p>
