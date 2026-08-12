@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Archive, ArrowRight, LockKeyhole, Pause, Play, Volume2, VolumeX } from "lucide-react";
+import { Archive, ArrowDown, ArrowRight, LockKeyhole, Pause, Play, Volume2, VolumeX } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { coordinateMemories, originalCoordinates } from "@/data/originalCoordinates";
 import { useStoryAudio } from "@/components/StoryAudioDirector";
@@ -237,6 +237,17 @@ export function ArchiveHome() {
           <span>{preludeSeconds >= 50 ? "进入故事" : "故事在慢慢展开"}</span>
           <ArrowRight size={16} strokeWidth={1.5} />
         </Link>
+        {preludeComplete ? (
+          <a
+            className={styles.scrollCue}
+            href="#archive-timeline"
+            aria-label="继续往下看"
+            title="继续往下看"
+          >
+            <span>继续往下看</span>
+            <ArrowDown size={17} strokeWidth={1.5} />
+          </a>
+        ) : null}
       </section>
 
       <section id="archive-timeline" className={styles.archiveBeat} aria-label="首页的三段甜蜜记录">
