@@ -2,8 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Archive, ArrowDown, ArrowRight, LockKeyhole, Pause, Play, Volume2, VolumeX } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { Archive, ArrowRight, LockKeyhole, Pause, Play, Volume2, VolumeX } from "lucide-react";
+import { useEffect, useRef } from "react";
 import { coordinateMemories, originalCoordinates } from "@/data/originalCoordinates";
 import { useStoryAudio } from "@/components/StoryAudioDirector";
 import styles from "./ArchiveHome.module.css";
@@ -38,22 +38,51 @@ const homeMoments = [
   },
 ] as const;
 
-const heroPrints = [
+const heroSlides = [
   {
     source: "/images/edited/hanni-portrait.jpg",
     alt: "2025 年 1 月 27 日暖色灯光中的自拍画面",
     label: "那时候她叫 Hanni",
     date: "2025.01.27",
-    beat: 1,
+    caption: "昏黄的灯光，一张被保存下来的自拍。",
     className: "heroPrintPortrait",
+    imageClassName: "",
   },
   {
     source: "/images/edited/her-world.jpg",
     alt: "猫、鱼缸和发财树组成的生活画面",
     label: "她的小世界",
     date: "2025.01.29",
-    beat: 2,
+    caption: "一只猫，一缸鱼，一盆发财树。",
     className: "heroPrintWorld",
+    imageClassName: "",
+  },
+  {
+    source: "/images/edited/cp-cottage-relic.jpg",
+    alt: "曾经留下来的情侣小屋历史截图",
+    label: "后来留下的数字遗迹",
+    date: "那段关系的旧记录",
+    caption: "有些画面没有被带走，只是安静地留在这里。",
+    className: "heroPrintRelic",
+    imageClassName: "",
+  },
+  {
+    source: "/assets/cats/nono-front.webp",
+    alt: "诺诺，海豹双色布偶猫",
+    label: "诺诺 · Nono",
+    date: "她的小世界",
+    caption: "那只脸上带着灰色重点色的猫，叫诺诺。",
+    className: "heroPrintNono",
+    imageClassName: "heroPrintCat",
+  },
+  {
+    source: "/assets/cats/xiaoye-front.webp",
+    alt: "小yeah，银白色长毛猫",
+    label: "小yeah",
+    date: "她的小世界",
+    caption: "还有一只银白色、安静又蓬松的小yeah。",
+    className: "heroPrintXiaoye",
+    imageClassName: "heroPrintCat",
   },
 ] as const;
 
@@ -66,8 +95,8 @@ function formatTime(value: number) {
 
 export function ArchiveHome() {
   const homeRef = useRef<HTMLElement>(null);
-  const [preludeSeconds, setPreludeSeconds] = useState(0);
   const {
+    activeTrack,
     currentTime,
     duration,
     error: audioError,
@@ -77,16 +106,6 @@ export function ArchiveHome() {
     toggleMute,
     togglePlayback,
   } = useStoryAudio();
-
-  useEffect(() => {
-    const startedAt = performance.now();
-    const timer = window.setInterval(() => {
-      const elapsed = Math.min(60, Math.floor((performance.now() - startedAt) / 1000));
-      setPreludeSeconds(elapsed);
-      if (elapsed >= 60) window.clearInterval(timer);
-    }, 250);
-    return () => window.clearInterval(timer);
-  }, []);
 
   useEffect(() => {
     const root = homeRef.current;
@@ -107,7 +126,15 @@ export function ArchiveHome() {
   }, []);
 
   const progress = duration > 0 ? Math.min(currentTime / duration, 1) : 0;
-  const preludeBeat = preludeSeconds >= 55 ? 3 : preludeSeconds >= 35 ? 2 : preludeSeconds >= 15 ? 1 : 0;
+  const preludeSeconds = Math.min(60, Math.max(0, Math.floor(currentTime)));
+  const activeSlideIndex = Math.min(Math.floor(preludeSeconds / 5), heroSlides.length - 1);
+  const preludeBeat = activeSlideIndex >= 3 ? 3 : activeSlideIndex >= 2 ? 2 : activeSlideIndex >= 1 ? 1 : 0;
+  const preludeComplete = audioError || activeTrack.id !== "opening" || currentTime >= 60;
+
+  useEffect(() => {
+    document.body.classList.toggle("home-prelude-locked", !preludeComplete);
+    return () => document.body.classList.remove("home-prelude-locked");
+  }, [preludeComplete]);
 
   return (
     <main ref={homeRef} className={styles.home}>
@@ -124,7 +151,7 @@ export function ArchiveHome() {
           </Link>
           <div className={styles.soundtrack}>
             <div className={styles.soundtrackCopy}>
-              <span>{audioError ? "音乐暂不可用" : needsGesture ? "滑动后播放" : playing ? "正在播放" : "已暂停"}</span>
+              <span>{audioError ? "音乐暂不可用" : needsGesture ? "点击后播放" : playing ? "正在播放" : "已暂停"}</span>
               <strong>就是爱你 · 陶喆</strong>
               <div className={styles.progressTrack} aria-hidden="true">
                 <span style={{ transform: `scaleX(${progress})` }} />
@@ -153,7 +180,7 @@ export function ArchiveHome() {
         </div>
       </header>
 
-      <section className={styles.hero} data-prelude-beat={preludeBeat}>
+      <section className={styles.hero} data-prelude-beat={preludeBeat} data-prelude-slide={activeSlideIndex}>
         <Image
           src="/images/home/hero-memory-collage.jpg"
           alt="一张由旧自拍、猫咪、鱼缸与两只猫组成的甜蜜记忆拼贴"
@@ -163,19 +190,21 @@ export function ArchiveHome() {
           className={styles.heroImage}
         />
         <div className={styles.heroVeil} aria-hidden="true" />
-        <div className={styles.heroScrapbook} aria-label="被保存下来的三张画面">
-          {heroPrints.map((print) => (
+        <div className={styles.heroScrapbook} aria-label="随音乐每五秒出现一张的记忆画面">
+          {heroSlides.map((print, index) => (
             <figure
               key={print.source}
-              className={`${styles.heroPrint} ${styles[print.className]} ${preludeBeat >= print.beat ? styles.heroPrintShown : ""}`}
+              className={`${styles.heroPrint} ${styles[print.className]} ${print.imageClassName ? styles[print.imageClassName] : ""} ${activeSlideIndex === index ? styles.heroPrintActive : ""}`}
+              aria-hidden={activeSlideIndex !== index}
+              aria-label={`${print.label} · ${print.date} · ${print.caption}`}
             >
               <div className={styles.heroPrintImage}>
                 <Image
                   src={print.source}
                   alt={print.alt}
                   fill
-                  sizes="(max-width: 767px) 34vw, 16vw"
-                  priority
+                  sizes="(max-width: 767px) 58vw, 24vw"
+                  priority={index === 0}
                   className={styles.heroPrintPhoto}
                 />
               </div>
@@ -208,10 +237,6 @@ export function ArchiveHome() {
           <span>{preludeSeconds >= 50 ? "进入故事" : "故事在慢慢展开"}</span>
           <ArrowRight size={16} strokeWidth={1.5} />
         </Link>
-        <p className={styles.scrollHint}>一分钟序幕正在展开</p>
-        <a className={styles.scrollCue} href="#archive-timeline" aria-label="继续阅读原始坐标">
-          <ArrowDown size={18} strokeWidth={1.5} />
-        </a>
       </section>
 
       <section id="archive-timeline" className={styles.archiveBeat} aria-label="首页的三段甜蜜记录">

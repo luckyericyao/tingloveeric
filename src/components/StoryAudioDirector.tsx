@@ -73,6 +73,10 @@ export function StoryAudioDirector({ children }: { children: React.ReactNode }) 
     if (activeTrackIdRef.current !== "opening") {
       activeTrackIdRef.current = "opening";
       setActiveTrackId("opening");
+      setCurrentTime(0);
+      setDuration(0);
+      setEndedTrack(null);
+      setPlaying(false);
       audio.src = tracks.opening.src;
       audio.currentTime = 0;
       audio.load();
@@ -124,6 +128,8 @@ export function StoryAudioDirector({ children }: { children: React.ReactNode }) 
     activeTrackIdRef.current = trackId;
     setEndedTrack(null);
     setActiveTrackId(trackId);
+    setCurrentTime(0);
+    setDuration(0);
     audio.pause();
     audio.src = nextTrack.src;
     audio.currentTime = 0;
