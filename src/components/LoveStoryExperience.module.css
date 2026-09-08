@@ -744,7 +744,94 @@
   }
 }
 
+.filmControls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.filmControls button,
+.filmControls a {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgb(255 255 255 / 22%);
+  background: rgb(0 0 0 / 12%);
+  color: #fff9f4;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.filmControls :focus-visible {
+  outline: 2px solid #fff9f4;
+  outline-offset: 3px;
+}
+
+.filmLoading,
+.filmRecovery {
+  position: absolute;
+  z-index: 40;
+  top: 18%;
+  left: 50%;
+  width: min(440px, calc(100% - 40px));
+  transform: translateX(-50%);
+  text-align: center;
+  color: #fff9f4;
+}
+
+.filmRecovery button {
+  margin-top: 12px;
+  padding: 10px 18px;
+  border: 1px solid currentColor;
+}
+
+.filmCaption {
+  position: absolute;
+  z-index: 12;
+  bottom: 7%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(640px, 46%);
+  color: #fff9f4;
+  text-align: center;
+  text-shadow: 0 2px 16px rgb(0 0 0 / 65%);
+  animation: captionSettle 1.2s 1.2s both;
+}
+
+.filmCaption h2 {
+  font-family: "Songti SC", "Noto Serif SC", serif;
+  font-size: 36px;
+  line-height: 1.5;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-wrap: balance;
+}
+
+.filmCaption p {
+  margin-top: 14px;
+  font-size: 17px;
+  line-height: 1.8;
+  text-wrap: pretty;
+}
+
+.filmCaption a { margin-top: 18px; }
+.recipientFilm[data-paused="true"] .filmCaption { animation-play-state: paused; }
+
+@keyframes captionSettle {
+  from { opacity: 0; translate: 0 10px; }
+  to { opacity: 1; translate: 0 0; }
+}
+
+@media (max-width: 600px) {
+  .filmCaption { width: calc(100% - 40px); bottom: 7%; }
+  .filmCaption h2 { font-size: 27px; line-height: 1.5; }
+  .filmCaption p { font-size: 16px; line-height: 1.7; }
+  .filmControls { gap: 4px; }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .filmCaption { animation: none; }
   .intro,
   .chapterPanel,
   .loadingFill,

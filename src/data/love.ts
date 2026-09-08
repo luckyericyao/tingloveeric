@@ -54,6 +54,7 @@ export type LoveNote = {
   date: string;
   content: string;
   mood?: string;
+  visibility?: "owner" | "shared";
   source?: "verified" | "eric-perspective" | "wish";
 };
 

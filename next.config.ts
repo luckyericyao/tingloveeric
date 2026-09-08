@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Same-origin media must retain the viewer's authenticated request.
+  images: { unoptimized: true },
 };
 
 export default nextConfig;

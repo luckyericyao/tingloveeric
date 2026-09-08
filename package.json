@@ -4,10 +4,13 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint",
     "qa:story": "node scripts/scrollytelling_qa.mjs",
+    "test:access": "node scripts/access_qa.mjs",
+    "test:narrative": "node scripts/narrative_qa.mjs",
+    "test:access:integration": "node scripts/access_integration_qa.mjs",
     "qa:visual": "node scripts/visual_qa.mjs"
   },
   "dependencies": {

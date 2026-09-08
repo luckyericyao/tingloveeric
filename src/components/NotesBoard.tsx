@@ -5,8 +5,6 @@ import type { LoveNote } from "@/data/love";
 import { NoteCard } from "./NoteCard";
 import { NoteComposer } from "./NoteComposer";
 
-const storageKey = "tingloveeric.notes";
-
 type NotesResponse = {
   notes?: unknown;
   persistence?: "redis" | "memory";
@@ -24,27 +22,16 @@ function isStoredNote(value: unknown): value is LoveNote {
   );
 }
 
-function readStoredNotes() {
-  if (typeof window === "undefined") return [];
-
-  try {
-    const raw = window.localStorage.getItem(storageKey);
-    const parsed = raw ? (JSON.parse(raw) as unknown) : [];
-    return Array.isArray(parsed) ? parsed.filter(isStoredNote) : [];
-  } catch {
-    window.localStorage.removeItem(storageKey);
-    return [];
-  }
-}
-
 function readRemoteNotes(payload: NotesResponse) {
   return Array.isArray(payload.notes) ? payload.notes.filter(isStoredNote) : [];
 }
 
 export function NotesBoard({
+  canEdit = false,
   seedNotes,
   moodOptions,
 }: {
+  canEdit?: boolean;
   seedNotes: LoveNote[];
   moodOptions: string[];
 }) {
@@ -56,33 +43,20 @@ export function NotesBoard({
     let cancelled = false;
 
     async function loadNotes() {
-      const browserNotes = readStoredNotes();
-
       try {
         const response = await fetch("/api/notes", { cache: "no-store" });
         if (!response.ok) throw new Error("Notes request failed");
         const payload = (await response.json()) as NotesResponse;
         const sharedNotes = readRemoteNotes(payload);
-        const nextNotes = sharedNotes.length ? sharedNotes : browserNotes;
+        const nextNotes = sharedNotes;
 
         if (cancelled) return;
         setLocalNotes(nextNotes);
         setSyncMessage("");
 
-        if (!sharedNotes.length && browserNotes.length) {
-          const migration = await fetch("/api/notes", {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ notes: browserNotes }),
-          });
-          if (!migration.ok && !cancelled) {
-            setSyncMessage("旧纸条先留在这台设备上，暂时还没有同步成功。");
-          }
-        }
       } catch {
         if (cancelled) return;
-        setLocalNotes(browserNotes);
-        setSyncMessage("纸条接口暂时没有打开成功，当前先保存在这台设备上。");
+        setSyncMessage("信件暂时没有打开，请稍后刷新。没有上传或修改本机草稿。");
       } finally {
         if (!cancelled) setHasLoaded(true);
       }
@@ -93,11 +67,6 @@ export function NotesBoard({
       cancelled = true;
     };
   }, []);
-
-  useEffect(() => {
-    if (!hasLoaded) return;
-    window.localStorage.setItem(storageKey, JSON.stringify(localNotes));
-  }, [hasLoaded, localNotes]);
 
   async function handleAdd(note: LoveNote) {
     setSyncMessage("");
@@ -118,8 +87,8 @@ export function NotesBoard({
           : "已先收在当前页面。",
       );
     } catch {
-      setLocalNotes((current) => [note, ...current]);
-      setSyncMessage("已先收在这台设备上，之后可以再同步。 ");
+      setSyncMessage("没有保存成功，文字仍在输入框里。");
+      throw new Error("Note was not saved");
     }
   }
 
@@ -135,12 +104,12 @@ export function NotesBoard({
         </span>
         <span>{localNotes.length ? `${localNotes.length} 张新纸条` : ""}</span>
       </div>
-      <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
-        <NoteComposer onAdd={handleAdd} moodOptions={moodOptions} />
+      <div className={canEdit ? "grid gap-8 lg:grid-cols-[0.9fr_1.1fr]" : "grid gap-8"}>
+        {canEdit ? <NoteComposer onAdd={handleAdd} moodOptions={moodOptions} /> : null}
         <div className="grid gap-4">
           {notes.length ? notes.map((note) => <NoteCard key={note.id} note={note} />) : (
             <div className="archive-empty-note">
-              这里还空着。下一句话，只写自己的真实感受。
+              {canEdit ? "这里还空着。下一句话，只写自己的真实感受。" : "暂时没有分享的信。可以去看看照片，或让今天停在这里。"}
             </div>
           )}
         </div>

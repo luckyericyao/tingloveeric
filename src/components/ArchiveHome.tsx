@@ -105,6 +105,8 @@ export function ArchiveHome() {
     playing,
     toggleMute,
     togglePlayback,
+    preludeComplete: openingComplete,
+    requestFilm,
   } = useStoryAudio();
 
   useEffect(() => {
@@ -129,7 +131,7 @@ export function ArchiveHome() {
   const preludeSeconds = Math.min(60, Math.max(0, Math.floor(currentTime)));
   const activeSlideIndex = Math.min(Math.floor(preludeSeconds / 5), heroSlides.length - 1);
   const preludeBeat = activeSlideIndex >= 3 ? 3 : activeSlideIndex >= 2 ? 2 : activeSlideIndex >= 1 ? 1 : 0;
-  const preludeComplete = audioError || activeTrack.id !== "opening" || currentTime >= 60;
+  const preludeComplete = openingComplete;
 
   useEffect(() => {
     document.body.classList.toggle("home-prelude-locked", !preludeComplete);
@@ -235,7 +237,7 @@ export function ArchiveHome() {
         </div>
         {preludeComplete ? (
           <>
-            <Link className={styles.heroEntry} href="/cinema">
+            <Link className={styles.heroEntry} href="/cinema" onClick={requestFilm}>
               <span>进入故事</span>
               <ArrowRight size={16} strokeWidth={1.5} />
             </Link>
@@ -343,7 +345,7 @@ export function ArchiveHome() {
               <Archive size={17} />
               <span>打开四个房间</span>
             </Link>
-            <Link className={styles.secondaryAction} href="/cinema">
+            <Link className={styles.secondaryAction} href="/cinema" onClick={requestFilm}>
               <span>进入电影故事</span>
               <ArrowRight size={17} />
             </Link>

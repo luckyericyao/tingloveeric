@@ -31,6 +31,7 @@ type MapMode = "world" | "us";
 
 type WorldMapBoardProps = {
   seedPlaces: WorldMapPlace[];
+  canEdit?: boolean;
 };
 
 type PlaceForm = {
@@ -226,7 +227,7 @@ function markerColor(status: WorldPlaceStatus) {
   return status === "visited" ? "#a66572" : "#b79053";
 }
 
-export function WorldMapBoard({ seedPlaces }: WorldMapBoardProps) {
+export function WorldMapBoard({ seedPlaces, canEdit = false }: WorldMapBoardProps) {
   const [localPlaces, setLocalPlaces] = useState<WorldMapPlace[]>([]);
   const [placeOverrides, setPlaceOverrides] = useState<Record<string, WorldMapPlace>>({});
   const [hasLoaded, setHasLoaded] = useState(false);
@@ -257,7 +258,7 @@ export function WorldMapBoard({ seedPlaces }: WorldMapBoardProps) {
     let cancelled = false;
 
     async function loadWorldMap() {
-      const localState = readLocalWorldMap();
+      const localState = canEdit ? readLocalWorldMap() : { localPlaces: [], placeOverrides: {} };
 
       try {
         const response = await fetch("/api/world/places", { cache: "no-store" });
@@ -287,10 +288,10 @@ export function WorldMapBoard({ seedPlaces }: WorldMapBoardProps) {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [canEdit]);
 
   useEffect(() => {
-    if (!hasLoaded) return;
+    if (!hasLoaded || !canEdit) return;
 
     window.localStorage.setItem(storageKey, JSON.stringify(localPlaces));
     window.localStorage.setItem(overridesStorageKey, JSON.stringify(placeOverrides));
@@ -326,7 +327,7 @@ export function WorldMapBoard({ seedPlaces }: WorldMapBoardProps) {
       window.clearTimeout(saveTimer);
       controller.abort();
     };
-  }, [hasLoaded, localPlaces, placeOverrides, syncAttempt]);
+  }, [canEdit, hasLoaded, localPlaces, placeOverrides, syncAttempt]);
 
   const places = useMemo(
     () => [...seedPlaces.map((place) => placeOverrides[place.id] || place), ...localPlaces],
@@ -344,8 +345,8 @@ export function WorldMapBoard({ seedPlaces }: WorldMapBoardProps) {
   );
 
   const selectedPlace =
+    visiblePlaces.find((place) => place.id === hoveredId) ||
     visiblePlaces.find((place) => place.id === selectedId) || visiblePlaces[0] || null;
-  const hoveredPlace = visiblePlaces.find((place) => place.id === hoveredId) || null;
   const featuredCityCount = visiblePlaces.filter((place) => place.featured).length;
   const visitedCount = places.filter((place) => place.status === "visited").length;
   const wishlistCount = places.filter((place) => place.status === "wishlist").length;
@@ -489,7 +490,7 @@ export function WorldMapBoard({ seedPlaces }: WorldMapBoardProps) {
 
   return (
     <div className={styles.board}>
-      <header className={styles.boardHeader}>
+      {canEdit ? <header className={styles.boardHeader}>
         <div>
           <p className={styles.boardKicker}>世界城市名片</p>
           <h2>先看看想去的城市</h2>
@@ -511,9 +512,9 @@ export function WorldMapBoard({ seedPlaces }: WorldMapBoardProps) {
             </div>
           </div>
         </div>
-      </header>
+      </header> : null}
 
-      <div className={styles.statusRow}>
+      {canEdit ? <div className={styles.statusRow}>
         <p role={syncError ? "alert" : "status"} aria-live="polite">
           <PawPrint />
           {!hasLoaded
@@ -542,7 +543,7 @@ export function WorldMapBoard({ seedPlaces }: WorldMapBoardProps) {
             重试同步
           </button>
         ) : null}
-      </div>
+      </div> : null}
 
       <section className={styles.workspace}>
         <div className={styles.mapShell}>
@@ -659,6 +660,7 @@ export function WorldMapBoard({ seedPlaces }: WorldMapBoardProps) {
                             onBlur={() => setHoveredId(null)}
                             style={{ cursor: "pointer" }}
                           >
+                            <circle r={22} fill="transparent" />
                             {place.featured ? (
                               <circle
                                 r={isSelected || hoveredId === place.id ? 18 : 11}
@@ -694,34 +696,6 @@ export function WorldMapBoard({ seedPlaces }: WorldMapBoardProps) {
               )}
             </div>
 
-            {hoveredPlace ? (
-              <article
-                className={styles.cityHoverCard}
-                aria-label={`${hoveredPlace.cityZh || hoveredPlace.name} 的地标照片`}
-                aria-live="polite"
-              >
-                <div className={styles.cityHoverPhoto}>
-                  <Image
-                    src={hoveredPlace.image.src}
-                    alt={hoveredPlace.image.alt}
-                    fill
-                    sizes="(max-width: 700px) calc(100vw - 48px), 520px"
-                    className={styles.cityHoverPhotoImage}
-                  />
-                  <div className={styles.cityHoverCopy}>
-                    <span>{hoveredPlace.country}</span>
-                    <strong>{hoveredPlace.cityZh || hoveredPlace.name}</strong>
-                    <p>{hoveredPlace.landmark || hoveredPlace.image.caption}</p>
-                    <small>点击查看这座城市的愿望</small>
-                  </div>
-                </div>
-              </article>
-            ) : null}
-
-            <div className={styles.mapBadge}>
-              <strong>{mapMode === "world" ? "世界地图" : "美国地图"}</strong>
-              点按或悬停一座城市，先看它的代表性画面；点击后，再读这一处留给自己的愿望。
-            </div>
             <div className={styles.mapLegend} aria-label="地点图例">
               <span>
                 <i className={styles.legendVisited} /> 已经走过
@@ -782,20 +756,20 @@ export function WorldMapBoard({ seedPlaces }: WorldMapBoardProps) {
                   src={selectedPlace.image.src}
                   alt={selectedPlace.image.alt}
                   fill
-                  sizes="(max-width: 980px) 100vw, 360px"
+                  sizes="(max-width: 980px) 100vw, 52vw"
                   className={styles.detailPhotoImage}
                 />
                 <span>{selectedPlace.landmark || selectedPlace.image.caption}</span>
               </div>
               <p className={styles.detailCopy}>{selectedPlace.note}</p>
               <div className={styles.wishBlock}>
-                <span>想象一下</span>
+                <span>Eric 的愿望</span>
                 <p>{selectedPlace.wish}</p>
               </div>
               <p className={styles.fieldHint}>
                 {selectedPlace.image?.caption || fallbackImage.caption}
               </p>
-              <div className={styles.detailActions}>
+              {canEdit ? <div className={styles.detailActions}>
                 <button
                   type="button"
                   data-testid="world-edit"
@@ -821,7 +795,7 @@ export function WorldMapBoard({ seedPlaces }: WorldMapBoardProps) {
                     <Trash2 size={14} /> 移除地点
                   </button>
                 )}
-              </div>
+              </div> : null}
             </article>
           ) : (
             <div className={styles.detailPanel}>
@@ -831,7 +805,7 @@ export function WorldMapBoard({ seedPlaces }: WorldMapBoardProps) {
             </div>
           )}
 
-          {!editorOpen ? (
+          {canEdit && !editorOpen ? (
             <button
               type="button"
               className={styles.editorTrigger}
@@ -847,7 +821,7 @@ export function WorldMapBoard({ seedPlaces }: WorldMapBoardProps) {
             </button>
           ) : null}
 
-          {editorOpen ? <form onSubmit={handleSavePlace} className={styles.editorPanel}>
+          {canEdit && editorOpen ? <form onSubmit={handleSavePlace} className={styles.editorPanel}>
             <div className={styles.editorTopline}>
               <div>
                 <p className={styles.eyebrow}>{editingId ? "改一处愿望" : "写下一处愿望"}</p>
@@ -977,11 +951,11 @@ export function WorldMapBoard({ seedPlaces }: WorldMapBoardProps) {
         </aside>
       </section>
 
-      <section className={styles.placeList} aria-labelledby="world-place-list-title">
-        <div className={styles.placeListHeader}>
-          <h3 id="world-place-list-title">地图上的坐标</h3>
-          <span>{visiblePlaces.length} 个地点 · 点击切换故事</span>
-        </div>
+      <details className={styles.placeList}>
+        <summary className={styles.placeListHeader}>
+          <span>全部坐标</span>
+          <span>{visiblePlaces.length} 个地点</span>
+        </summary>
         {visiblePlaces.length > 0 ? (
           <div className={styles.placeListItems}>
             {visiblePlaces.map((place) => (
@@ -1001,7 +975,7 @@ export function WorldMapBoard({ seedPlaces }: WorldMapBoardProps) {
         ) : (
           <p className={styles.fieldHint}>切换回世界视图，或在右侧添加一个美国坐标。</p>
         )}
-      </section>
+      </details>
     </div>
   );
 }

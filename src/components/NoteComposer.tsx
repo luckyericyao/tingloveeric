@@ -16,6 +16,7 @@ export function NoteComposer({ onAdd, moodOptions }: NoteComposerProps) {
   const [date, setDate] = useState(todayValue);
   const [mood, setMood] = useState(moodOptions[0] ?? "想念");
   const [content, setContent] = useState("");
+  const [shared, setShared] = useState(false);
   const [saved, setSaved] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState("");
@@ -39,6 +40,7 @@ export function NoteComposer({ onAdd, moodOptions }: NoteComposerProps) {
         mood: mood.trim() || undefined,
         content: trimmed,
         source: "eric-perspective",
+        visibility: shared ? "shared" : "owner",
       });
       setContent("");
       setSaved(true);
@@ -79,6 +81,10 @@ export function NoteComposer({ onAdd, moodOptions }: NoteComposerProps) {
         </label>
       </div>
       <div className="archive-note-actions">
+        <label className="archive-note-label">
+          <input type="checkbox" checked={shared} onChange={(event) => setShared(event.target.checked)} />
+          允许受邀者阅读这封信
+        </label>
         <button type="submit" disabled={isSaving} className="archive-solid-button">
           {isSaving ? "正在保存" : "收进未寄出的信"}
         </button>

@@ -27,7 +27,14 @@ type StoryAudioContextValue = {
   muted: boolean;
   needsGesture: boolean;
   playing: boolean;
-  playTrack: (trackId: StoryTrackId) => Promise<boolean>;
+  sessionReady: boolean;
+  preludeComplete: boolean;
+  filmRequested: boolean;
+  resumeTime: number;
+  buffering: boolean;
+  requestFilm: () => void;
+  pause: () => void;
+  playTrack: (trackId: StoryTrackId, offset?: number) => Promise<boolean>;
   toggleMute: () => void;
   togglePlayback: () => Promise<boolean>;
 };
@@ -47,21 +54,44 @@ export function StoryAudioDirector({ children }: { children: React.ReactNode }) 
   const [muted, setMuted] = useState(false);
   const [needsGesture, setNeedsGesture] = useState(false);
   const [playing, setPlaying] = useState(false);
+  const [sessionReady, setSessionReady] = useState(false);
+  const [preludeComplete, setPreludeComplete] = useState(false);
+  const [filmRequested, setFilmRequested] = useState(false);
+  const [resumeTime, setResumeTime] = useState(0);
+  const [buffering, setBuffering] = useState(false);
   const activeTrack = tracks[activeTrackId];
 
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
-    const savedMuted = window.localStorage.getItem("tingloveeric.muted") === "true";
+    let savedMuted = false;
+    try {
+      savedMuted = window.localStorage.getItem("tingloveeric.muted") === "true";
+    } catch { /* Playback must also work when browser storage is disabled. */ }
     audio.muted = savedMuted;
     audio.volume = savedMuted ? 0 : 0.26;
+    const frame = requestAnimationFrame(() => {
     setMuted(savedMuted);
+    try {
+      setPreludeComplete(sessionStorage.getItem("archive.prelude.complete") === "true");
+      setFilmRequested(sessionStorage.getItem("archive.film.requested") === "true");
+      const saved = Number(sessionStorage.getItem("archive.film.time"));
+      setResumeTime(Number.isFinite(saved) ? Math.max(0, Math.min(saved, 254.4)) : 0);
+    } catch { /* Storage is optional in private browsing. */ }
+    setSessionReady(true);
+    });
+    const pauseInBackground = () => { if (document.hidden) audio.pause(); };
+    document.addEventListener("visibilitychange", pauseInBackground);
+    return () => {
+      cancelAnimationFrame(frame);
+      document.removeEventListener("visibilitychange", pauseInBackground);
+    };
   }, []);
 
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
-    const shouldStageOpening = pathname === "/" || pathname === "/cinema";
+    const shouldStageOpening = pathname === "/";
 
     if (!shouldStageOpening) {
       openingUnlockCleanupRef.current?.();
@@ -90,6 +120,7 @@ export function StoryAudioDirector({ children }: { children: React.ReactNode }) 
         if (!disposed) {
           setNeedsGesture(false);
           setError(false);
+          openingUnlockCleanupRef.current?.();
         }
       } catch {
         if (!disposed) setNeedsGesture(true);
@@ -119,7 +150,14 @@ export function StoryAudioDirector({ children }: { children: React.ReactNode }) 
     };
   }, [pathname]);
 
-  const playTrack = useCallback(async (trackId: StoryTrackId) => {
+  const pause = useCallback(() => { audioRef.current?.pause(); }, []);
+  const requestFilm = useCallback(() => {
+    if (!preludeComplete) return;
+    setFilmRequested(true);
+    try { sessionStorage.setItem("archive.film.requested", "true"); } catch { /* Optional persistence. */ }
+  }, [preludeComplete]);
+
+  const playTrack = useCallback(async (trackId: StoryTrackId, offset = 0) => {
     const audio = audioRef.current;
     if (!audio) return false;
     const nextTrack = tracks[trackId];
@@ -128,11 +166,11 @@ export function StoryAudioDirector({ children }: { children: React.ReactNode }) 
     activeTrackIdRef.current = trackId;
     setEndedTrack(null);
     setActiveTrackId(trackId);
-    setCurrentTime(0);
+    setCurrentTime(offset);
     setDuration(0);
     audio.pause();
     audio.src = nextTrack.src;
-    audio.currentTime = 0;
+    audio.currentTime = offset;
     audio.volume = muted ? 0 : 0.26;
     try {
       await audio.play();
@@ -172,7 +210,9 @@ export function StoryAudioDirector({ children }: { children: React.ReactNode }) 
     const nextMuted = !muted;
     audio.muted = nextMuted;
     audio.volume = nextMuted ? 0 : 0.26;
-    window.localStorage.setItem("tingloveeric.muted", String(nextMuted));
+    try {
+      window.localStorage.setItem("tingloveeric.muted", String(nextMuted));
+    } catch { /* The current session still keeps its mute preference. */ }
     setMuted(nextMuted);
   }, [muted]);
 
@@ -185,10 +225,17 @@ export function StoryAudioDirector({ children }: { children: React.ReactNode }) 
     muted,
     needsGesture,
     playing,
+    sessionReady,
+    preludeComplete,
+    filmRequested,
+    resumeTime,
+    buffering,
+    requestFilm,
+    pause,
     playTrack,
     toggleMute,
     togglePlayback,
-  }), [activeTrack, currentTime, duration, endedTrack, error, muted, needsGesture, playing, playTrack, toggleMute, togglePlayback]);
+  }), [activeTrack, currentTime, duration, endedTrack, error, muted, needsGesture, playing, sessionReady, preludeComplete, filmRequested, resumeTime, buffering, requestFilm, pause, playTrack, toggleMute, togglePlayback]);
 
   return (
     <StoryAudioContext.Provider value={value}>
@@ -204,16 +251,34 @@ export function StoryAudioDirector({ children }: { children: React.ReactNode }) 
           setNeedsGesture(false);
           setError(false);
         }}
+        onPlaying={() => setBuffering(false)}
+        onWaiting={() => setBuffering(true)}
         onPause={() => setPlaying(false)}
         onError={() => {
           setPlaying(false);
+          setBuffering(false);
           setError(true);
         }}
         onLoadedMetadata={(event) => {
           const nextDuration = event.currentTarget.duration;
           if (Number.isFinite(nextDuration) && nextDuration > 0) setDuration(nextDuration);
         }}
-        onTimeUpdate={(event) => setCurrentTime(event.currentTarget.currentTime)}
+        onDurationChange={(event) => {
+          const value = event.currentTarget.duration;
+          if (Number.isFinite(value) && value > 0) setDuration(value);
+        }}
+        onTimeUpdate={(event) => {
+          const time = event.currentTarget.currentTime;
+          setCurrentTime(time);
+          if (activeTrackIdRef.current === "opening" && time >= 60) {
+            setPreludeComplete(true);
+            try { sessionStorage.setItem("archive.prelude.complete", "true"); } catch { /* Optional persistence. */ }
+          }
+          if (activeTrackIdRef.current === "story") {
+            setResumeTime(time);
+            try { sessionStorage.setItem("archive.film.time", String(time)); } catch { /* Optional persistence. */ }
+          }
+        }}
         onEnded={() => {
           setPlaying(false);
           setEndedTrack(activeTrackIdRef.current);

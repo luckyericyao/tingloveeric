@@ -4,10 +4,10 @@ import { moodOptions, type LoveNote } from "@/data/love";
 import {
   addNote,
   getNotes,
-  isLoveNote,
   notesPersistenceMode,
-  saveNotes,
 } from "@/lib/notesStore";
+import { viewerSession } from "@/lib/serverAccess";
+import { sameOrigin } from "@/lib/sameOrigin";
 
 export const runtime = "nodejs";
 
@@ -16,10 +16,11 @@ type NotePayload = {
   date?: unknown;
   mood?: unknown;
   content?: unknown;
+  visibility?: unknown;
 };
 
 function parseNotePayload(payload: NotePayload | null): Omit<LoveNote, "id"> | null {
-  const author = typeof payload?.author === "string" ? payload.author.trim() : "";
+  const author = "Eric";
   const date = typeof payload?.date === "string" ? payload.date.trim() : "";
   const content = typeof payload?.content === "string" ? payload.content.trim() : "";
   const mood = typeof payload?.mood === "string" ? payload.mood.trim() : undefined;
@@ -32,19 +33,23 @@ function parseNotePayload(payload: NotePayload | null): Omit<LoveNote, "id"> | n
     return null;
   }
 
-  return { author, date, mood: mood || undefined, content };
+  return { author, date, mood: mood || undefined, content, source: "eric-perspective", visibility: payload?.visibility === "shared" ? "shared" : "owner" };
 }
 
 export async function GET() {
+  const session = await viewerSession();
+  if (!session) return NextResponse.json({ message: "请先登录。" }, { status: 401 });
   try {
     const notes = await getNotes();
-    return NextResponse.json({ notes, persistence: notesPersistenceMode() });
+    return NextResponse.json({ notes: session.role === "owner" ? notes : notes.filter((note) => note.visibility === "shared"), persistence: notesPersistenceMode() }, { headers: { "Cache-Control": "private, no-store" } });
   } catch {
     return NextResponse.json({ message: "小纸条暂时没有打开成功，等一下再试试。" }, { status: 500 });
   }
 }
 
 export async function POST(request: Request) {
+  if ((await viewerSession())?.role !== "owner") return NextResponse.json({ message: "只有所有者可以写信。" }, { status: 403 });
+  if (!sameOrigin(request)) return NextResponse.json({ message: "请求来源无效。" }, { status: 403 });
   const payload = (await request.json().catch(() => null)) as NotePayload | null;
   const input = parseNotePayload(payload);
 
@@ -61,17 +66,6 @@ export async function POST(request: Request) {
   }
 }
 
-export async function PUT(request: Request) {
-  const payload = (await request.json().catch(() => null)) as { notes?: unknown } | null;
-
-  if (!payload || !Array.isArray(payload.notes) || payload.notes.some((note) => !isLoveNote(note))) {
-    return NextResponse.json({ message: "小纸条记录格式不对，没有修改任何内容。" }, { status: 400 });
-  }
-
-  try {
-    const notes = await saveNotes(payload.notes);
-    return NextResponse.json({ notes, persistence: notesPersistenceMode() });
-  } catch {
-    return NextResponse.json({ message: "小纸条暂时没有同步成功，等一下再试试。" }, { status: 500 });
-  }
+export async function PUT() {
+  return NextResponse.json({ message: "不再自动上传或批量覆盖信件。" }, { status: 405 });
 }

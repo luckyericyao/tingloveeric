@@ -1,10 +1,8 @@
 "use client";
 
 import { FormEvent, Suspense, useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { ArrowLeft, ArrowRight, LockKeyhole } from "lucide-react";
+import { ArrowRight, LockKeyhole } from "lucide-react";
 import styles from "./EnterGate.module.css";
 
 function EnterContent() {
@@ -43,14 +41,6 @@ function EnterContent() {
 
   return (
     <main className={styles.entryPage}>
-      <Image
-        src="/images/home/hero-memory-collage.jpg"
-        alt="旧自拍、猫咪与鱼缸组成的记忆拼贴"
-        fill
-        priority
-        sizes="100vw"
-        className={styles.entryImage}
-      />
       <div className={styles.entryVeil} aria-hidden="true" />
       <div className={styles.entryStage}>
         <div className={styles.entryContext}>
@@ -78,9 +68,7 @@ function EnterContent() {
                 onChange={(event) => setPasscode(event.target.value)}
                 type="password"
                 autoComplete="current-password"
-                inputMode="numeric"
-                pattern="[0-9]*"
-                maxLength={4}
+                maxLength={128}
                 autoCapitalize="off"
                 spellCheck={false}
                 className={styles.entryInput}
@@ -99,10 +87,6 @@ function EnterContent() {
             ) : null}
           </form>
 
-          <Link className={styles.archiveLink} href="/">
-            <ArrowLeft size={15} strokeWidth={1.5} />
-            回到公开档案馆
-          </Link>
         </section>
       </div>
       <p className={styles.entryCaption}>那时候，还只是两个陌生人。</p>

@@ -135,6 +135,7 @@
   opacity: 0.98;
 }
 
+
 .cat {
   width: min(22vw, 300px);
 }
@@ -201,4 +202,16 @@
   .cat figcaption span {
     font-size: 10px;
   }
+}
+
+/* Frame the title without delaying the map. */
+.cat, .xiaoye { width: 100px; bottom: -14px; }
+.nono { left: 32px; }
+.xiaoye { right: 32px; }
+.cat figcaption { display: none; }
+@media (max-width: 700px) {
+  .companions { position: absolute; inset: 0; height: auto; margin: 0; }
+  .cat, .xiaoye { width: 70px; bottom: -10px; }
+  .nono { left: 2px; }
+  .xiaoye { right: 2px; }
 }

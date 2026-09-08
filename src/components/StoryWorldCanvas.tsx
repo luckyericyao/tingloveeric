@@ -11,8 +11,10 @@ import {
   type StoryPlaybackState,
 } from "@/components/StoryWorldScene";
 import styles from "./LoveStoryExperience.module.css";
+import { FilmPausedContext } from "./FilmPlayback";
 
 type StoryWorldCanvasProps = {
+  paused?: boolean;
   activeBeat: number;
   activeChapter: number;
   panelOpen: boolean;
@@ -34,6 +36,7 @@ function SceneReady({ onReady }: { onReady: () => void }) {
 }
 
 export function StoryWorldCanvas({
+  paused = false,
   activeBeat,
   activeChapter,
   panelOpen,
@@ -67,6 +70,7 @@ export function StoryWorldCanvas({
       }}
     >
       <Suspense fallback={null}>
+        <FilmPausedContext.Provider value={paused}>
         <StoryWorldScene
           activeBeat={activeBeat}
           activeChapter={activeChapter}
@@ -79,6 +83,7 @@ export function StoryWorldCanvas({
           onCatInteraction={onCatInteraction}
         />
         <SceneReady onReady={onReady} />
+        </FilmPausedContext.Provider>
       </Suspense>
     </Canvas>
   );

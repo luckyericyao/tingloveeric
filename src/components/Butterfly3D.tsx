@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useRef } from "react";
 import { useTexture } from "@react-three/drei";
-import { useFrame, useThree } from "@react-three/fiber";
+import { useThree } from "@react-three/fiber";
+import { useFilmFrame } from "./FilmPlayback";
 import * as THREE from "three";
 import { storyWorld } from "@/data/storyWorld";
 
@@ -99,14 +100,14 @@ export function Butterfly3D({ activeChapter, reducedMotion, quiet }: Butterfly3D
     [leftAntenna, rightAntenna, texture, wingGeometry],
   );
 
-  useFrame((state, delta) => {
+  useFilmFrame((state, delta, elapsed) => {
     if (!anchor.current || !butterfly.current || !leftWing.current || !rightWing.current) return;
     const chapter = storyWorld.chapters[activeChapter];
     target.set(chapter.position[0], 0, chapter.position[2]);
     anchor.current.position.lerp(target, 1 - Math.exp(-delta * 2.25));
     if (!reducedMotion) {
       const speed = (quiet ? 0.026 : 0.032)
-        * (1 + Math.sin(state.clock.elapsedTime * 0.41) * 0.16);
+        * (1 + Math.sin(elapsed * 0.41) * 0.16);
       progress.current = (progress.current + delta * speed) % 1;
     }
 
@@ -114,7 +115,7 @@ export function Butterfly3D({ activeChapter, reducedMotion, quiet }: Butterfly3D
     path.getPointAt((progress.current + 0.006) % 1, nextPoint);
     direction.copy(nextPoint).sub(point).normalize();
     butterfly.current.position.copy(point);
-    if (!reducedMotion) butterfly.current.position.y += Math.sin(state.clock.elapsedTime * 1.13) * 0.035;
+    if (!reducedMotion) butterfly.current.position.y += Math.sin(elapsed * 1.13) * 0.035;
 
     const targetYaw = Math.atan2(direction.x, Math.max(0.001, direction.z));
     const targetBank = reducedMotion ? -0.035 : THREE.MathUtils.clamp(direction.y * -0.42, -0.18, 0.18);
@@ -125,7 +126,7 @@ export function Butterfly3D({ activeChapter, reducedMotion, quiet }: Butterfly3D
     );
     butterfly.current.rotation.z = THREE.MathUtils.lerp(
       butterfly.current.rotation.z,
-      targetBank + (reducedMotion ? 0 : Math.sin(state.clock.elapsedTime * 0.66) * 0.035),
+      targetBank + (reducedMotion ? 0 : Math.sin(elapsed * 0.66) * 0.035),
       1 - Math.exp(-delta * 3.2),
     );
 
@@ -133,7 +134,7 @@ export function Butterfly3D({ activeChapter, reducedMotion, quiet }: Butterfly3D
       leftWing.current.rotation.y = 0.34;
       rightWing.current.rotation.y = -0.34;
     } else {
-      const variation = 1 + Math.sin(state.clock.elapsedTime * 0.57) * 0.13;
+      const variation = 1 + Math.sin(elapsed * 0.57) * 0.13;
       flapPhase.current += delta * (quiet ? 7.2 : 8.4) * variation;
       const flap = 0.34 + Math.sin(flapPhase.current) * 0.64 + Math.sin(flapPhase.current * 0.47) * 0.07;
       leftWing.current.rotation.y = flap;

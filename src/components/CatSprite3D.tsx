@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTexture } from "@react-three/drei";
-import { useFrame, useThree } from "@react-three/fiber";
+import { useThree } from "@react-three/fiber";
+import { useFilmFrame } from "./FilmPlayback";
 import * as THREE from "three";
 
 export type CatIdentity = "nono" | "xiaoye";
@@ -64,15 +65,15 @@ const CAT_STAGE_LAYOUT = {
     depth: 8,
     openY: -0.88,
     closedY: -0.98,
-    xiaoye: { xOpen: -2.62, xClosed: -2.5, y: 0.55, z: 0.16, scaleOpen: 1.4, scaleClosed: 1.46, yaw: THREE.MathUtils.degToRad(10) },
-    nono: { xOpen: 2.58, xClosed: 2.5, y: 0.02, z: 0.22, scaleOpen: 1.78, scaleClosed: 1.84, yaw: THREE.MathUtils.degToRad(-10) },
+    xiaoye: { xOpen: -2.62, xClosed: -2.5, y: -1.05, z: 0.16, scaleOpen: 1.65, scaleClosed: 1.68, yaw: THREE.MathUtils.degToRad(10) },
+    nono: { xOpen: 2.58, xClosed: 2.5, y: -1.3, z: 0.22, scaleOpen: 1.78, scaleClosed: 1.84, yaw: THREE.MathUtils.degToRad(-10) },
   },
   mobile: {
     depth: 7.4,
     openY: -1.35,
     closedY: -1.42,
-    xiaoye: { xOpen: -0.84, xClosed: -0.78, y: 0.59, z: 0.08, scaleOpen: 1.4, scaleClosed: 1.44, yaw: THREE.MathUtils.degToRad(9) },
-    nono: { xOpen: 0.84, xClosed: 0.78, y: 0.5, z: 0.06, scaleOpen: 1.52, scaleClosed: 1.56, yaw: THREE.MathUtils.degToRad(-10) },
+    xiaoye: { xOpen: -0.84, xClosed: -0.78, y: -0.425, z: 0.08, scaleOpen: 1.4, scaleClosed: 1.44, yaw: THREE.MathUtils.degToRad(9) },
+    nono: { xOpen: 0.84, xClosed: 0.78, y: -0.632, z: 0.06, scaleOpen: 1.52, scaleClosed: 1.56, yaw: THREE.MathUtils.degToRad(-10) },
   },
 } as const;
 
@@ -193,7 +194,7 @@ export function CatSprite3D({
     [geometry, shadowTexture, textures],
   );
 
-  useFrame((state, delta) => {
+  useFilmFrame((state, delta, elapsed) => {
     if (!anchor.current || !motion.current) return;
 
     targetAnchorPosition.set(...position);
@@ -218,7 +219,7 @@ export function CatSprite3D({
       activeView.current = cameraAngle < 0 ? 1 : 2;
     }
 
-    const now = state.clock.elapsedTime;
+    const now = elapsed;
     if (interactionRequested.current) {
       interactionRequested.current = false;
       interactionPulse.current = 1;
@@ -313,7 +314,7 @@ export function CatSprite3D({
     motion.current.rotation.z = reducedMotion
       ? 0
       : Math.sin(now * 0.43 + seed) * 0.006 + twitchAmount * side * 0.008 + interactionPulse.current * side * 0.006;
-    motion.current.position.y = (reducedMotion ? 0 : breathing * 0.008) - (1 - entranceEase) * 0.28 + interactionPulse.current * 0.012;
+    motion.current.position.y = layout.centerY + (reducedMotion ? 0 : breathing * 0.008) - (1 - entranceEase) * 0.28 + interactionPulse.current * 0.012;
   });
 
   return (
@@ -322,8 +323,8 @@ export function CatSprite3D({
       name={`${identity}-cat-sprite-3d`}
       userData={{ identity, treatment: "2.5d-texture-sprite" }}
     >
-      <mesh position={[0.08 * side, 0.018, -0.08]} rotation={[-Math.PI / 2, 0, side * 0.08]} renderOrder={renderOrder - 2}>
-        <planeGeometry args={[1.46, 0.52]} />
+      <mesh position={[0.08 * side, 0.018, -0.08]} rotation={[-0.25, 0, side * 0.08]} renderOrder={renderOrder - 2}>
+        <planeGeometry args={[1.46, 0.22]} />
         <meshBasicMaterial
           ref={shadowMaterial}
           map={shadowTexture}
@@ -402,7 +403,7 @@ export function CatCompanions({ activeChapter, panelOpen, reducedMotion, onInter
   const compact = size.width < 680;
   const stage = compact ? CAT_STAGE_LAYOUT.mobile : CAT_STAGE_LAYOUT.desktop;
 
-  useFrame((state, delta) => {
+  useFilmFrame((state, delta, elapsed) => {
     if (!group.current) return;
     target
       .set(0, panelOpen ? stage.openY : stage.closedY, -stage.depth)
@@ -417,7 +418,7 @@ export function CatCompanions({ activeChapter, panelOpen, reducedMotion, onInter
       group.current.quaternion.slerp(targetQuaternion, 1 - Math.exp(-delta * 4.8));
     }
     if (!reducedMotion) {
-      const sway = Math.sin(state.clock.elapsedTime * 1.9 + activeChapter * 0.7) * 0.0015;
+      const sway = Math.sin(elapsed * 1.9 + activeChapter * 0.7) * 0.0015;
       group.current.translateY(sway);
     }
   });

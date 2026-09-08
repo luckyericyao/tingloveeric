@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useRef } from "react";
 import { ContactShadows, useTexture } from "@react-three/drei";
-import { useFrame, useThree } from "@react-three/fiber";
+import { useThree } from "@react-three/fiber";
+import { useFilmFrame } from "./FilmPlayback";
 import { Bloom, EffectComposer, Vignette } from "@react-three/postprocessing";
 import * as THREE from "three";
 import { Butterfly3D } from "@/components/Butterfly3D";
@@ -25,17 +26,12 @@ type SceneProps = {
   onCatInteraction: () => void;
 };
 
-const PROJECTION_VISUALS = [
-  "night",
+const PROJECTION_VISUALS: readonly StoryVisualId[] = [
   "shanghai",
   "guangzhou",
-  "cottage",
   "paris",
-  "tokyo",
   "yellowstone",
-  "starbase",
-  "antarctica",
-] as const satisfies readonly StoryVisualId[];
+] as const;
 const PROJECTION_ASPECT = 7.6 / 4.65;
 
 useTexture.preload(PROJECTION_VISUALS.map((id) => storyVisuals[id].src));
@@ -52,14 +48,14 @@ function CinematicRig({
   const targetPosition = useRef(new THREE.Vector3());
   const targetLookAt = useRef(new THREE.Vector3());
 
-  useFrame((state, delta) => {
+  useFilmFrame((state, delta, elapsed) => {
     const chapter = storyWorld.chapters[activeChapter];
     targetPosition.current.set(...chapter.camera);
     targetLookAt.current.set(...chapter.lookAt);
 
     if (!reducedMotion && started) {
       targetPosition.current.x += pointer.x * 0.28;
-      targetPosition.current.y += pointer.y * 0.12 + Math.sin(state.clock.elapsedTime * 0.2) * 0.035;
+      targetPosition.current.y += pointer.y * 0.12 + Math.sin(elapsed * 0.2) * 0.035;
     }
 
     if (reducedMotion) {
@@ -124,12 +120,12 @@ function FilmProjection({ activeBeat, reducedMotion }: Pick<SceneProps, "activeB
     [textures],
   );
 
-  useFrame((state, delta) => {
+  useFilmFrame((state, delta, elapsed) => {
     if (!group.current) return;
     const beat = storyWorld.timeline[activeBeat];
     const chapter = storyWorld.chapters[beat.chapterIndex];
     const activeVisualIndex = PROJECTION_VISUALS.indexOf(beat.visual);
-    const beatPulse = reducedMotion ? 1 : 1 + Math.sin(state.clock.elapsedTime * 0.18) * 0.004;
+    const beatPulse = reducedMotion ? 1 : 1 + Math.sin(elapsed * 0.18) * 0.004;
 
     targetPosition.set(chapter.position[0], compact ? 2.62 : 2.92, chapter.position[2] - (compact ? 2.1 : 2.75));
     targetScale.setScalar((compact ? 0.82 : 1) * beatPulse);
@@ -188,7 +184,7 @@ function WorldParallax({ children, reducedMotion }: { children: React.ReactNode;
   const group = useRef<THREE.Group>(null);
   const { pointer } = useThree();
 
-  useFrame((_, delta) => {
+  useFilmFrame((_, delta) => {
     if (!group.current || reducedMotion) return;
     group.current.rotation.y = THREE.MathUtils.lerp(group.current.rotation.y, pointer.x * 0.01, 1 - Math.exp(-delta * 2.5));
     group.current.rotation.x = THREE.MathUtils.lerp(group.current.rotation.x, -pointer.y * 0.006, 1 - Math.exp(-delta * 2.5));

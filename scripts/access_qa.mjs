@@ -1,0 +1,24 @@
+import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+import ts from 'typescript';
+
+const source = await readFile(new URL('../src/lib/siteSession.ts', import.meta.url), 'utf8');
+const compiled = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } });
+const { createSession, verifySession, SESSION_SECONDS } = await import(`data:text/javascript;base64,${Buffer.from(compiled.outputText).toString('base64')}`);
+const secret = 'test-only-secret-not-for-deployment-123456';
+const now = Date.now();
+const guest = await createSession('guest', secret, now);
+const owner = await createSession('owner', secret, now);
+assert.equal((await verifySession(guest, secret, now)).role, 'guest');
+assert.equal((await verifySession(owner, secret, now)).role, 'owner');
+assert.equal(await verifySession('true', secret, now), null);
+assert.equal(await verifySession(guest, undefined, now), null);
+assert.equal(await verifySession(guest, 'different-signing-secret-1234567890', now), null);
+assert.equal(await verifySession(guest, secret, now + SESSION_SECONDS * 1000), null);
+const [body, signature] = guest.split('.');
+const payload = JSON.parse(Buffer.from(body, 'base64url'));
+payload.role = 'owner';
+assert.equal(await verifySession(`${Buffer.from(JSON.stringify(payload)).toString('base64url')}.${signature}`, secret, now), null);
+assert.equal(await verifySession(`${guest}.extra`, secret, now), null);
+await assert.rejects(createSession('owner', 'short', now));
+console.log('PASS: signed roles, tamper rejection, expiry, missing secret, legacy cookie rejection');
