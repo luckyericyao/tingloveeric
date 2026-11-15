@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { FormEvent, KeyboardEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
 import {
   LocateFixed,
   Minus,
@@ -23,11 +23,42 @@ import {
   ZoomableGroup,
 } from "react-simple-maps";
 import type { ImageAsset, WorldMapPlace, WorldPlaceStatus } from "@/data/love";
+import { isWorldMapRevision, isWorldMapStatePayload, type SavedWorldMap, type WorldMapSnapshot } from "@/lib/worldMapSchema";
 import { PawPrint } from "./ScrapbookDecor";
 import styles from "./WorldMapBoard.module.css";
 
 type FilterValue = "all" | WorldPlaceStatus;
 type MapMode = "world" | "us";
+
+function TravelPhoto({ place }: { place: WorldMapPlace }) {
+  const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
+  const [attempt, setAttempt] = useState(0);
+  const frame = useRef<HTMLDivElement>(null);
+  const holdPhotoPosition = () => {
+    if (window.matchMedia("(max-width: 980px)").matches) {
+      window.scrollTo({ top: window.scrollY, behavior: "instant" });
+    }
+  };
+  return (
+    <div ref={frame} className={styles.detailPhoto} data-photo-status={status} aria-busy={status === "loading"} tabIndex={-1} aria-label={`${place.cityZh || place.name}的照片`}>
+      <Image key={attempt} src={place.image.src} alt={place.image.alt} fill
+        sizes="(max-width: 980px) 100vw, 52vw" className={styles.detailPhotoImage}
+        onLoad={event => { void event.currentTarget.decode().then(() => setStatus("ready")).catch(() => setStatus("error")); }}
+        onError={() => setStatus("error")} />
+      {status === "ready" ? <span>{place.landmark || place.image.caption}</span> : (
+        <div className={styles.photoStatus} role="status">
+          <p>{status === "error" ? "这张风景暂时没能打开。" : "风景正在展开…"}</p>
+          {status === "error" ? <button type="button" onPointerDown={holdPhotoPosition} onClick={() => {
+            holdPhotoPosition();
+            frame.current?.focus({ preventScroll: true });
+            setStatus("loading");
+            setAttempt(value => value + 1);
+          }}><RotateCcw size={16} />重试照片</button> : null}
+        </div>
+      )}
+    </div>
+  );
+}
 
 type WorldMapBoardProps = {
   seedPlaces: WorldMapPlace[];
@@ -42,14 +73,6 @@ type PlaceForm = {
   message: string;
   lat: string;
   lng: string;
-};
-
-type PersistenceMode = "redis" | "memory" | "local";
-
-type WorldMapResponse = {
-  overrides?: unknown;
-  customPlaces?: unknown;
-  persistence?: "redis" | "memory";
 };
 
 type MapPosition = {
@@ -138,71 +161,31 @@ const geographyStyle = {
   },
 };
 
-function isWorldMapPlace(value: unknown): value is WorldMapPlace {
-  const place = value as Partial<WorldMapPlace>;
-  return (
-    typeof place.id === "string" &&
-    typeof place.name === "string" &&
-    typeof place.country === "string" &&
-    (place.status === "visited" || place.status === "wishlist") &&
-    typeof place.note === "string" &&
-    typeof place.wish === "string" &&
-    typeof place.lat === "number" &&
-    typeof place.lng === "number"
-  );
-}
-
 function readLocalWorldMap() {
-  const localPlaces: WorldMapPlace[] = [];
-  const placeOverrides: Record<string, WorldMapPlace> = {};
-  const savedPlaces = window.localStorage.getItem(storageKey);
-
-  if (savedPlaces) {
-    try {
-      const parsed = JSON.parse(savedPlaces) as unknown;
-      if (Array.isArray(parsed)) localPlaces.push(...parsed.filter(isWorldMapPlace));
-    } catch {
-      window.localStorage.removeItem(storageKey);
-    }
+  // Earlier device-only copies remain readable, but never auto-publish.
+  try {
+    const cached = {
+      customPlaces: JSON.parse(window.localStorage.getItem(storageKey) ?? "[]"),
+      overrides: JSON.parse(window.localStorage.getItem(overridesStorageKey) ?? "{}"),
+    };
+    return isWorldMapStatePayload(cached) ? cached : null;
+  } catch {
+    return null;
   }
-
-  const savedOverrides = window.localStorage.getItem(overridesStorageKey);
-  if (savedOverrides) {
-    try {
-      const parsed = JSON.parse(savedOverrides) as unknown;
-      if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
-        Object.entries(parsed).forEach(([id, value]) => {
-          if (isWorldMapPlace(value)) placeOverrides[id] = value;
-        });
-      }
-    } catch {
-      window.localStorage.removeItem(overridesStorageKey);
-    }
-  }
-
-  return { localPlaces, placeOverrides };
 }
 
-function readRemoteWorldMap(payload: WorldMapResponse) {
-  const localPlaces = Array.isArray(payload.customPlaces)
-    ? payload.customPlaces.filter(isWorldMapPlace)
-    : [];
-  const placeOverrides: Record<string, WorldMapPlace> = {};
-
-  if (payload.overrides && typeof payload.overrides === "object" && !Array.isArray(payload.overrides)) {
-    Object.entries(payload.overrides).forEach(([id, value]) => {
-      if (isWorldMapPlace(value)) placeOverrides[id] = value;
-    });
+function readRemoteWorldMap(payload: unknown): WorldMapSnapshot | null {
+  if (!isWorldMapStatePayload(payload) || !("revision" in payload) || !isWorldMapRevision(payload.revision) ||
+      !("persistence" in payload) || payload.persistence !== "redis") {
+    return null;
   }
-
-  return { localPlaces, placeOverrides };
+  return { overrides: payload.overrides, customPlaces: payload.customPlaces, revision: payload.revision };
 }
 
-function hasWorldMapEntries(state: {
-  localPlaces: WorldMapPlace[];
-  placeOverrides: Record<string, WorldMapPlace>;
-}) {
-  return state.localPlaces.length > 0 || Object.keys(state.placeOverrides).length > 0;
+function worldResponseMessage(payload: unknown, fallback: string) {
+  return payload && typeof payload === "object" && "message" in payload && typeof payload.message === "string"
+    ? payload.message
+    : fallback;
 }
 
 function formatStatus(status: WorldPlaceStatus) {
@@ -228,13 +211,14 @@ function markerColor(status: WorldPlaceStatus) {
 }
 
 export function WorldMapBoard({ seedPlaces, canEdit = false }: WorldMapBoardProps) {
-  const [localPlaces, setLocalPlaces] = useState<WorldMapPlace[]>([]);
-  const [placeOverrides, setPlaceOverrides] = useState<Record<string, WorldMapPlace>>({});
+  const [world, setWorld] = useState<SavedWorldMap>({ customPlaces: [], overrides: {} });
+  const { customPlaces: localPlaces, overrides: placeOverrides } = world;
+  const [revision, setRevision] = useState<string | null>(null);
   const [hasLoaded, setHasLoaded] = useState(false);
-  const [persistenceMode, setPersistenceMode] = useState<PersistenceMode>("local");
+  const [saveConfirmed, setSaveConfirmed] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [syncError, setSyncError] = useState("");
-  const [syncAttempt, setSyncAttempt] = useState(0);
+  const [loadAttempt, setLoadAttempt] = useState(0);
   const [filter, setFilter] = useState<FilterValue>("all");
   const [mapMode, setMapMode] = useState<MapMode>("world");
   const [mapPosition, setMapPosition] = useState<MapPosition>({
@@ -248,6 +232,11 @@ export function WorldMapBoard({ seedPlaces, canEdit = false }: WorldMapBoardProp
   const [editorOpen, setEditorOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [mapReady, setMapReady] = useState(false);
+  const detailRef = useRef<HTMLElement>(null);
+  const saveInFlight = useRef(false);
+  const newPlaceId = useRef<string | null>(null);
+  const canSave = hasLoaded && revision !== null && !syncing;
+  const needsReload = hasLoaded && revision === null && Boolean(syncError);
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => setMapReady(true));
@@ -256,30 +245,27 @@ export function WorldMapBoard({ seedPlaces, canEdit = false }: WorldMapBoardProp
 
   useEffect(() => {
     let cancelled = false;
+    const controller = new AbortController();
+    const deadline = window.setTimeout(() => controller.abort(), 14000);
 
     async function loadWorldMap() {
-      const localState = canEdit ? readLocalWorldMap() : { localPlaces: [], placeOverrides: {} };
-
       try {
-        const response = await fetch("/api/world/places", { cache: "no-store" });
-        if (!response.ok) throw new Error("World map request failed");
-        const payload = (await response.json()) as WorldMapResponse;
-        const remoteState = readRemoteWorldMap(payload);
-        const initialState =
-          !hasWorldMapEntries(remoteState) && hasWorldMapEntries(localState) ? localState : remoteState;
-
+        const response = await fetch("/api/world/places", { cache: "no-store", signal: controller.signal });
+        const payload: unknown = await response.json().catch(() => null);
+        const saved = readRemoteWorldMap(payload);
+        if (!response.ok || !saved) throw new Error(worldResponseMessage(payload, "地图暂时没有读取成功。"));
         if (cancelled) return;
-        setLocalPlaces(initialState.localPlaces);
-        setPlaceOverrides(initialState.placeOverrides);
-        setPersistenceMode(payload.persistence || "memory");
+        setWorld(saved);
+        setRevision(saved.revision);
         setSyncError("");
-      } catch {
+      } catch (error) {
         if (cancelled) return;
-        setLocalPlaces(localState.localPlaces);
-        setPlaceOverrides(localState.placeOverrides);
-        setPersistenceMode("local");
-        setSyncError("地图接口暂时没有打开成功，当前先保存在这台设备上。");
+        const localCopy = canEdit && loadAttempt === 0 ? readLocalWorldMap() : null;
+        if (localCopy) setWorld(localCopy);
+        setRevision(null);
+        setSyncError(error instanceof Error && error.name === "Error" ? error.message : "地图暂时没有读取成功。");
       } finally {
+        window.clearTimeout(deadline);
         if (!cancelled) setHasLoaded(true);
       }
     }
@@ -287,47 +273,58 @@ export function WorldMapBoard({ seedPlaces, canEdit = false }: WorldMapBoardProp
     void loadWorldMap();
     return () => {
       cancelled = true;
-    };
-  }, [canEdit]);
-
-  useEffect(() => {
-    if (!hasLoaded || !canEdit) return;
-
-    window.localStorage.setItem(storageKey, JSON.stringify(localPlaces));
-    window.localStorage.setItem(overridesStorageKey, JSON.stringify(placeOverrides));
-
-    let cancelled = false;
-    const controller = new AbortController();
-    const saveTimer = window.setTimeout(async () => {
-      if (cancelled) return;
-      setSyncing(true);
-      try {
-        const response = await fetch("/api/world/places", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ customPlaces: localPlaces, overrides: placeOverrides }),
-          signal: controller.signal,
-        });
-        if (!response.ok) throw new Error("World map save failed");
-        const payload = (await response.json()) as WorldMapResponse;
-        if (cancelled) return;
-        setPersistenceMode(payload.persistence || "memory");
-        setSyncError("");
-      } catch (error) {
-        if (!cancelled && (error as Error).name !== "AbortError") {
-          setSyncError("这次修改暂时只保存在本机，网络恢复后可以再保存。");
-        }
-      } finally {
-        if (!cancelled) setSyncing(false);
-      }
-    }, 260);
-
-    return () => {
-      cancelled = true;
-      window.clearTimeout(saveTimer);
+      window.clearTimeout(deadline);
       controller.abort();
     };
-  }, [canEdit, hasLoaded, localPlaces, placeOverrides, syncAttempt]);
+  }, [canEdit, loadAttempt]);
+
+  function reloadMap() {
+    setHasLoaded(false);
+    setSyncError("");
+    setSaveConfirmed(false);
+    setLoadAttempt(attempt => attempt + 1);
+  }
+
+  async function saveMap(next: SavedWorldMap) {
+    if (!canEdit || !canSave || !revision || saveInFlight.current) return false;
+    saveInFlight.current = true;
+    setSyncing(true);
+    setSyncError("");
+    setSaveConfirmed(false);
+    const controller = new AbortController();
+    const deadline = window.setTimeout(() => controller.abort(), 14000);
+    try {
+      const response = await fetch("/api/world/places", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...next, revision }),
+        signal: controller.signal,
+      });
+      const payload: unknown = await response.json().catch(() => null);
+      if (response.status === 409) {
+        setRevision(null);
+        setSyncError("地图已在别处更新。请先查看最新地图，再决定是否保存。");
+        return false;
+      }
+      const saved = readRemoteWorldMap(payload);
+      if (!response.ok || !saved) throw new Error(worldResponseMessage(payload, "这次没有确认保存，请再试一次。"));
+      if (JSON.stringify(saved.overrides) !== JSON.stringify(next.overrides) ||
+          JSON.stringify(saved.customPlaces) !== JSON.stringify(next.customPlaces)) {
+        throw new Error("返回的地图未确认这次修改，草稿仍在。");
+      }
+      setWorld(saved);
+      setRevision(saved.revision);
+      setSaveConfirmed(true);
+      return true;
+    } catch (error) {
+      setSyncError(error instanceof Error && error.name === "Error" ? error.message : "这次没有确认保存，请再试一次。");
+      return false;
+    } finally {
+      window.clearTimeout(deadline);
+      saveInFlight.current = false;
+      setSyncing(false);
+    }
+  }
 
   const places = useMemo(
     () => [...seedPlaces.map((place) => placeOverrides[place.id] || place), ...localPlaces],
@@ -357,6 +354,7 @@ export function WorldMapBoard({ seedPlaces, canEdit = false }: WorldMapBoardProp
   }
 
   function resetEditor() {
+    newPlaceId.current = null;
     setEditingId(null);
     setForm(emptyForm);
     setEditorOpen(false);
@@ -364,6 +362,7 @@ export function WorldMapBoard({ seedPlaces, canEdit = false }: WorldMapBoardProp
   }
 
   function editPlace(place: WorldMapPlace) {
+    newPlaceId.current = null;
     setEditingId(place.id);
     setEditorOpen(true);
     setForm({
@@ -378,27 +377,22 @@ export function WorldMapBoard({ seedPlaces, canEdit = false }: WorldMapBoardProp
     setMessage("");
   }
 
-  function removeCustomPlace(place: WorldMapPlace) {
+  async function removeCustomPlace(place: WorldMapPlace) {
     if (seedPlaces.some((seedPlace) => seedPlace.id === place.id)) return;
-    setLocalPlaces((current) => current.filter((item) => item.id !== place.id));
+    if (!await saveMap({ overrides: placeOverrides, customPlaces: localPlaces.filter(item => item.id !== place.id) })) return;
     setSelectedId(seedPlaces[0]?.id || "");
-    resetEditor();
-    setMessage(`${place.name} 已从这张地图移开。`);
   }
 
-  function restoreSeedPlace(place: WorldMapPlace) {
+  async function restoreSeedPlace(place: WorldMapPlace) {
     if (!seedPlaces.some((seedPlace) => seedPlace.id === place.id)) return;
-    setPlaceOverrides((current) => {
-      const next = { ...current };
-      delete next[place.id];
-      return next;
-    });
-    resetEditor();
-    setMessage(`${place.name} 已恢复成原始记录。`);
+    const overrides = { ...placeOverrides };
+    delete overrides[place.id];
+    await saveMap({ overrides, customPlaces: localPlaces });
   }
 
-  function handleSavePlace(event: FormEvent<HTMLFormElement>) {
+  async function handleSavePlace(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!canSave || saveInFlight.current) return;
     setMessage("");
 
     const lat = Number(form.lat);
@@ -411,6 +405,7 @@ export function WorldMapBoard({ seedPlaces, canEdit = false }: WorldMapBoardProp
     }
 
     if (
+      !form.lat.trim() || !form.lng.trim() ||
       !Number.isFinite(lat) ||
       lat < -90 ||
       lat > 90 ||
@@ -423,8 +418,12 @@ export function WorldMapBoard({ seedPlaces, canEdit = false }: WorldMapBoardProp
     }
 
     const originalPlace = editingId ? places.find((place) => place.id === editingId) : null;
+    if (editingId && !originalPlace) {
+      setMessage("这处地点已在别处移除，可以把草稿另存为新地点。");
+      return;
+    }
     const nextPlace: WorldMapPlace = {
-      id: editingId || `custom-${Date.now()}`,
+      id: editingId ?? (newPlaceId.current ??= `custom-${crypto.randomUUID()}`),
       name: form.name.trim(),
       country: form.country.trim(),
       status: form.status,
@@ -440,25 +439,19 @@ export function WorldMapBoard({ seedPlaces, canEdit = false }: WorldMapBoardProp
       image: originalPlace?.image || seedPlaces[0]?.image || fallbackImage,
     };
 
-    const successMessage = editingId
-      ? `${nextPlace.name} 的记录已经更新。`
-      : "这处愿望已经放进地图。";
-
-    if (editingId) {
-      if (seedPlaces.some((place) => place.id === editingId)) {
-        setPlaceOverrides((current) => ({ ...current, [editingId]: nextPlace }));
-      } else {
-        setLocalPlaces((current) => current.map((place) => (place.id === editingId ? nextPlace : place)));
-      }
-    } else {
-      setLocalPlaces((current) => [nextPlace, ...current]);
-    }
+    const next = seedPlaces.some(place => place.id === nextPlace.id)
+      ? { overrides: { ...placeOverrides, [nextPlace.id]: nextPlace }, customPlaces: localPlaces }
+      : {
+        overrides: placeOverrides,
+        customPlaces: localPlaces.some(place => place.id === nextPlace.id)
+          ? localPlaces.map(place => place.id === nextPlace.id ? nextPlace : place)
+          : [nextPlace, ...localPlaces],
+      };
+    if (!await saveMap(next)) return;
     setSelectedId(nextPlace.id);
+    setHoveredId(null);
     setFilter("all");
-    setEditingId(null);
-    setForm(emptyForm);
-    setEditorOpen(false);
-    setMessage(successMessage);
+    resetEditor();
   }
 
   function changeMapMode(nextMode: MapMode) {
@@ -481,12 +474,32 @@ export function WorldMapBoard({ seedPlaces, canEdit = false }: WorldMapBoardProp
     setMapPosition({ coordinates: mapModes[mapMode].center, zoom: 1 });
   }
 
+  function selectPlace(placeId: string, focusPhoto = false) {
+    setSelectedId(placeId);
+    setHoveredId(null);
+    if (!window.matchMedia("(max-width: 980px)").matches) return;
+    window.requestAnimationFrame(() => {
+      if (focusPhoto) detailRef.current?.focus({ preventScroll: true });
+      detailRef.current?.scrollIntoView({
+        block: "start",
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth",
+      });
+    });
+  }
+
   function handleMarkerKeyDown(event: KeyboardEvent<SVGGElement>, placeId: string) {
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
-      setSelectedId(placeId);
+      selectPlace(placeId, true);
     }
   }
+
+  const readAgain = needsReload ? (
+    <button type="button" data-testid="world-reload" onClick={reloadMap} className={styles.retryButton}>
+      <RotateCcw size={13} />
+      重新读取地图
+    </button>
+  ) : null;
 
   return (
     <div className={styles.board}>
@@ -514,35 +527,18 @@ export function WorldMapBoard({ seedPlaces, canEdit = false }: WorldMapBoardProp
         </div>
       </header> : null}
 
-      {canEdit ? <div className={styles.statusRow}>
-        <p role={syncError ? "alert" : "status"} aria-live="polite">
+      {canEdit ? <div className={styles.statusRow} data-testid="world-sync">
+        <p role={syncError && !editorOpen ? "alert" : "status"} aria-live="polite">
           <PawPrint />
           {!hasLoaded
             ? "正在打开这张地图..."
             : syncing
               ? "正在收好这次修改..."
-              : syncError ||
-                (persistenceMode === "redis"
-                  ? "这张地图已经收好。"
-                  : persistenceMode === "memory"
-                    ? "这张地图已先放在当前页面。"
-                    : "这张地图已先收在这台设备上。")}
+              : syncError
+                ? (editorOpen ? "这次尚未确认保存。" : syncError)
+                : saveConfirmed ? "这次修改已经保存。" : "地图已读取。"}
         </p>
-        {syncError ? (
-          <button
-            type="button"
-            data-testid="world-retry-sync"
-            onClick={() => {
-              setSyncError("");
-              setSyncAttempt((current) => current + 1);
-            }}
-            disabled={syncing}
-            className={styles.retryButton}
-          >
-            <RotateCcw size={13} />
-            重试同步
-          </button>
-        ) : null}
+        {!editorOpen ? readAgain : null}
       </div> : null}
 
       <section className={styles.workspace}>
@@ -569,6 +565,20 @@ export function WorldMapBoard({ seedPlaces, canEdit = false }: WorldMapBoardProp
                 </button>
               ))}
             </div>
+            <label className={styles.cityPicker}>
+              <span>城市</span>
+              <select
+                value={selectedPlace?.id || ""}
+                aria-label="选择城市"
+                aria-controls="world-photo"
+                disabled={visiblePlaces.length === 0}
+                onChange={event => selectPlace(event.target.value)}
+              >
+                {visiblePlaces.length === 0 ? <option value="">暂无地点</option> : visiblePlaces.map(place => (
+                  <option key={place.id} value={place.id}>{place.cityZh || place.name} · {place.country}</option>
+                ))}
+              </select>
+            </label>
           </div>
 
           <div
@@ -649,10 +659,8 @@ export function WorldMapBoard({ seedPlaces, canEdit = false }: WorldMapBoardProp
                             role="button"
                             tabIndex={0}
                             aria-label={`${place.cityZh || place.name} · ${place.name} · ${place.landmark || "地点名片"} · ${formatStatus(place.status)}`}
-                            onClick={() => {
-                              setSelectedId(place.id);
-                              setHoveredId(place.id);
-                            }}
+                            aria-controls="world-photo"
+                            onClick={() => selectPlace(place.id)}
                             onKeyDown={(event) => handleMarkerKeyDown(event, place.id)}
                             onMouseEnter={() => setHoveredId(place.id)}
                             onMouseLeave={() => setHoveredId(null)}
@@ -707,7 +715,7 @@ export function WorldMapBoard({ seedPlaces, canEdit = false }: WorldMapBoardProp
 
             {mapMode === "us" && visiblePlaces.length === 0 ? (
               <p className={styles.emptyMapNote} role="status">
-                这张美国地图还没有坐标。先在右侧添加一个想去的城市吧。
+                {canEdit ? "这张美国地图还没有坐标。先在右侧添加一个想去的城市吧。" : "这个范围里还没有分享的地点。可以换一个范围看看。"}
               </p>
             ) : null}
           </div>
@@ -736,7 +744,7 @@ export function WorldMapBoard({ seedPlaces, canEdit = false }: WorldMapBoardProp
 
         <aside className={styles.detailColumn}>
           {selectedPlace ? (
-            <article className={styles.detailPanel}>
+            <article className={styles.detailPanel} id="world-photo" ref={detailRef} tabIndex={-1} aria-labelledby="selected-city-title">
               <span
                 className={`${styles.detailLabel} ${selectedPlace.status === "wishlist" ? styles.detailLabelWishlist : ""}`}
               >
@@ -744,36 +752,25 @@ export function WorldMapBoard({ seedPlaces, canEdit = false }: WorldMapBoardProp
               </span>
               <div className={styles.detailHeading}>
                 <div>
-                  <h3>{selectedPlace.cityZh || selectedPlace.name}</h3>
+                  <h3 id="selected-city-title" aria-live="polite">{selectedPlace.cityZh || selectedPlace.name}</h3>
                   <p>
                     {selectedPlace.name} · {selectedPlace.country}
                   </p>
                 </div>
-                <span className={styles.detailDate}>{selectedPlace.date || "未来某天"}</span>
+                {selectedPlace.date ? <time className={styles.detailDate}>{selectedPlace.date}</time> : null}
               </div>
-              <div className={styles.detailPhoto}>
-                <Image
-                  src={selectedPlace.image.src}
-                  alt={selectedPlace.image.alt}
-                  fill
-                  sizes="(max-width: 980px) 100vw, 52vw"
-                  className={styles.detailPhotoImage}
-                />
-                <span>{selectedPlace.landmark || selectedPlace.image.caption}</span>
-              </div>
+              <TravelPhoto key={selectedPlace.image.src} place={selectedPlace} />
               <p className={styles.detailCopy}>{selectedPlace.note}</p>
               <div className={styles.wishBlock}>
                 <span>Eric 的愿望</span>
                 <p>{selectedPlace.wish}</p>
               </div>
-              <p className={styles.fieldHint}>
-                {selectedPlace.image?.caption || fallbackImage.caption}
-              </p>
               {canEdit ? <div className={styles.detailActions}>
                 <button
                   type="button"
                   data-testid="world-edit"
                   onClick={() => editPlace(selectedPlace)}
+                  disabled={syncing || editorOpen}
                   className={styles.primaryButton}
                 >
                   <Pencil size={14} /> 编辑这段记录
@@ -782,6 +779,7 @@ export function WorldMapBoard({ seedPlaces, canEdit = false }: WorldMapBoardProp
                   <button
                     type="button"
                     onClick={() => restoreSeedPlace(selectedPlace)}
+                    disabled={!canSave || editorOpen || !Object.hasOwn(placeOverrides, selectedPlace.id)}
                     className={styles.quietButton}
                   >
                     <RotateCcw size={14} /> 恢复原始
@@ -790,6 +788,7 @@ export function WorldMapBoard({ seedPlaces, canEdit = false }: WorldMapBoardProp
                   <button
                     type="button"
                     onClick={() => removeCustomPlace(selectedPlace)}
+                    disabled={!canSave || editorOpen}
                     className={styles.quietButton}
                   >
                     <Trash2 size={14} /> 移除地点
@@ -799,9 +798,9 @@ export function WorldMapBoard({ seedPlaces, canEdit = false }: WorldMapBoardProp
             </article>
           ) : (
             <div className={styles.detailPanel}>
-              <span className={styles.detailLabel}>先点亮一个坐标</span>
-              <h3 className={styles.detailHeadingEmpty}>把下一座城市放进这张地图。</h3>
-              <p className={styles.detailCopy}>添加后，这里会显示你想记住的画面。</p>
+              <span className={styles.detailLabel}>{canEdit ? "先点亮一个坐标" : "留一点空白"}</span>
+              <h3 className={styles.detailHeadingEmpty}>{canEdit ? "把下一座城市放进这张地图。" : "这个范围里还没有地点。"}</h3>
+              <p className={styles.detailCopy}>{canEdit ? "添加后，这里会显示你想记住的画面。" : "换一个范围，看看已经分享的地方。"}</p>
             </div>
           )}
 
@@ -809,6 +808,7 @@ export function WorldMapBoard({ seedPlaces, canEdit = false }: WorldMapBoardProp
             <button
               type="button"
               className={styles.editorTrigger}
+              disabled={syncing}
               onClick={() => {
                 setEditingId(null);
                 setForm(emptyForm);
@@ -821,31 +821,31 @@ export function WorldMapBoard({ seedPlaces, canEdit = false }: WorldMapBoardProp
             </button>
           ) : null}
 
-          {canEdit && editorOpen ? <form onSubmit={handleSavePlace} className={styles.editorPanel}>
+          {canEdit && editorOpen ? <form onSubmit={handleSavePlace} className={styles.editorPanel} data-testid="world-editor" aria-labelledby="world-editor-title">
             <div className={styles.editorTopline}>
               <div>
                 <p className={styles.eyebrow}>{editingId ? "改一处愿望" : "写下一处愿望"}</p>
-                <h3>{editingId ? "把这段坐标改成现在想记住的样子" : "把一个地方先轻轻写下来"}</h3>
+                <h3 id="world-editor-title">{editingId ? "把这段坐标改成现在想记住的样子" : "把一个地方先轻轻写下来"}</h3>
               </div>
-              {editingId ? (
-                <button
-                  type="button"
-                  onClick={resetEditor}
-                  className={styles.closeEditor}
-                  aria-label="取消编辑"
-                  title="取消编辑"
-                >
-                  <X size={15} />
-                </button>
-              ) : null}
+              <button
+                type="button"
+                onClick={resetEditor}
+                disabled={syncing}
+                className={styles.closeEditor}
+                aria-label="取消编辑"
+                title="取消编辑"
+              >
+                <X size={15} />
+              </button>
             </div>
 
-            <div className={styles.form}>
+            <fieldset className={styles.form} disabled={syncing}>
               <label className={styles.field}>
                 地点名称
                 <input
                   data-testid="world-name"
                   value={form.name}
+                  maxLength={160}
                   onChange={(event) => updateForm("name", event.target.value)}
                   placeholder="例如 New York"
                 />
@@ -877,6 +877,7 @@ export function WorldMapBoard({ seedPlaces, canEdit = false }: WorldMapBoardProp
                 <input
                   data-testid="world-country"
                   value={form.country}
+                  maxLength={120}
                   onChange={(event) => updateForm("country", event.target.value)}
                   placeholder="例如 美国"
                 />
@@ -910,6 +911,7 @@ export function WorldMapBoard({ seedPlaces, canEdit = false }: WorldMapBoardProp
                 <textarea
                   data-testid="world-message"
                   value={form.message}
+                  maxLength={500}
                   onChange={(event) => updateForm("message", event.target.value)}
                   placeholder="写一点想记住的画面，或一句给自己的话"
                 />
@@ -938,15 +940,22 @@ export function WorldMapBoard({ seedPlaces, canEdit = false }: WorldMapBoardProp
                 </label>
               </div>
 
-              <button type="submit" data-testid="world-submit" className={styles.primaryButton}>
-                {editingId ? "保存这次修改" : "把这个地方先偷偷点亮"}
+              <button type="submit" data-testid="world-submit" className={styles.primaryButton} disabled={!canSave}>
+                {syncing ? "正在保存…" : editingId ? "保存这次修改" : "保存新地点"}
               </button>
+              {syncError ? <p className={styles.editorError} role="alert">{syncError} 草稿仍在。</p> : null}
+              {readAgain}
+              {editingId && !places.some(place => place.id === editingId) ? (
+                <button type="button" className={styles.quietButton} onClick={() => { setEditingId(null); setMessage(""); }}>
+                  另存为新地点
+                </button>
+              ) : null}
               {message ? (
                 <p className={styles.fieldHint} role="status" aria-live="polite">
                   {message}
                 </p>
               ) : null}
-            </div>
+            </fieldset>
           </form> : null}
         </aside>
       </section>
@@ -962,7 +971,7 @@ export function WorldMapBoard({ seedPlaces, canEdit = false }: WorldMapBoardProp
               <button
                 key={place.id}
                 type="button"
-                onClick={() => setSelectedId(place.id)}
+                onClick={() => selectPlace(place.id, true)}
                 className={`${styles.placeListItem} ${selectedPlace?.id === place.id ? styles.placeListItemActive : ""}`}
               >
                 <strong>{place.cityZh || place.name}</strong>
@@ -973,7 +982,7 @@ export function WorldMapBoard({ seedPlaces, canEdit = false }: WorldMapBoardProp
             ))}
           </div>
         ) : (
-          <p className={styles.fieldHint}>切换回世界视图，或在右侧添加一个美国坐标。</p>
+          <p className={styles.fieldHint}>{canEdit ? "切换回世界视图，或在右侧添加一个美国坐标。" : "换一个范围，看看已经分享的地方。"}</p>
         )}
       </details>
     </div>

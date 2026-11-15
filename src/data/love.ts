@@ -62,6 +62,7 @@ export type RoomCard = {
   id: string;
   title: string;
   body: string;
+  guestBody?: string;
   href: string;
   sticker: string;
   accent: "rose" | "lavender" | "gold" | "sage";
@@ -140,14 +141,6 @@ const xiaoyeArchive: ImageAsset = {
   alt: `${archiveContent.cats.xiaoye.appearance}的正面肖像`,
   caption: `${archiveContent.cats.xiaoye.nameZh}，${archiveContent.cats.xiaoye.shortAppearance}`,
   category: "verified cat reference",
-};
-
-const wishMapImage: ImageAsset = {
-  id: "wish-map-night",
-  src: "/images/shanghai-night-walk.jpg",
-  alt: "夜里街灯下的城市道路",
-  caption: "还没出发的地方，先留在愿望里。",
-  category: "personal wish",
 };
 
 function travelImage(id: string, city: string, landmark: string): ImageAsset {
@@ -234,7 +227,7 @@ export const loveWorldRooms: RoomCard[] = [
   {
     id: "cats-room",
     title: "她与两只猫",
-      body: `${archiveContent.cats.nono.nameZh}与${archiveContent.cats.xiaoye.nameZh}，保留它们各自的花纹、名字和柔软的生活痕迹。`,
+    body: `${archiveContent.cats.nono.nameEn}与${archiveContent.cats.xiaoye.nameZh}。认识她的时候，也慢慢认识了这两个小家伙。`,
     href: "/her",
     sticker: "她的小世界",
     accent: "lavender",
@@ -243,15 +236,16 @@ export const loveWorldRooms: RoomCard[] = [
   {
     id: "world-room",
     title: "想去的地方",
-    body: "还没出发的城市，先替自己的愿望留一盏小灯。",
+    body: "Eric 想去的地方：一顿晚餐，一段散步，还有远一点的风景。",
     href: "/world",
     sticker: "愿望",
     accent: "gold",
-    preview: wishMapImage,
+    preview: travelImage("paris", "巴黎", "城市风景"),
   },
   {
     id: "notes-room",
     title: "未寄出的信",
+    guestBody: "Eric 分享的几句话。读到这里就好，不必回信。",
     body: "今天有一句话想留下，就写在这里，不替未来下结论。",
     href: "/notes",
     sticker: "留给自己",
@@ -829,42 +823,14 @@ export const profileHer: Profile = {
     {
       title: "她的小世界",
       eyebrow: "2025.01.29 · 一段生活",
-      body: "一只猫、一缸鱼、一盆发财树。照片里的猫没有确认身份，所以就把画面原样留下。",
-      details: ["猫、鱼缸和发财树", "不替她说明心情"],
+      body: "一只猫、一缸鱼、一盆发财树。一个平常的日子，就这样留在照片里。",
+      details: ["猫、鱼缸和发财树"],
     },
     {
       title: `${archiveContent.cats.nono.nameZh}与${archiveContent.cats.xiaoye.nameZh}`,
       eyebrow: "她的小世界",
       body: `${archiveContent.cats.nono.nameZh}是带灰色重点色的猫，${archiveContent.cats.xiaoye.nameZh}${archiveContent.cats.xiaoye.shortAppearance}它们各自有名字，也各自保留自己的样子。`,
-      details: [`${archiveContent.cats.nono.nameZh} · ${archiveContent.cats.nono.nameEn}`, archiveContent.cats.xiaoye.nameZh, "花纹与名字不混淆"],
-    },
-  ],
-};
-
-export const profileHim: Profile = {
-  name: "Eric · 后来发生的变化",
-  subtitle: "一份关于我自己的记录，不替她写感受，也不向她索取结局。",
-  intro:
-    "最后一次交流以后，我减重了四十多斤，也重新建立了身体、生活和掌控感。这个改变由我完成，不需要她回来证明。",
-  traits: ["承认过去的方法不对", "钱已经归还", "减重四十多斤", "重新建立生活"],
-  sections: [
-    {
-      title: "先承认一件事",
-      eyebrow: "Eric 的感受",
-      body: "过去我曾试图用金钱制造吸引。现在我知道，那不是平等地认识一个人的方式。",
-      details: ["不把付出变成筹码", "不把归还理解成机会", "把旧关系里的账清零"],
-    },
-    {
-      title: "变化发生在我身上",
-      eyebrow: "最后一次交流以后",
-      body: "我瘦了四十多斤，生活、身体和自我掌控力都发生了变化。它们是我自己的生活，不是给谁验收的成绩单。",
-      details: ["身体变轻了", "状态重新建立", "不把改变交给别人评价"],
-    },
-    {
-      title: "把未来还给选择",
-      eyebrow: "不虚构结局",
-      body: "如果未来自然相遇，我们可以作为两个自由的人重新判断是否合适；如果没有，也不替故事写一个她没有选择的结尾。",
-      details: ["不绕过边界", "不预设她的反应", "允许未来保持开放"],
+      details: [`${archiveContent.cats.nono.nameZh} · ${archiveContent.cats.nono.nameEn}`, archiveContent.cats.xiaoye.nameZh],
     },
   ],
 };

@@ -1,6 +1,6 @@
 "use client";
 
-import { Canvas } from "@react-three/fiber";
+import { Canvas, useThree } from "@react-three/fiber";
 import { Suspense, useEffect } from "react";
 import * as THREE from "three";
 import { storyWorld } from "@/data/storyWorld";
@@ -24,7 +24,21 @@ type StoryWorldCanvasProps = {
   playbackDirection: StoryPlaybackDirection;
   onCatInteraction: () => void;
   onReady: () => void;
+  onFailure: () => void;
 };
+
+function WatchContext({ onFailure }: { onFailure: () => void }) {
+  const renderer = useThree(state => state.gl);
+
+  useEffect(() => {
+    const canvas = renderer.domElement;
+    canvas.addEventListener("webglcontextlost", onFailure, { once: true });
+    if (renderer.getContext().isContextLost()) onFailure();
+    return () => canvas.removeEventListener("webglcontextlost", onFailure);
+  }, [onFailure, renderer]);
+
+  return null;
+}
 
 function SceneReady({ onReady }: { onReady: () => void }) {
   useEffect(() => {
@@ -46,6 +60,7 @@ export function StoryWorldCanvas({
   playbackDirection,
   onCatInteraction,
   onReady,
+  onFailure,
 }: StoryWorldCanvasProps) {
   return (
     <Canvas
@@ -69,20 +84,21 @@ export function StoryWorldCanvas({
         gl.outputColorSpace = THREE.SRGBColorSpace;
       }}
     >
+      <WatchContext onFailure={onFailure} />
       <Suspense fallback={null}>
         <FilmPausedContext.Provider value={paused}>
-        <StoryWorldScene
-          activeBeat={activeBeat}
-          activeChapter={activeChapter}
-          started
-          panelOpen={panelOpen}
-          quality={quality}
-          reducedMotion={reducedMotion}
-          playbackState={playbackState}
-          playbackDirection={playbackDirection}
-          onCatInteraction={onCatInteraction}
-        />
-        <SceneReady onReady={onReady} />
+          <StoryWorldScene
+            activeBeat={activeBeat}
+            activeChapter={activeChapter}
+            started
+            panelOpen={panelOpen}
+            quality={quality}
+            reducedMotion={reducedMotion}
+            playbackState={playbackState}
+            playbackDirection={playbackDirection}
+            onCatInteraction={onCatInteraction}
+          />
+          <SceneReady onReady={onReady} />
         </FilmPausedContext.Provider>
       </Suspense>
     </Canvas>

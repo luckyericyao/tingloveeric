@@ -1,129 +1,50 @@
-import type { ImageAsset, WorldMapPlace } from "@/data/love";
+import { createHash } from "node:crypto";
 import { getKvConfig, runKvCommand } from "@/lib/kvRest";
+import { isWorldMapStatePayload, type SavedWorldMap, type WorldMapSnapshot } from "@/lib/worldMapSchema";
 
 const worldKey = "tingloveeric:world-map";
 
-export type SavedWorldMap = {
-  overrides: Record<string, WorldMapPlace>;
-  customPlaces: WorldMapPlace[];
-};
+// Keep the existing JSON value and compare the exact bytes inside Redis.
+const compareAndSave = `
+local current = redis.call('GET', KEYS[1])
+if current == ARGV[3] then return 1 end
+if (ARGV[1] == 'missing' and current == false) or (ARGV[1] == 'present' and current == ARGV[2]) then
+  redis.call('SET', KEYS[1], ARGV[3])
+  return 1
+end
+return 0
+`;
 
-type GlobalWorldStore = typeof globalThis & {
-  __tingLoveWorldMap?: SavedWorldMap;
-};
+export class WorldMapConflict extends Error {}
+export class WorldMapStorageUnavailable extends Error {}
 
-function emptyWorldMap(): SavedWorldMap {
-  return { overrides: {}, customPlaces: [] };
+function revisionOf(raw: string | null) {
+  return createHash("sha256").update(raw === null ? "missing" : `value:${raw}`).digest("hex");
 }
 
-function isImageAsset(value: unknown): value is ImageAsset {
-  const image = value as Partial<ImageAsset>;
-  return (
-    typeof image.id === "string" &&
-    typeof image.src === "string" &&
-    typeof image.alt === "string" &&
-    typeof image.caption === "string" &&
-    typeof image.category === "string"
-  );
-}
-
-export function isWorldMapPlace(value: unknown): value is WorldMapPlace {
-  const place = value as Partial<WorldMapPlace>;
-  return (
-    typeof place.id === "string" &&
-    place.id.length <= 120 &&
-    typeof place.name === "string" &&
-    place.name.length <= 160 &&
-    typeof place.country === "string" &&
-    place.country.length <= 120 &&
-    (place.status === "visited" || place.status === "wishlist") &&
-    typeof place.note === "string" &&
-    place.note.length <= 500 &&
-    typeof place.wish === "string" &&
-    place.wish.length <= 500 &&
-    typeof place.lat === "number" &&
-    Number.isFinite(place.lat) &&
-    place.lat >= -90 &&
-    place.lat <= 90 &&
-    typeof place.lng === "number" &&
-    Number.isFinite(place.lng) &&
-    place.lng >= -180 &&
-    place.lng <= 180 &&
-    (place.date === undefined || typeof place.date === "string") &&
-    isImageAsset(place.image)
-  );
-}
-
-export function sanitizeWorldMap(value: unknown): SavedWorldMap {
-  const candidate = value as Partial<SavedWorldMap> | null;
-  const overrides =
-    candidate && candidate.overrides && typeof candidate.overrides === "object"
-      ? Object.fromEntries(
-          Object.entries(candidate.overrides)
-            .filter(([, place]) => isWorldMapPlace(place))
-            .slice(0, 100),
-        ) as Record<string, WorldMapPlace>
-      : {};
-  const customPlaces =
-    candidate && Array.isArray(candidate.customPlaces)
-      ? candidate.customPlaces.filter(isWorldMapPlace).slice(0, 100)
-      : [];
-
-  return { overrides, customPlaces };
-}
-
-export function isWorldMapStatePayload(value: unknown): value is SavedWorldMap {
-  const candidate = value as Partial<SavedWorldMap> | null;
-  return Boolean(
-    candidate &&
-      typeof candidate === "object" &&
-      !Array.isArray(candidate) &&
-      candidate.overrides &&
-      typeof candidate.overrides === "object" &&
-      !Array.isArray(candidate.overrides) &&
-      Array.isArray(candidate.customPlaces),
-  );
-}
-
-function memoryWorldMap() {
-  const worldGlobal = globalThis as GlobalWorldStore;
-
-  if (!worldGlobal.__tingLoveWorldMap) {
-    worldGlobal.__tingLoveWorldMap = emptyWorldMap();
-  }
-
-  return worldGlobal.__tingLoveWorldMap;
-}
-
-export function worldPersistenceMode() {
-  return getKvConfig() ? "redis" : "memory";
+async function readSnapshot(): Promise<{ raw: string | null; snapshot: WorldMapSnapshot }> {
+  if (!getKvConfig()) throw new WorldMapStorageUnavailable();
+  const raw = await runKvCommand<string | null>(["GET", worldKey]);
+  const state: unknown = raw === null ? { overrides: {}, customPlaces: [] } : JSON.parse(raw);
+  if (!isWorldMapStatePayload(state)) throw new Error("Invalid stored map");
+  return { raw, snapshot: { ...state, revision: revisionOf(raw) } };
 }
 
 export async function getWorldMapState() {
-  if (!getKvConfig()) {
-    return sanitizeWorldMap(memoryWorldMap());
-  }
-
-  const saved = await runKvCommand<string | null>(["GET", worldKey]);
-
-  if (!saved) {
-    const initial = emptyWorldMap();
-    await runKvCommand<string>(["SET", worldKey, JSON.stringify(initial)]);
-    return initial;
-  }
-
-  return sanitizeWorldMap(JSON.parse(saved) as unknown);
+  return (await readSnapshot()).snapshot;
 }
 
-export async function saveWorldMapState(value: unknown) {
-  const nextState = sanitizeWorldMap(value);
-
-  if (!getKvConfig()) {
-    const worldGlobal = globalThis as GlobalWorldStore;
-    worldGlobal.__tingLoveWorldMap = nextState;
-    return nextState;
-  }
-
-  await runKvCommand<string>(["SET", worldKey, JSON.stringify(nextState)]);
-  return nextState;
+export async function saveWorldMapState(state: SavedWorldMap, revision: string): Promise<WorldMapSnapshot> {
+  const { raw, snapshot } = await readSnapshot();
+  const next = { overrides: state.overrides, customPlaces: state.customPlaces };
+  const encoded = JSON.stringify(next);
+  // An identical retry can acknowledge a save whose response was lost.
+  if (raw === encoded) return snapshot;
+  if (snapshot.revision !== revision) throw new WorldMapConflict();
+  const result = await runKvCommand<number>([
+    "EVAL", compareAndSave, 1, worldKey, raw === null ? "missing" : "present", raw ?? "", encoded,
+  ]);
+  if (result === 0) throw new WorldMapConflict();
+  if (result !== 1) throw new Error("Map save not acknowledged");
+  return { ...next, revision: revisionOf(encoded) };
 }

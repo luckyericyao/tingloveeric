@@ -3,7 +3,6 @@ export type ArchiveContentClass = "public" | "private" | "eric-feeling" | "verif
 export const archiveContent = {
   identity: {
     publicHerName: "Hanni",
-    privateHerName: "胡子婷",
     himName: "Eric",
   },
   dates: {
@@ -33,7 +32,7 @@ export const archiveContent = {
     },
     xiaoye: {
       nameZh: "小yeah",
-      nameEn: "Xiaoye",
+      nameEn: "小yeah",
       appearance: "银白色长毛猫，圆脸、毛量大，灰绿色眼睛。",
       shortAppearance: "整体偏纯白与银白。",
     },
@@ -49,11 +48,6 @@ export const archiveContent = {
     title: "甜蜜的瞬间",
     lead: "那段时间，陌生慢慢有了温度。",
     replies: ["明天听你分享。", "真棒。", "晚安～"],
-  },
-  separation: {
-    fact: "后来我们失去了联系。她把之前的钱全部还给了我，旧的金钱关系就此结束。",
-    reflection: "过去试图用金钱制造吸引，并不是平等地认识一个人的方式。钱被归还，不代表谁因此获得了一次重新开始的权利。",
-    growth: "最后一次交流以后，我减重了四十多斤，也重新建立了自己的身体、生活和掌控感。",
   },
 } as const;
 

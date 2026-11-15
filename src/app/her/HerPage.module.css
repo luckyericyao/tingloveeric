@@ -1,0 +1,21 @@
+.page { padding: 28px 0 80px; }
+.heading { display: grid; width: min(720px, 100%); place-items: center; margin: 32px auto 24px; text-align: center; }
+.heading h1 { width: 100%; margin: 0; font-family: var(--font-serif-elegant); font-size: 44px; font-weight: 400; text-align: center; }
+.heading p { width: 100%; margin: 14px 0 0; color: var(--archive-muted); font-size: 15px; text-align: center; }
+.portraits { display: grid; width: min(920px, 100%); margin: 0 auto; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.portraits figure { margin: 0; min-width: 0; }
+.portraits figcaption { text-align: center; padding: 16px 12px; }
+.portraits h2 { margin: 0 0 10px; font-family: var(--font-serif-elegant); font-size: 28px; font-weight: 400; }
+.portraits p { max-width: 26em; margin: auto; color: var(--archive-muted); font-size: 14px; line-height: 1.8; }
+.memory { width: min(600px, 100%); margin: 80px auto 0; }
+.memory img { display: block; width: 100%; height: auto; }
+.memory figcaption { margin-top: 18px; color: var(--archive-muted); font-size: 14px; text-align: center; }
+@media (max-width: 700px) {
+  .page { padding-top: 20px; }
+  .heading h1 { font-size: 32px; }
+  .portraits { gap: 8px; }
+  .portraits figcaption { padding: 12px 0; }
+  .portraits h2 { font-size: 24px; }
+  .portraits p { font-size: 12px; }
+  .memory { margin-top: 48px; }
+}

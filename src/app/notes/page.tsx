@@ -4,6 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import { NotesBoard } from "@/components/NotesBoard";
 import { moodOptions, seedNotes } from "@/data/love";
 import { viewerSession } from "@/lib/serverAccess";
+import styles from "@/components/LetterPaper.module.css";
 
 export const metadata: Metadata = {
   title: "未寄出的信 | 私人档案馆",
@@ -13,7 +14,7 @@ export const metadata: Metadata = {
 export default async function NotesPage() {
   const canEdit = (await viewerSession())?.role === "owner";
   return (
-    <main className="archive-page notes-room-page">
+    <main className={`archive-page notes-room-page ${styles.room}`}>
       <section className="notes-room-shell content-wrap">
         <Link className="archive-back-link" href="/private">
           <ArrowLeft size={16} />

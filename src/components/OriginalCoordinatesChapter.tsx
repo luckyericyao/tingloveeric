@@ -73,6 +73,21 @@ function ArchiveImage({
 export function OriginalCoordinatesChapter() {
   const [activeImage, setActiveImage] = useState<number | null>(null);
   const chapterRef = useRef<HTMLElement>(null);
+  const viewerRef = useRef<HTMLDialogElement>(null);
+  const touchStart = useRef<{ x: number; y: number } | null>(null);
+  const viewerOpen = activeImage !== null;
+
+  useEffect(() => {
+    if (!viewerOpen) return;
+    const opener = document.activeElement as HTMLElement | null;
+    const viewer = viewerRef.current;
+    viewer?.showModal();
+    viewer?.querySelector<HTMLButtonElement>("[data-viewer-close]")?.focus();
+    return () => {
+      viewer?.close();
+      opener?.focus({ preventScroll: true });
+    };
+  }, [viewerOpen]);
 
   useEffect(() => {
     const container = chapterRef.current;
@@ -94,17 +109,31 @@ export function OriginalCoordinatesChapter() {
   }, []);
 
   useEffect(() => {
-    if (activeImage === null) return;
+    if (!viewerOpen) return;
     const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     const handleKey = (event: KeyboardEvent) => {
+      if (event.key === "Tab") {
+        const controls = viewerRef.current?.querySelectorAll<HTMLButtonElement>("button:not([tabindex='-1'])");
+        const first = controls?.[0];
+        const last = controls?.[controls.length - 1];
+        if (first && last && event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (first && last && !event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      }
       if (event.key === "Escape") setActiveImage(null);
       if (event.key === "ArrowRight") {
+        event.preventDefault();
         setActiveImage((current) =>
           current === null ? null : (current + 1) % coordinateMemories.length,
         );
       }
       if (event.key === "ArrowLeft") {
+        event.preventDefault();
         setActiveImage((current) =>
           current === null
             ? null
@@ -117,7 +146,7 @@ export function OriginalCoordinatesChapter() {
       document.body.style.overflow = originalOverflow;
       window.removeEventListener("keydown", handleKey);
     };
-  }, [activeImage]);
+  }, [viewerOpen]);
 
   const showPrevious = () => {
     setActiveImage((current) =>
@@ -207,11 +236,11 @@ export function OriginalCoordinatesChapter() {
         </div>
       </section>
 
-      <section className={styles.tenderBand}>
+      <section className={styles.tenderBand} aria-labelledby="tender-title">
         <div className={styles.tenderInner}>
           <div className={styles.tenderHeading} data-reveal>
             <p className={styles.eyebrow}>{originalCoordinates.tenderMoments.eyebrow}</p>
-            <h2>{originalCoordinates.tenderMoments.title}</h2>
+            <h2 id="tender-title">{originalCoordinates.tenderMoments.title}</h2>
             <p>{originalCoordinates.tenderMoments.lead}</p>
           </div>
 
@@ -288,14 +317,31 @@ export function OriginalCoordinatesChapter() {
       </section>
 
       {activeImage !== null ? (
-        <div
+        <dialog
+          ref={viewerRef}
           className={styles.viewer}
-          role="dialog"
           aria-modal="true"
           aria-label={`查看图片：${coordinateMemories[activeImage].title}`}
+          onCancel={(event) => { event.preventDefault(); setActiveImage(null); }}
         >
-          <button className={styles.viewerBackdrop} type="button" onClick={() => setActiveImage(null)} aria-label="关闭图片" />
-          <div className={styles.viewerFrame}>
+          <button className={styles.viewerBackdrop} tabIndex={-1} type="button" onClick={() => setActiveImage(null)} aria-label="关闭图片" />
+          <div className={styles.viewerFrame}
+            onTouchStart={(event) => {
+              touchStart.current = event.touches.length === 1
+                ? { x: event.touches[0].clientX, y: event.touches[0].clientY } : null;
+            }}
+            onTouchCancel={() => { touchStart.current = null; }}
+            onTouchEnd={(event) => {
+              const start = touchStart.current;
+              touchStart.current = null;
+              if (!start || !event.changedTouches.length) return;
+              const dx = event.changedTouches[0].clientX - start.x;
+              const dy = event.changedTouches[0].clientY - start.y;
+              if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+                if (dx < 0) showNext(); else showPrevious();
+              }
+            }}
+          >
             <Image
               src={coordinateMemories[activeImage].source}
               alt={coordinateMemories[activeImage].alt}
@@ -305,11 +351,12 @@ export function OriginalCoordinatesChapter() {
               priority
             />
           </div>
-          <div className={styles.viewerCaption}>
-            <span>{String(activeImage + 1).padStart(2, "0")} / 05</span>
+          <div className={styles.viewerCaption} aria-live="polite" aria-atomic="true">
+            <span>{coordinateMemories[activeImage].date} · {activeImage + 1} / {coordinateMemories.length}</span>
             <strong>{coordinateMemories[activeImage].title}</strong>
+            <p>{coordinateMemories[activeImage].caption}</p>
           </div>
-          <button className={styles.viewerClose} type="button" onClick={() => setActiveImage(null)} aria-label="关闭图片">
+          <button data-viewer-close className={styles.viewerClose} type="button" onClick={() => setActiveImage(null)} aria-label="关闭图片" title="关闭图片">
             <X size={20} />
           </button>
           <button className={`${styles.viewerArrow} ${styles.viewerArrowLeft}`} type="button" onClick={showPrevious} aria-label="上一张图片">
@@ -318,7 +365,7 @@ export function OriginalCoordinatesChapter() {
           <button className={`${styles.viewerArrow} ${styles.viewerArrowRight}`} type="button" onClick={showNext} aria-label="下一张图片">
             <ArrowRight size={20} />
           </button>
-        </div>
+        </dialog>
       ) : null}
     </main>
   );

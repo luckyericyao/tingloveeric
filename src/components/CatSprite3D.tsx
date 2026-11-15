@@ -70,8 +70,8 @@ const CAT_STAGE_LAYOUT = {
   },
   mobile: {
     depth: 7.4,
-    openY: -1.35,
-    closedY: -1.42,
+    openY: -0.8,
+    closedY: -0.87,
     xiaoye: { xOpen: -0.84, xClosed: -0.78, y: -0.425, z: 0.08, scaleOpen: 1.4, scaleClosed: 1.44, yaw: THREE.MathUtils.degToRad(9) },
     nono: { xOpen: 0.84, xClosed: 0.78, y: -0.632, z: 0.06, scaleOpen: 1.52, scaleClosed: 1.56, yaw: THREE.MathUtils.degToRad(-10) },
   },
@@ -331,6 +331,7 @@ export function CatSprite3D({
           transparent
           opacity={0}
           depthWrite={false}
+          depthTest={false}
           toneMapped={false}
         />
       </mesh>
@@ -370,6 +371,7 @@ export function CatSprite3D({
                 opacity={0}
                 alphaTest={0.035}
                 depthWrite={false}
+                depthTest={false}
                 side={THREE.DoubleSide}
               />
             </mesh>
@@ -384,6 +386,7 @@ export function CatSprite3D({
                 opacity={0}
                 alphaTest={0.035}
                 depthWrite={false}
+                depthTest={false}
                 side={THREE.DoubleSide}
               />
             </mesh>

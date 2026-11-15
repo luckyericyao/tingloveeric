@@ -114,7 +114,8 @@ export function Butterfly3D({ activeChapter, reducedMotion, quiet }: Butterfly3D
     path.getPointAt(progress.current, point);
     path.getPointAt((progress.current + 0.006) % 1, nextPoint);
     direction.copy(nextPoint).sub(point).normalize();
-    butterfly.current.position.copy(point);
+    const mobile = state.size.width < 700;
+    butterfly.current.position.set(mobile ? (point.x + 0.77) * 0.5 : point.x, point.y + (mobile ? 0.78 : 0), point.z);
     if (!reducedMotion) butterfly.current.position.y += Math.sin(elapsed * 1.13) * 0.035;
 
     const targetYaw = Math.atan2(direction.x, Math.max(0.001, direction.z));
@@ -146,7 +147,7 @@ export function Butterfly3D({ activeChapter, reducedMotion, quiet }: Butterfly3D
       if (!material) return;
       material.opacity = reveal.current * (index < 2 ? (quiet ? 0.75 : 0.82) : 0.1);
     });
-    const targetScale = quiet ? 0.7 : 0.76;
+    const targetScale = mobile ? 0.42 : quiet ? 0.7 : 0.76;
     targetScaleVector.set(targetScale, targetScale, targetScale);
     butterfly.current.scale.lerp(
       targetScaleVector,

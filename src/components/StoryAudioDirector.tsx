@@ -3,6 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { archiveContent } from "@/data/archiveContent";
+import { OPENING_DURATION } from "@/data/openingSequence";
 
 export type StoryTrackId = "opening" | "story";
 
@@ -18,6 +19,8 @@ const tracks: Record<StoryTrackId, StoryTrack> = {
   story: { ...archiveContent.audio.story, id: "story" },
 };
 
+const PLAYBACK_VOLUME = 0.26;
+
 type StoryAudioContextValue = {
   activeTrack: StoryTrack;
   currentTime: number;
@@ -32,7 +35,7 @@ type StoryAudioContextValue = {
   filmRequested: boolean;
   resumeTime: number;
   buffering: boolean;
-  requestFilm: () => void;
+  requestFilm: () => Promise<boolean>;
   pause: () => void;
   playTrack: (trackId: StoryTrackId, offset?: number) => Promise<boolean>;
   toggleMute: () => void;
@@ -46,6 +49,8 @@ export function StoryAudioDirector({ children }: { children: React.ReactNode }) 
   const audioRef = useRef<HTMLAudioElement>(null);
   const activeTrackIdRef = useRef<StoryTrackId>("opening");
   const openingUnlockCleanupRef = useRef<(() => void) | null>(null);
+  const fadeFrameRef = useRef<number | null>(null);
+  const fadeResolveRef = useRef<(() => void) | null>(null);
   const [activeTrackId, setActiveTrackId] = useState<StoryTrackId>("opening");
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -62,6 +67,16 @@ export function StoryAudioDirector({ children }: { children: React.ReactNode }) 
   const activeTrack = tracks[activeTrackId];
 
   useEffect(() => {
+    if (!buffering || !playing) return;
+    const timeout = window.setTimeout(() => {
+      audioRef.current?.pause();
+      setBuffering(false);
+      setError(true);
+    }, 15000);
+    return () => window.clearTimeout(timeout);
+  }, [buffering, playing]);
+
+  useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
     let savedMuted = false;
@@ -69,7 +84,7 @@ export function StoryAudioDirector({ children }: { children: React.ReactNode }) 
       savedMuted = window.localStorage.getItem("tingloveeric.muted") === "true";
     } catch { /* Playback must also work when browser storage is disabled. */ }
     audio.muted = savedMuted;
-    audio.volume = savedMuted ? 0 : 0.26;
+    audio.volume = savedMuted ? 0 : PLAYBACK_VOLUME;
     const frame = requestAnimationFrame(() => {
     setMuted(savedMuted);
     try {
@@ -107,6 +122,8 @@ export function StoryAudioDirector({ children }: { children: React.ReactNode }) 
       setDuration(0);
       setEndedTrack(null);
       setPlaying(false);
+      setBuffering(false);
+      setError(false);
       audio.src = tracks.opening.src;
       audio.currentTime = 0;
       audio.load();
@@ -115,6 +132,10 @@ export function StoryAudioDirector({ children }: { children: React.ReactNode }) 
     let disposed = false;
     const tryPlayback = async () => {
       if (disposed || activeTrackIdRef.current !== "opening" || !audio.paused) return;
+      if (audio.error) {
+        setError(true);
+        return;
+      }
       try {
         await audio.play();
         if (!disposed) {
@@ -122,14 +143,16 @@ export function StoryAudioDirector({ children }: { children: React.ReactNode }) 
           setError(false);
           openingUnlockCleanupRef.current?.();
         }
-      } catch {
-        if (!disposed) setNeedsGesture(true);
+      } catch (error) {
+        if (disposed || (error instanceof DOMException && error.name === "AbortError")) return;
+        if (audio.error) setError(true);
+        else setNeedsGesture(true);
       }
     };
 
     const unlock = (event: Event) => {
       const target = event.target as Element | null;
-      if (target?.closest?.("[data-story-enter]")) return;
+      if (target?.closest?.("[data-audio-control], [data-story-enter]")) return;
       void tryPlayback();
     };
     const events = ["pointerdown", "touchstart", "wheel", "keydown"] as const;
@@ -150,12 +173,47 @@ export function StoryAudioDirector({ children }: { children: React.ReactNode }) 
     };
   }, [pathname]);
 
-  const pause = useCallback(() => { audioRef.current?.pause(); }, []);
-  const requestFilm = useCallback(() => {
-    if (!preludeComplete) return;
+  const cancelFade = useCallback(() => {
+    if (fadeFrameRef.current !== null) cancelAnimationFrame(fadeFrameRef.current);
+    fadeFrameRef.current = null;
+    if (audioRef.current) audioRef.current.dataset.audioTransition = "steady";
+    fadeResolveRef.current?.();
+    fadeResolveRef.current = null;
+  }, []);
+  const fadeVolume = useCallback((audio: HTMLAudioElement, target: number, milliseconds: number) => new Promise<void>((resolve) => {
+    cancelFade();
+    fadeResolveRef.current = resolve;
+    audio.dataset.audioTransition = target === 0 ? "fading-out" : "fading-in";
+    const from = audio.volume;
+    const startedAt = performance.now();
+    const frame = (now: number) => {
+      const progress = Math.min(1, (now - startedAt) / milliseconds);
+      const eased = progress * progress * (3 - 2 * progress);
+      audio.volume = from + (target - from) * eased;
+      if (progress < 1) fadeFrameRef.current = requestAnimationFrame(frame);
+      else {
+        fadeFrameRef.current = null;
+        fadeResolveRef.current = null;
+        audio.dataset.audioTransition = "steady";
+        resolve();
+      }
+    };
+    fadeFrameRef.current = requestAnimationFrame(frame);
+  }), [cancelFade]);
+  const pause = useCallback(() => {
+    cancelFade();
+    audioRef.current?.pause();
+  }, [cancelFade]);
+  const requestFilm = useCallback(async () => {
+    if (!preludeComplete) return false;
+    const audio = audioRef.current;
+    if (audio && activeTrackIdRef.current === "opening" && !audio.paused && !muted) {
+      await fadeVolume(audio, 0, 420);
+    }
     setFilmRequested(true);
     try { sessionStorage.setItem("archive.film.requested", "true"); } catch { /* Optional persistence. */ }
-  }, [preludeComplete]);
+    return true;
+  }, [fadeVolume, muted, preludeComplete]);
 
   const playTrack = useCallback(async (trackId: StoryTrackId, offset = 0) => {
     const audio = audioRef.current;
@@ -168,53 +226,63 @@ export function StoryAudioDirector({ children }: { children: React.ReactNode }) 
     setActiveTrackId(trackId);
     setCurrentTime(offset);
     setDuration(0);
+    setBuffering(false);
     audio.pause();
     audio.src = nextTrack.src;
     audio.currentTime = offset;
-    audio.volume = muted ? 0 : 0.26;
+    cancelFade();
+    audio.volume = 0;
     try {
       await audio.play();
       setPlaying(true);
       setNeedsGesture(false);
       setError(false);
+      if (!muted) void fadeVolume(audio, PLAYBACK_VOLUME, 650);
       return true;
-    } catch {
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") return false;
       setPlaying(false);
       setNeedsGesture(true);
       return false;
     }
-  }, [muted]);
+  }, [cancelFade, fadeVolume, muted]);
 
+  const failedOffset = error ? currentTime : 0;
   const togglePlayback = useCallback(async () => {
     const audio = audioRef.current;
     if (!audio) return false;
     if (!audio.paused) {
-      audio.pause();
+      pause();
       return true;
     }
+    if (error || audio.error) return playTrack(activeTrackIdRef.current, error ? failedOffset : audio.currentTime);
     try {
       await audio.play();
       setPlaying(true);
       setNeedsGesture(false);
       setError(false);
+      if (!audio.muted && audio.volume < PLAYBACK_VOLUME) void fadeVolume(audio, PLAYBACK_VOLUME, 650);
       return true;
-    } catch {
-      setNeedsGesture(true);
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") return false;
+      if (audio.error) setError(true);
+      else setNeedsGesture(true);
       return false;
     }
-  }, []);
+  }, [error, fadeVolume, failedOffset, pause, playTrack]);
 
   const toggleMute = useCallback(() => {
     const audio = audioRef.current;
     if (!audio) return;
+    cancelFade();
     const nextMuted = !muted;
     audio.muted = nextMuted;
-    audio.volume = nextMuted ? 0 : 0.26;
+    audio.volume = nextMuted ? 0 : PLAYBACK_VOLUME;
     try {
       window.localStorage.setItem("tingloveeric.muted", String(nextMuted));
     } catch { /* The current session still keeps its mute preference. */ }
     setMuted(nextMuted);
-  }, [muted]);
+  }, [cancelFade, muted]);
 
   const value = useMemo<StoryAudioContextValue>(() => ({
     activeTrack,
@@ -246,8 +314,10 @@ export function StoryAudioDirector({ children }: { children: React.ReactNode }) 
         preload="auto"
         playsInline
         aria-label={`${activeTrack.title} · ${activeTrack.artist}`}
-        onPlay={() => {
+        onPlay={(event) => {
+          openingUnlockCleanupRef.current?.();
           setPlaying(true);
+          setBuffering(event.currentTarget.readyState < HTMLMediaElement.HAVE_CURRENT_DATA);
           setNeedsGesture(false);
           setError(false);
         }}
@@ -270,7 +340,7 @@ export function StoryAudioDirector({ children }: { children: React.ReactNode }) 
         onTimeUpdate={(event) => {
           const time = event.currentTarget.currentTime;
           setCurrentTime(time);
-          if (activeTrackIdRef.current === "opening" && time >= 60) {
+          if (activeTrackIdRef.current === "opening" && time >= OPENING_DURATION) {
             setPreludeComplete(true);
             try { sessionStorage.setItem("archive.prelude.complete", "true"); } catch { /* Optional persistence. */ }
           }

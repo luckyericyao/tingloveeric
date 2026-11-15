@@ -9,6 +9,26 @@
   color: var(--home-ink);
 }
 
+.home::after {
+  position: fixed;
+  z-index: 60;
+  inset: 0;
+  background: rgba(25, 17, 22, 0.34);
+  content: "";
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 420ms ease;
+}
+
+.home[data-opening-complete="false"] {
+  height: 100svh;
+  overflow: hidden;
+}
+
+.home[data-entering="true"]::after { opacity: 1; }
+.home[data-entering="true"] .heroEntry,
+.home[data-entering="true"] .secondaryAction { opacity: 0; pointer-events: none; }
+
 .archiveBeat {
   background: var(--home-paper);
 }
@@ -88,6 +108,11 @@
 .soundtrackCopy > span {
   color: rgba(248, 241, 231, 0.42);
   font-size: 9px;
+}
+
+.soundtrackCopy[data-audio-error="true"] > span {
+  color: inherit;
+  font-size: 11px;
 }
 
 .soundtrackCopy strong {
@@ -214,16 +239,18 @@
 }
 
 .heroPrint figcaption {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 8px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 4px;
   padding: 9px 2px 0;
   font-size: 8px;
-  letter-spacing: 0.02em;
+  letter-spacing: 0;
 }
 
 .heroPrint figcaption strong {
+  min-width: 0;
+  line-height: 1.5;
+  overflow-wrap: break-word;
   color: var(--home-rose);
   font-family: var(--font-serif-elegant);
   font-size: 11px;
@@ -232,7 +259,8 @@
 
 .heroPrint figcaption span {
   color: rgba(54, 43, 44, 0.52);
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: break-word;
 }
 
 .heroCopy {
@@ -830,6 +858,15 @@
     font-size: 9px;
   }
 
+  .soundtrackCopy[data-audio-error="true"] > span {
+    display: block;
+    grid-column: 1 / -1;
+  }
+
+  .soundtrackCopy[data-audio-error="true"] strong {
+    display: none;
+  }
+
   .progressTrack {
     grid-column: 1 / -1;
   }
@@ -1073,6 +1110,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .home::after { transition: none; }
   .home [data-home-reveal],
   .timelineImage {
     transition-duration: 0.01ms;
@@ -1500,13 +1538,18 @@
 
   .heroScrapbook {
     top: 104px;
-    right: -12px;
-    width: 212px;
+    right: 14px;
+    width: 200px;
     height: 286px;
   }
 
   .heroPrintWorld {
     width: 88%;
+  }
+
+  .heroPrintPortrait,
+  .heroPrintRelic {
+    width: 76%;
   }
 
   .timelineIntro h2,
@@ -1597,6 +1640,50 @@
   filter: saturate(0.9) contrast(1.01);
 }
 
+.heroPrintDetail .heroPrintPhoto {
+  transform: scale(1.14);
+  object-position: 50% 44%;
+}
+
+.heroPrintWords {
+  top: 20%;
+  right: 0;
+  width: 92%;
+  transform: rotate(-2deg);
+}
+
+.heroPrintQuote {
+  display: grid;
+  min-height: 190px;
+  margin: 0;
+  padding: 16px 8px;
+  place-content: center;
+  color: var(--home-rose);
+  font-family: var(--font-serif-elegant);
+  font-size: 24px;
+  line-height: 1.7;
+  text-align: center;
+  text-wrap: balance;
+}
+
+.heroPrintPair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: end;
+  min-height: 190px;
+}
+
+.heroPrintPair img {
+  width: 100%;
+  height: auto;
+  max-height: 220px;
+  object-fit: contain;
+}
+
+.privateEntry[inert] {
+  opacity: 0.45;
+}
+
 .scrollCue {
   position: absolute;
   z-index: 4;
@@ -1661,6 +1748,12 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .home .heroPrint,
+  .heroBody,
+  .heroSweetLine {
+    transition: none;
+  }
+
   .scrollCue {
     animation: none;
   }

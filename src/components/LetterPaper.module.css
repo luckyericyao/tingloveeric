@@ -1,0 +1,40 @@
+.composer.composer, .letter.letter {
+  align-self: start;
+  border: 0;
+  border-bottom: 1px solid var(--archive-rose-soft);
+  border-radius: 2px;
+  background: var(--archive-paper);
+  box-shadow: 0 10px 30px rgb(42 32 34 / 5%);
+  padding: 32px;
+}
+.composer.composer h2 { font-size: 28px; line-height: 1.4; letter-spacing: 0; }
+.composer.composer textarea {
+  border: 0;
+  border-bottom: 1px solid var(--archive-line);
+  border-radius: 0;
+  background: transparent;
+  padding: 16px 0;
+  min-height: 240px;
+  font-family: var(--font-serif-elegant);
+  font-size: 18px;
+  line-height: 2;
+  resize: vertical;
+}
+.composer.composer textarea:focus-visible { outline: 2px solid var(--archive-rose); outline-offset: 6px; }
+.letter.letter > p:last-child {
+  font-family: var(--font-serif-elegant);
+  font-size: 20px;
+  line-height: 2;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 700px) {
+  .room.room h1 { font-size: 36px; }
+  .composer.composer, .letter.letter { padding: 24px 20px; }
+  .composer.composer h2 { font-size: 25px; }
+  .letter.letter > p:last-child { font-size: 18px; }
+}
+.room.room { background: var(--archive-paper); }
+.room.room h1 { font-size: 48px; line-height: 1.3; letter-spacing: 0; }
+.sharing.sharing { display: flex; flex-direction: row; align-items: center; gap: 8px; font-size: 13px; line-height: 1.6; }
+.sharing input { width: 16px; height: 16px; flex-shrink: 0; accent-color: var(--archive-rose); }

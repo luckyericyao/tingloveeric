@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import type { LoveNote } from "@/data/love";
+import styles from "./LetterPaper.module.css";
 
 type NoteComposerProps = {
   onAdd: (note: LoveNote) => void | Promise<void>;
@@ -20,9 +21,12 @@ export function NoteComposer({ onAdd, moodOptions }: NoteComposerProps) {
   const [saved, setSaved] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState("");
+  const requestId = useRef<string | null>(null);
+  const saving = useRef(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (saving.current) return;
     const trimmed = content.trim();
     if (!trimmed) {
       setError("先写下自己的话。");
@@ -32,9 +36,11 @@ export function NoteComposer({ onAdd, moodOptions }: NoteComposerProps) {
     setError("");
     setSaved(false);
     setIsSaving(true);
+    saving.current = true;
     try {
+      requestId.current ??= crypto.randomUUID();
       await onAdd({
-        id: `local-${Date.now()}`,
+        id: requestId.current,
         author: "Eric",
         date,
         mood: mood.trim() || undefined,
@@ -43,17 +49,20 @@ export function NoteComposer({ onAdd, moodOptions }: NoteComposerProps) {
         visibility: shared ? "shared" : "owner",
       });
       setContent("");
+      setShared(false);
       setSaved(true);
-    } catch {
-      setError("这句话没有收好，请稍后再试。");
+      requestId.current = null;
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "这句话没有收好，请稍后再试。");
     } finally {
+      saving.current = false;
       setIsSaving(false);
     }
   }
 
   return (
-    <form onSubmit={handleSubmit} className="archive-note-composer">
-      <p className="archive-kicker">留给自己的纸</p>
+    <form onSubmit={handleSubmit} className={`archive-note-composer ${styles.composer}`}>
+      <p className="archive-kicker">此刻 · Eric</p>
       <h2>今天想留下什么？</h2>
       <p className="archive-note-intro">
         一件真实发生过的小事，一句没有寄出的想念，或者今天突然想到的画面。
@@ -62,27 +71,28 @@ export function NoteComposer({ onAdd, moodOptions }: NoteComposerProps) {
         写下此刻
         <textarea
           value={content}
-          onChange={(event) => setContent(event.target.value)}
+          onChange={(event) => { setContent(event.target.value); setSaved(false); requestId.current = null; }}
           rows={6}
           maxLength={500}
+          disabled={isSaving}
           placeholder="写下一件真实的小事，或者一句只属于自己的话。"
         />
       </label>
       <div className="archive-note-fields">
         <label>
           日期
-          <input type="date" value={date} onChange={(event) => setDate(event.target.value)} />
+          <input type="date" value={date} disabled={isSaving} onChange={(event) => { setDate(event.target.value); requestId.current = null; setSaved(false); }} />
         </label>
         <label>
           这一刻
-          <select value={mood} onChange={(event) => setMood(event.target.value)}>
+          <select value={mood} disabled={isSaving} onChange={(event) => { setMood(event.target.value); requestId.current = null; setSaved(false); }}>
             {moodOptions.map((option) => <option key={option}>{option}</option>)}
           </select>
         </label>
       </div>
       <div className="archive-note-actions">
-        <label className="archive-note-label">
-          <input type="checkbox" checked={shared} onChange={(event) => setShared(event.target.checked)} />
+        <label className={styles.sharing}>
+          <input type="checkbox" checked={shared} disabled={isSaving} onChange={(event) => { setShared(event.target.checked); requestId.current = null; setSaved(false); }} />
           允许受邀者阅读这封信
         </label>
         <button type="submit" disabled={isSaving} className="archive-solid-button">

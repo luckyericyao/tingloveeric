@@ -8,7 +8,7 @@ export type CoordinateMemory = {
   alt: string;
   caption: string;
   kind: "portrait" | "relic" | "cat";
-  sourceLabel: "真实记录";
+  sourceLabel: "真实记录" | "猫咪角色肖像";
   focalPoint?: string;
 };
 
@@ -51,10 +51,10 @@ export const coordinateMemories = [
     title: "诺诺 · Nono",
     date: "她的小世界",
     source: "/assets/cats/nono-front.webp",
-    alt: "灰白重点色猫咪诺诺的正面肖像",
+    alt: "根据诺诺外貌生成的灰白重点色猫咪角色肖像",
     caption: "脸部和耳朵有明显的灰色重点色。更活泼，也更像故事里那个有点顽皮的角色。",
     kind: "cat",
-    sourceLabel: "真实记录",
+    sourceLabel: "猫咪角色肖像",
     focalPoint: "50% 36%",
   },
   {
@@ -62,10 +62,10 @@ export const coordinateMemories = [
     title: archiveContent.cats.xiaoye.nameZh,
     date: "她的小世界",
     source: "/assets/cats/xiaoye-front.webp",
-    alt: "银白色长毛猫小yeah的正面肖像",
+    alt: "根据小yeah外貌生成的银白色长毛猫角色肖像",
     caption: `${archiveContent.cats.xiaoye.shortAppearance}安静、柔软，像一束落在房间里的冷光。`,
     kind: "cat",
-    sourceLabel: "真实记录",
+    sourceLabel: "猫咪角色肖像",
     focalPoint: "50% 48%",
   },
 ] satisfies CoordinateMemory[];
@@ -76,42 +76,14 @@ export const originalCoordinates = {
   opening: archiveContent.firstCoordinates.opening,
   tenderMoments: {
     eyebrow: "Eric 的感受",
-    title: "甜蜜的瞬间",
-    lead: "那段时间，陌生慢慢有了温度。",
+    title: archiveContent.tenderMoments.title,
+    lead: archiveContent.tenderMoments.lead,
     paragraphs: [
       "有一段时间，我会在纸上反复写她的名字，认真帮她修改简历，也会把工作、吃饭、聚会和一天里琐碎的事情讲给她听。",
-      "我们有过短暂的通话，会互道晚安。我表达想念，她也会用“明天听你分享”“真棒”“晚安～”和可爱的表情，回应那些普通的日常。",
+      "我们有过短暂的通话，会互道晚安。我表达想念，她也曾用几句简单的话、一个可爱的表情，回应那些普通的日常。",
     ],
-    replies: ["明天听你分享。", "真棒。", "晚安～"],
+    replies: [...archiveContent.tenderMoments.replies],
     closing:
-      "这些很小的回应不能替整段关系下定义，也不是正式关系的证明。但它们真实发生过，所以值得被留下。",
+      "后来很多事情改变了。但当时的温柔，不需要因为结局而被否定。",
   },
-  lastMeeting: {
-    eyebrow: "最后一次见面 · 真实记录与 Eric 的感受",
-    title: "行李与分量",
-    lead: "那是我们最后一次见面。它没有被写成一个解释，只被保存为一段具体的路。",
-    route: ["欧洲", "广州"],
-    facts: [
-      "我从欧洲飞到广州见她。",
-      "途中有一件行李舍不得拿，后来又花了两个小时回头取。",
-      "她已经在机场等我，接到我后，很着急地带我离开机场。",
-    ],
-    feeling:
-      "有些东西我还舍不得放下，可我在她那里，已经没有那么重了。",
-    note:
-      "这是 Eric 当时感受到的分量，不替她解释，也不把一次见面当成她全部的心意。",
-  },
-  change: {
-    eyebrow: "Eric 的感受 · 后来关系重新归零",
-    title: "变化之后",
-    paragraphs: [
-      "后来我们失去了联系。她把之前的钱全部还给了我，旧的金钱关系就此结束。",
-      "我也承认，过去试图用金钱制造吸引，并不是平等地认识一个人的方式。钱被归还，不代表谁因此获得了一次重新开始的权利。",
-      "最后一次交流以后，我减重了四十多斤，也重新建立了自己的身体、生活和掌控感。这些改变由我完成，不需要由她回来证明。",
-    ],
-    future:
-      "如果未来还有一次自然相遇，我们可以作为两个自由、独立的人，重新判断彼此是否合适；如果没有，也不替故事虚构结局。",
-  },
-  closing:
-    "我不再试图购买一个结局。我只是成为了一个更好的自己，并把未来重新交还给选择。",
 };

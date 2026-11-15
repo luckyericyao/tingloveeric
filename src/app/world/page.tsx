@@ -41,7 +41,7 @@ export default async function WorldPage() {
             <a key={room.id} href={room.href} className={`${styles.roomLink} ${styles[room.accent]}`}>
               <span>{room.sticker}</span>
               <strong>{room.title}</strong>
-              <small>{room.body}</small>
+              <small>{!canEdit && room.guestBody ? room.guestBody : room.body}</small>
             </a>
           ))}
         </div>

@@ -29,6 +29,7 @@ export async function runKvCommand<T>(command: Array<string | number>) {
     },
     body: JSON.stringify(command),
     cache: "no-store",
+    signal: AbortSignal.timeout(10000),
   });
 
   if (!response.ok) {

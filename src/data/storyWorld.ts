@@ -182,7 +182,7 @@ export const storyWorld = {
     {
       id: "ordinary-future",
       index: "05",
-      label: "未来的普通日子",
+      label: "我向往的普通日子",
       position: [9.7, 0, -2.6],
       camera: [11.1, 3, 5.4],
       lookAt: [9.7, 1.5, -3],
@@ -215,10 +215,10 @@ export const storyWorld = {
       id: "a-quiet-frame",
       start: 48,
       chapterIndex: 2,
-      title: "",
-      body: "",
-      source: "真实记录",
-      visual: "guangzhou",
+      title: "有一件行李，我舍不得就这样放下。",
+      body: "途中又花了两个小时回头去取。那是我记住的分量。",
+      source: "Eric 的感受",
+      visual: "night",
     },
     {
       id: "space-between",

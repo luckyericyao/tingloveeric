@@ -208,9 +208,11 @@
 
 .tenderBand {
   padding: 150px 28px;
-  border-bottom: 1px solid rgba(243, 237, 227, 0.09);
-  background: #0d0c12;
+  border-bottom: 1px solid var(--archive-line);
+  background: var(--archive-paper);
+  color: var(--archive-ink);
 }
+.tenderBand .eyebrow { color: var(--archive-rose); }
 
 .tenderInner {
   display: grid;
@@ -236,7 +238,7 @@
 .tenderHeading > p:not(.eyebrow) {
   max-width: 290px;
   margin: 30px 0 0;
-  color: rgba(243, 237, 227, 0.46);
+  color: var(--archive-muted);
   font-size: 14px;
   line-height: 2;
 }
@@ -247,7 +249,7 @@
 
 .tenderStory > p {
   margin: 0;
-  color: rgba(243, 237, 227, 0.66);
+  color: var(--archive-ink);
   font-size: 16px;
   line-height: 2.15;
 }
@@ -260,8 +262,9 @@
   display: grid;
   margin: 48px 0 42px;
   padding: 32px 0;
-  border-top: 1px solid rgba(196, 164, 107, 0.3);
-  border-bottom: 1px solid rgba(196, 164, 107, 0.3);
+  border-top: 1px solid var(--archive-rose-soft);
+  border-bottom: 1px solid var(--archive-rose-soft);
+  color: var(--archive-rose);
   gap: 18px;
 }
 
@@ -272,7 +275,7 @@
 }
 
 .tenderStory > .tenderClosing {
-  color: rgba(243, 237, 227, 0.42);
+  color: var(--archive-muted);
   font-size: 13px;
   line-height: 2;
 }
@@ -663,9 +666,17 @@
   z-index: 80;
   inset: 0;
   display: grid;
-  place-items: center;
-  padding: 30px 80px 76px;
-  background: rgba(3, 4, 8, 0.96);
+  grid-template-rows: minmax(0, 1fr) auto;
+  justify-items: center;
+  width: 100%;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  border: 0;
+  padding: 60px 80px 28px;
+  background: var(--archive-ink);
+  color: var(--archive-paper);
 }
 
 .viewerBackdrop {
@@ -680,7 +691,9 @@
   position: relative;
   z-index: 2;
   width: min(88vw, 760px);
-  height: min(82svh, 1080px);
+  height: 100%;
+  min-height: 0;
+  touch-action: pan-y pinch-zoom;
 }
 
 .viewerImage {
@@ -720,17 +733,16 @@
 }
 
 .viewerCaption {
-  position: absolute;
+  position: relative;
   z-index: 3;
-  bottom: 26px;
-  left: 50%;
-  display: flex;
-  width: min(600px, calc(100% - 150px));
-  align-items: center;
-  justify-content: center;
-  gap: 18px;
-  transform: translateX(-50%);
+  display: grid;
+  width: min(600px, 100%);
+  text-align: center;
+  gap: 8px;
+  padding-top: 20px;
 }
+.viewerCaption p { font-size: 14px; line-height: 1.8; text-wrap: pretty; }
+.viewer button:focus-visible { outline: 2px solid var(--archive-rose-soft); outline-offset: 4px; }
 
 .viewerCaption span {
   color: rgba(196, 164, 107, 0.76);
@@ -1016,12 +1028,12 @@
   }
 
   .viewer {
-    padding: 64px 14px 88px;
+    padding: 64px 20px 80px;
   }
 
   .viewerFrame {
-    width: 94vw;
-    height: 76svh;
+    width: 100%;
+    height: 100%;
   }
 
   .viewerClose {
@@ -1044,16 +1056,12 @@
   }
 
   .viewerCaption {
-    bottom: 32px;
-    width: calc(100% - 130px);
+    width: 100%;
     gap: 10px;
   }
 
   .viewerCaption strong {
-    max-width: 190px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    white-space: normal;
   }
 }
 

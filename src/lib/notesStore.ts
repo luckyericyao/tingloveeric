@@ -2,12 +2,20 @@ import type { LoveNote } from "@/data/love";
 import { getKvConfig, runKvCommand } from "@/lib/kvRest";
 
 const notesKey = "tingloveeric:notes";
+const entriesKey = "tingloveeric:notes:v2";
 
-type GlobalNotesStore = typeof globalThis & {
-  __tingLoveNotes?: LoveNote[];
-};
+type StoredEntry = { note: LoveNote; savedAt: number };
+
+export class NotesStorageUnavailable extends Error {
+  constructor() { super("Letter storage is not configured"); }
+}
+
+export class NoteIdentityConflict extends Error {
+  constructor() { super("This letter identity is already in use"); }
+}
 
 export function isLoveNote(value: unknown): value is LoveNote {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
   const note = value as Partial<LoveNote>;
   return (
     typeof note.id === "string" &&
@@ -24,51 +32,57 @@ export function isLoveNote(value: unknown): value is LoveNote {
 }
 
 export function sanitizeNotes(value: unknown) {
-  return Array.isArray(value) ? value.filter(isLoveNote).slice(0, 100) : [];
-}
-
-function memoryNotes() {
-  const notesGlobal = globalThis as GlobalNotesStore;
-
-  if (!notesGlobal.__tingLoveNotes) {
-    notesGlobal.__tingLoveNotes = [];
-  }
-
-  return notesGlobal.__tingLoveNotes;
+  return Array.isArray(value) ? value.filter(isLoveNote) : [];
 }
 
 export function notesPersistenceMode() {
-  return getKvConfig() ? "redis" : "memory";
+  return getKvConfig() ? "redis" : "unavailable";
 }
 
 export async function getNotes() {
-  if (!getKvConfig()) {
-    return [...memoryNotes()];
-  }
+  if (!getKvConfig()) throw new NotesStorageUnavailable();
 
+  // Read the legacy archive without migrating, truncating, or overwriting it.
   const saved = await runKvCommand<string | null>(["GET", notesKey]);
-  if (!saved) {
-    await runKvCommand<string>(["SET", notesKey, JSON.stringify([])]);
-    return [];
+  const legacy: unknown = saved === null ? [] : JSON.parse(saved);
+  if (!Array.isArray(legacy)) throw new Error("Invalid legacy letter archive");
+  const values = await runKvCommand<string[]>(["HGETALL", entriesKey]);
+  if (!Array.isArray(values) || values.length % 2 !== 0 || values.some(value => typeof value !== "string")) {
+    throw new Error("Invalid letter storage response");
   }
-
-  return sanitizeNotes(JSON.parse(saved) as unknown);
-}
-
-export async function saveNotes(value: unknown) {
-  const nextNotes = sanitizeNotes(value);
-
-  if (!getKvConfig()) {
-    const notesGlobal = globalThis as GlobalNotesStore;
-    notesGlobal.__tingLoveNotes = nextNotes;
-    return nextNotes;
+  const entries: StoredEntry[] = [];
+  for (let index = 1; index < values.length; index += 2) {
+    const entry: unknown = JSON.parse(values[index]);
+    if (!entry || typeof entry !== "object" || !("note" in entry) || !("savedAt" in entry) ||
+      !isLoveNote(entry.note) || typeof entry.savedAt !== "number" || !Number.isFinite(entry.savedAt)) {
+      throw new Error("Invalid stored letter");
+    }
+    entries.push(entry as StoredEntry);
   }
-
-  await runKvCommand<string>(["SET", notesKey, JSON.stringify(nextNotes)]);
-  return nextNotes;
+  entries.sort((left, right) => right.savedAt - left.savedAt || left.note.id.localeCompare(right.note.id));
+  const notes = new Map<string, LoveNote>();
+  for (const note of [...entries.map(entry => entry.note), ...sanitizeNotes(legacy)]) {
+    if (!notes.has(note.id)) notes.set(note.id, note);
+  }
+  return [...notes.values()];
 }
 
 export async function addNote(note: LoveNote) {
-  const notes = await getNotes();
-  return saveNotes([note, ...notes]);
+  if (!getKvConfig()) throw new NotesStorageUnavailable();
+  if (!isLoveNote(note)) throw new Error("Invalid letter");
+  // One native atomic insert per letter avoids whole-array lost updates.
+  const inserted = await runKvCommand<number>([
+    "HSETNX", entriesKey, note.id, JSON.stringify({ note, savedAt: Date.now() }),
+  ]);
+  if (inserted === 0) {
+    const existing = await runKvCommand<string | null>(["HGET", entriesKey, note.id]);
+    const stored = existing ? JSON.parse(existing) as StoredEntry : null;
+    const sameNote = stored && ["author", "date", "content", "mood", "visibility", "source"].every(
+      field => stored.note[field as keyof LoveNote] === note[field as keyof LoveNote],
+    );
+    if (!sameNote) throw new NoteIdentityConflict();
+  } else if (inserted !== 1) {
+    throw new Error("Letter storage did not confirm the insert");
+  }
+  return getNotes();
 }

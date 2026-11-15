@@ -3,7 +3,8 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { ProfileSection } from "@/components/ProfileSection";
 import { ProfileThemePlayer } from "@/components/ProfileThemePlayer";
-import { profileHim, profileHimImages } from "@/data/love";
+import { profileHimImages } from "@/data/love";
+import { profileHim } from "@/data/ownerContent";
 
 export const metadata: Metadata = {
   title: "Eric · 后来发生的变化 | Ting 与 Eric",

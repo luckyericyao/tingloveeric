@@ -5,6 +5,8 @@ import {
   addNote,
   getNotes,
   notesPersistenceMode,
+  NoteIdentityConflict,
+  NotesStorageUnavailable,
 } from "@/lib/notesStore";
 import { viewerSession } from "@/lib/serverAccess";
 import { sameOrigin } from "@/lib/sameOrigin";
@@ -12,6 +14,7 @@ import { sameOrigin } from "@/lib/sameOrigin";
 export const runtime = "nodejs";
 
 type NotePayload = {
+  id?: unknown;
   author?: unknown;
   date?: unknown;
   mood?: unknown;
@@ -42,7 +45,10 @@ export async function GET() {
   try {
     const notes = await getNotes();
     return NextResponse.json({ notes: session.role === "owner" ? notes : notes.filter((note) => note.visibility === "shared"), persistence: notesPersistenceMode() }, { headers: { "Cache-Control": "private, no-store" } });
-  } catch {
+  } catch (error) {
+    if (error instanceof NotesStorageUnavailable) {
+      return NextResponse.json({ message: "信件暂时无法读取，稍后再来看看。", persistence: "unavailable" }, { status: 503 });
+    }
     return NextResponse.json({ message: "小纸条暂时没有打开成功，等一下再试试。" }, { status: 500 });
   }
 }
@@ -57,11 +63,22 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: "作者、日期和小纸条内容都要填好。" }, { status: 400 });
   }
 
+  if (payload?.id !== undefined && (typeof payload.id !== "string" ||
+    !/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(payload.id))) {
+    return NextResponse.json({ message: "这封信的标记无效，请刷新后再试。" }, { status: 400 });
+  }
+
   try {
-    const note: LoveNote = { id: randomUUID(), ...input };
+    const note: LoveNote = { id: typeof payload?.id === "string" ? payload.id : randomUUID(), ...input };
     const notes = await addNote(note);
     return NextResponse.json({ note, notes, persistence: notesPersistenceMode() }, { status: 201 });
-  } catch {
+  } catch (error) {
+    if (error instanceof NotesStorageUnavailable) {
+      return NextResponse.json({ message: "长期保存尚未启用。文字仍在输入框里，请先不要关闭页面。" }, { status: 503 });
+    }
+    if (error instanceof NoteIdentityConflict) {
+      return NextResponse.json({ message: "这封信已被保存为不同内容。请保留文字，刷新后再试。" }, { status: 409 });
+    }
     return NextResponse.json({ message: "小纸条暂时没有保存成功，等一下再试试。" }, { status: 500 });
   }
 }
