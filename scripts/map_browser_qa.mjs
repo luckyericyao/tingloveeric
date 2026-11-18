@@ -5,7 +5,7 @@ import { randomBytes } from 'node:crypto';
 import { writeFileSync } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { chromium } from 'playwright-core';
-import { checkAudioJourney } from './audio_browser_checks.mjs';
+import { checkAudioJourney, checkAudioRoutes } from './audio_browser_checks.mjs';
 import { checkFilmComposition } from './film_composition_checks.mjs';
 import { checkFilmFallback } from './film_fallback_checks.mjs';
 import { checkAudioRecovery, checkManualAudioResume, checkOpeningAudioRecovery } from './audio_recovery_checks.mjs';
@@ -66,7 +66,16 @@ try {
     console.log('PASS first paint: opening remains one screen with site JavaScript disabled');
   }
   for (const viewport of viewports) {
-    const context = await browser.newContext({ viewport, isMobile: viewport.width === 390, hasTouch: viewport.width === 390 });
+    const options = { viewport, isMobile: viewport.width === 390, hasTouch: viewport.width === 390 };
+    if (process.env.QA_AUDIO_ROUTES === '1') {
+      const visitor = await browser.newContext(options);
+      try {
+        await checkAudioRoutes(await visitor.newPage(), origin, passcode);
+      } finally {
+        await visitor.close();
+      }
+    }
+    const context = await browser.newContext(options);
     const auth = await context.request.post(`${origin}/api/passcode`, { headers: { Origin: origin }, data: { passcode } });
     assert.equal(auth.status(), 200);
     if (process.env.QA_OPENING === '1') await checkOpening(context, origin, output, viewport.width);
@@ -351,7 +360,7 @@ try {
   const result = {
     status: failure ? 'failed' : 'passed', startedAt, finishedAt: new Date().toISOString(), buildId,
     viewports: viewports.map(viewport => `${viewport.width}x${viewport.height}`), error: failure,
-    checks: Object.fromEntries(['OPENING', 'LETTERS', 'CATS', 'VIEWER', 'ROOMS', 'PHOTO', 'AUDIO', 'AUDIO_MOBILE', 'FULL_FILM', 'RECOVERY', 'FILM', 'FALLBACK', 'MAP_WRITES'].map(key => [key, process.env[`QA_${key}`] === '1'])),
+    checks: Object.fromEntries(['OPENING', 'LETTERS', 'CATS', 'VIEWER', 'ROOMS', 'PHOTO', 'AUDIO', 'AUDIO_ROUTES', 'AUDIO_MOBILE', 'FULL_FILM', 'RECOVERY', 'FILM', 'FALLBACK', 'MAP_WRITES'].map(key => [key, process.env[`QA_${key}`] === '1'])),
   };
   await writeFile(`${output}/result.json`, JSON.stringify({ ...result, cleanup: 'pending' }, null, 2));
   const deadline = setTimeout(() => {

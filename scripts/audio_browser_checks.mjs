@@ -1,6 +1,54 @@
 import assert from 'node:assert/strict';
 import { appendFile, writeFile } from 'node:fs/promises';
 
+export async function checkAudioRoutes(page, origin, passcode) {
+  const opening = '/audio/jiu-shi-ai-ni.m4a';
+  const story = '/audio/wo-shi-yi-zhi-yu.m4a';
+  const requested = [];
+  page.on('request', request => {
+    const url = new URL(request.url());
+    if (url.origin === origin && url.pathname.startsWith('/audio/')) requested.push(url.pathname);
+  });
+
+  await page.goto(`${origin}/world`, { waitUntil: 'networkidle' });
+  assert.equal(new URL(page.url()).pathname, '/enter');
+  assert.equal(new URL(page.url()).searchParams.get('next'), '/world');
+  assert.equal(await page.locator('audio').getAttribute('src'), null);
+  assert.deepEqual(requested, [], 'guest entry does not load a soundtrack');
+
+  await page.getByLabel('小暗号').fill(passcode);
+  await page.getByRole('button', { name: '打开小世界' }).click();
+  await page.waitForURL(`${origin}/world`, { waitUntil: 'networkidle' });
+  assert.equal(await page.locator('audio').getAttribute('src'), null);
+  assert.deepEqual(requested, [], 'the requested room opens quietly after login');
+
+  await page.getByRole('link', { name: '回到首页' }).click();
+  await page.waitForURL(`${origin}/`);
+  const hero = page.getByRole('heading', { name: '甜蜜的瞬间', exact: true });
+  await hero.click();
+  await page.waitForFunction(source => {
+    const audio = document.querySelector('audio');
+    return audio?.getAttribute('src') === source && audio.currentTime > .25 && !audio.paused;
+  }, opening);
+  assert.deepEqual([...new Set(requested)], [opening]);
+  assert.equal(await page.getByRole('link', { name: '进入故事', exact: true }).count(), 0);
+
+  // Simulate a saved position for a cold film refresh, not an opening bypass.
+  await page.evaluate(() => {
+    sessionStorage.setItem('archive.prelude.complete', 'true');
+    sessionStorage.setItem('archive.film.requested', 'true');
+    sessionStorage.setItem('archive.film.time', '32');
+  });
+  requested.length = 0;
+  await page.goto(`${origin}/cinema`, { waitUntil: 'domcontentloaded' });
+  await page.waitForFunction(source => {
+    const audio = document.querySelector('audio');
+    return audio?.getAttribute('src') === source && audio.readyState >= 2 && audio.currentTime >= 32;
+  }, story);
+  assert.deepEqual([...new Set(requested)], [story], 'cold film resume never preloads the opening song');
+  console.log(`PASS audio routes ${page.viewportSize().width}px: quiet login and map, opening through client navigation, story-only refresh`);
+}
+
 export async function checkAudioJourney(context, origin, output) {
   const page = await context.newPage();
   const journal = `${output}/natural-${page.viewportSize().width}.jsonl`;

@@ -51,6 +51,7 @@ export function StoryAudioDirector({ children }: { children: React.ReactNode }) 
   const openingUnlockCleanupRef = useRef<(() => void) | null>(null);
   const fadeFrameRef = useRef<number | null>(null);
   const fadeResolveRef = useRef<(() => void) | null>(null);
+  const [initialSource] = useState(() => pathname === "/" ? tracks.opening.src : undefined);
   const [activeTrackId, setActiveTrackId] = useState<StoryTrackId>("opening");
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -115,7 +116,7 @@ export function StoryAudioDirector({ children }: { children: React.ReactNode }) 
       return;
     }
 
-    if (activeTrackIdRef.current !== "opening") {
+    if (activeTrackIdRef.current !== "opening" || audio.getAttribute("src") !== tracks.opening.src) {
       activeTrackIdRef.current = "opening";
       setActiveTrackId("opening");
       setCurrentTime(0);
@@ -310,7 +311,7 @@ export function StoryAudioDirector({ children }: { children: React.ReactNode }) 
       <audio
         ref={audioRef}
         className="story-audio-director"
-        src={tracks.opening.src}
+        src={initialSource}
         preload="auto"
         playsInline
         aria-label={`${activeTrack.title} · ${activeTrack.artist}`}

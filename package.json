@@ -10,6 +10,7 @@
     "qa:story": "QA_AUDIO=1 QA_FULL_FILM=1 node scripts/map_browser_qa.mjs",
     "qa:story:mobile": "QA_AUDIO=1 QA_AUDIO_MOBILE=1 QA_FULL_FILM=1 node scripts/map_browser_qa.mjs",
     "qa:recovery": "QA_RECOVERY=1 node scripts/map_browser_qa.mjs",
+    "qa:audio-routes": "QA_AUDIO_ROUTES=1 node scripts/map_browser_qa.mjs",
     "qa:fallback": "QA_FALLBACK=1 node scripts/map_browser_qa.mjs",
     "qa:map-writes": "QA_MAP_WRITES=1 node scripts/map_browser_qa.mjs",
     "qa:opening": "QA_OPENING=1 node scripts/map_browser_qa.mjs",

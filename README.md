@@ -1,9 +1,8 @@
 # Ting & Eric
 
 A private, cinematic relationship archive built with Next.js, React Three Fiber,
-and Three.js. The homepage opens directly into a sweet, scrollable editorial
-timeline; the real-time 3D night garden lives at `/cinema` and can be followed
-from the prologue through seven story chapters.
+and Three.js. After the passcode, the homepage plays a 60-second opening. The
+visitor can then enter the six-chapter film or browse the archive.
 
 ## Run locally
 
@@ -12,7 +11,8 @@ npm install
 npm run dev
 ```
 
-Open `http://localhost:3000`.
+Open `http://localhost:3000`. The passcode gate requires local server settings;
+see [Private features](#private-features).
 
 This repository was scaffolded with pnpm, so these commands also work:
 
@@ -80,10 +80,10 @@ Its five optimized source images are in `public/images/coordinates/`. The first 
 
 ## Music
 
-The homepage starts **就是爱你** and keeps the player available while the
-visitor scrolls. The cinematic story playlist is configured in
-`src/data/storyWorld.ts`: its opening screen attempts the same song, then
-clicking **进入故事** switches to **我是一只鱼**. Place properly licensed audio
+The homepage attempts **就是爱你** and offers a play button when the browser
+requires a gesture. After 60 seconds of playback, **进入故事** opens `/cinema`
+and switches to **我是一只鱼**. A cold film resume loads only the film track;
+the entry and rooms do not preload either song. Place properly licensed audio
 in `public/audio/`, mark installed tracks as `available: true`, and see
 `public/audio/README.md` for the exact filenames.
 Profile-specific music can use the same optimized audio directory; Eric's
@@ -92,10 +92,11 @@ story playlist.
 
 ## Controls
 
-- Gently scroll, swipe up, click the empty scene, or use the next button to start a chapter timeline.
-- Cat, butterfly, and memory-object clicks are optional easter eggs and never block the story.
-- The top controls provide playlist playback, skip, mute, volume, and a lower-power render mode when music is installed.
-- `prefers-reduced-motion` automatically disables camera drift and switches to the simplified scene.
+- The opening cannot be scrolled or skipped in a fresh viewing session.
+- Film chapters advance with the track; interacting with either cat is optional.
+- The film controls pause, resume, mute, and exit. The map link appears at the end.
+- Reduced motion simplifies the scene. If the 3D scene cannot load or loses its
+  context, an existing still image replaces it without restarting the track.
 
 ## Archive content
 
@@ -121,27 +122,19 @@ Edit these exports in `src/data/love.ts` to update the supporting routes:
 - `seedNotes`: initial note cards
 - `futureLetters`: future letters section on `/notes`
 
-## Notes behavior
-
-The `/notes` page lets the two people add personal notes, with quick prompts
-for a good-night, missing-you, or hug note. New notes are mirrored to
-`localStorage` and synced through the protected `/api/notes` route. With KV
-configured they are shared across devices; otherwise the room explains that
-the fallback is temporary.
-
 ## Private features
 
-The `/world` page lets the two people edit visited places, add future wishes,
-restore seeded records, and remove custom pins. Changes are mirrored to
-`localStorage` for offline continuity and synced through `/api/world/places`.
-With KV configured, both people see the same map across devices; without it,
-local development falls back to temporary server memory and the page explains
-that limitation.
+The archive and its media require a signed viewer session. Configure
+`LOVE_SITE_PASSCODE` (at least 8 characters) and `LOVE_SESSION_SECRET` (at least
+32 characters). A separate `LOVE_OWNER_PASSCODE` (at least 12 characters) enables
+the owner room and editors. There is no built-in passcode. Keep the values in
+server settings or an ignored local environment file, never in Git.
 
-The `/board` page uses `/api/board/messages` and mirrors custom messages to
-`localStorage` as a device-level fallback, so a temporary API failure does not
-silently lose a newly written sentence. For persistent production storage,
-set Vercel KV or Upstash Redis REST variables:
+The owner can write letters in `/notes`; visitors can read only letters
+explicitly shared with them. Map edits in `/world` require explicit saving and
+a current revision. Failed or conflicting saves leave the current input in
+place. Without Redis, the editors cannot confirm a durable save. To configure
+persistent storage locally, set Vercel KV or Upstash Redis REST variables:
 
 ```bash
 KV_REST_API_URL=
@@ -155,24 +148,14 @@ UPSTASH_REDIS_REST_URL=
 UPSTASH_REDIS_REST_TOKEN=
 ```
 
-Without those variables, the board uses server memory during the current
-process and keeps a local browser mirror for the device that wrote the
-message. Cross-device persistence still requires KV.
-The world map uses the same KV variables and stores its edits under a separate
-key. The protected API routes require the same `love_site_unlocked` cookie as
-the private pages.
-
 The `/world` view uses local vector data from `world-atlas` for the world map
 and `us-atlas` for the United States state map. It supports drag and wheel or
 touchpad zooming, zoom controls, world/US view switching, selectable markers,
 and the existing place editor without loading external map tiles.
 
-The public archive homepage, `/coordinates`, and `/cinema` stay directly viewable.
-The private room hub is `/private`; its child rooms (`/world`, `/board`, `/notes`,
-`/achievements`, `/her`, `/him`, and `/story`) use the same passcode gate. The
-local fallback passcode is `5599`; set
-`LOVE_SITE_PASSCODE` in deployment to replace it without putting the value in
-the client bundle.
+The application gate does not make files already published in a public Git
+repository private. Do not add private source records, raw screenshots or
+secrets to Git.
 
 ## Project structure
 
