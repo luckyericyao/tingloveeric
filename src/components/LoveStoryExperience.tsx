@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Pause, Play, Volume2, VolumeX, X } from "lucide-react";
+import { ArrowRight, Pause, Play, RotateCcw, Volume2, VolumeX, X } from "lucide-react";
 import { Component, useCallback, useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { storyVisuals, storyWorld, type StoryBeat, type StoryVisualId } from "@/data/storyWorld";
 import { useStoryAudio } from "@/components/StoryAudioDirector";
@@ -87,6 +87,7 @@ export function LoveStoryExperience() {
   const chapter = storyWorld.chapters[beat.chapterIndex];
   const completed = audio.endedTrack === "story";
   const paused = !audio.playing || audio.buffering;
+  const playbackLabel = completed ? "从头重播" : paused ? "继续放映" : "暂停放映";
   const state: StoryPlaybackState = completed ? "completed" : filmTime - beat.start < 1.6 ? "transitioning" : "playing";
 
   useEffect(() => {
@@ -149,7 +150,7 @@ export function LoveStoryExperience() {
         <div className={styles.brand}><span><strong>Ting & Eric</strong><span className={styles.brandSubtitle}>{chapter.label}</span></span></div>
         <div className={styles.filmControls}>
           {started && sceneReady ? <>
-            <button aria-label={paused ? "继续放映" : "暂停放映"} title={paused ? "继续放映" : "暂停放映"} onClick={() => void audio.togglePlayback()}>{paused ? <Play size={18} /> : <Pause size={18} />}</button>
+            <button aria-label={playbackLabel} title={playbackLabel} onClick={() => void audio.togglePlayback()}>{completed ? <RotateCcw size={18} /> : paused ? <Play size={18} /> : <Pause size={18} />}</button>
             <button aria-label={audio.muted ? "取消静音" : "静音"} title={audio.muted ? "取消静音" : "静音"} onClick={audio.toggleMute}>{audio.muted ? <VolumeX size={18} /> : <Volume2 size={18} />}</button>
           </> : null}
           <Link href="/" aria-label="退出放映，进度会保留" title="退出放映，进度会保留" onClick={audio.pause}><X size={18} /></Link>

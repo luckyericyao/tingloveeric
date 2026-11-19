@@ -94,7 +94,8 @@ story playlist.
 
 - The opening cannot be scrolled or skipped in a fresh viewing session.
 - Film chapters advance with the track; interacting with either cat is optional.
-- The film controls pause, resume, mute, and exit. The map link appears at the end.
+- The film controls pause, resume, mute, and exit. At the end, the visitor can
+  replay the film or continue to the map.
 - Reduced motion simplifies the scene. If the 3D scene cannot load or loses its
   context, an existing still image replaces it without restarting the track.
 

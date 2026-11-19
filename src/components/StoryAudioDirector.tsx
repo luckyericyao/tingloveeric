@@ -317,6 +317,8 @@ export function StoryAudioDirector({ children }: { children: React.ReactNode }) 
         aria-label={`${activeTrack.title} · ${activeTrack.artist}`}
         onPlay={(event) => {
           openingUnlockCleanupRef.current?.();
+          setEndedTrack(null);
+          setCurrentTime(event.currentTarget.currentTime);
           setPlaying(true);
           setBuffering(event.currentTarget.readyState < HTMLMediaElement.HAVE_CURRENT_DATA);
           setNeedsGesture(false);

@@ -125,11 +125,29 @@ export async function checkAudioRecovery(context, origin, output = '.audit/curre
   assert.equal(await ending.evaluate(el => getComputedStyle(el).opacity), '1', 'ending link is not trapped in paused entrance animation');
   assert.equal(await ending.evaluate(el => el.getAnimations().length), 0);
   await page.screenshot({ path: `${output}/ending-${page.viewportSize().width}.png` });
+
+  const audio = page.locator('audio');
+  const storySource = await audio.getAttribute('src');
+  await page.getByRole('button', { name: '静音', exact: true }).click();
+  await page.getByRole('button', { name: '从头重播', exact: true }).click();
+  await page.waitForFunction(() => {
+    const sound = document.querySelector('audio');
+    const film = document.querySelector('main');
+    return sound && !sound.paused && sound.currentTime > .25 && sound.currentTime < 5 &&
+      film?.dataset.playback !== 'completed' && film?.dataset.chapter === '0';
+  });
+  assert.equal(await audio.getAttribute('src'), storySource);
+  assert.ok(await audio.evaluate(el => el.muted), 'replay keeps intentional mute');
+  assert.equal(await ending.count(), 0, 'the map does not appear during the replay');
+  await page.getByRole('button', { name: '取消静音', exact: true }).click();
+  await audio.evaluate(el => { el.currentTime = el.duration - .8; });
+  await ending.waitFor({ timeout: 15000 });
+  assert.equal(await page.locator('main').getAttribute('data-playback'), 'completed');
   await ending.click();
   await page.waitForURL('**/world');
   assert.ok(await page.locator('audio').evaluate(audio => audio.paused));
   await page.close();
-  console.log('PASS recovery and ending: retry, paused canvas/subtitles, reduced motion, visible map exit after actual ended event');
+  console.log('PASS recovery, ending and replay: frozen pause, reduced motion, synchronized restart, mute retained and map after completion');
 
   const stalled = await context.newPage();
   const held = [];
