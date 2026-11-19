@@ -183,8 +183,19 @@ If you use pnpm:
 pnpm build
 ```
 
-Run the browser-based visual and interaction checks against a running dev server:
+After building, run the browser checks against an isolated local server:
 
 ```bash
 pnpm qa:visual
 ```
+
+After Vercel deploys `main`, verify the exact published commit with:
+
+```bash
+npm run qa:production -- <full-commit-sha>
+```
+
+The command checks GitHub's Production deployment record and the live site's
+anonymous redirects, media, and cache headers. It requires no credentials,
+makes no writes to production, and records a local result in
+`.audit/production/`. It does not substitute for signed-in browser QA.
